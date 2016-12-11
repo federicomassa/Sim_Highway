@@ -1,0 +1,65 @@
+
+#ifndef VEHICLE_H
+#define VEHICLE_H
+
+#include "ReputationManager.h"
+#include "MonitorLayer.h"
+
+class Vehicle
+{
+    friend class Image;
+    Automaton automaton;
+    PhysicalLayer pLayer;
+    MonitorLayer mLayer;
+    ReputationManager repMan;
+    int idx;
+    /* set reputation manager's current parameters */
+    void setRM();
+public:
+    /* constructor */
+    Vehicle() { idx = -1; }
+    /* destructor */
+    ~Vehicle() { }
+    /* initialization */
+    void init(const State&, const Parms&);
+    /* set vehicle identifier */
+    void setID(int index)
+    {
+        idx = index;
+        automaton.setID(index);
+        mLayer.setID(index);
+    }
+    /* initialize the reputation manager */
+    void initRM(Channel<List<Neighborhood> >* rC) { repMan.init(rC, idx); }
+    /* execute the first step of the reputation manager's task */
+    void sendRM() { if(repMan.isActive()) repMan.sendForConsensus(); }
+    /* execute the reputation manager's core-task */
+    void recvRM() { if(repMan.isActive()) repMan.recvForConsensus(); }
+    /* get continuous state q */
+    State getQ() const { return pLayer.getQ(); }
+    /* get vehicle identifier */
+    int getID() const { return idx; }
+    Parms getParms() const { return pLayer.getParms(); }
+    Maneuver getManeuver() const { return automaton.getManeuver(); }
+    /* check if (part of) the vehicle state q belongs to the Area */
+    bool inArea(const Area& a) const
+    {
+        return a.contains(pLayer.getQ().toPoint());
+    }
+    void preRun(const List<Sensing>& sList, const Area& obs);
+    void run() { pLayer.updateQ(); }
+    void activateMonitorLayer() { mLayer.activate(); }
+    void activateReputationManager() { repMan.activate(); }
+    void getHypothesis(List<Hypothesis>& hList);
+    void getNeighborhoodList(List<Neighborhood>& nList) const
+    {
+        repMan.getNeighborhoodList(nList);
+    }
+    void getAgentReputationList(List<Reputation>& repList) const
+    {
+        repMan.getAgentsReputation(repList);
+    }
+};
+
+#endif
+
