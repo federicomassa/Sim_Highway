@@ -782,7 +782,8 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     eList.insTail(&e[k++]);
 
     seList.insTail(&se[16]);
-    seList.insTail(&se[20]);    
+    seList.insTail(&se[20]);
+    seList.insTail(&se[1]);
     e[k].init(seList, k);
     seList.purge();
     eList.insTail(&e[k++]);
@@ -813,6 +814,21 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     seList.purge();
     eList.insTail(&e[k++]);
 
+    seList.insTail(&se[15]);
+    seList.insTail(&se[16]);
+    seList.insTail(&se[21]);    
+    e[k].init(seList, k);
+    seList.purge();
+    eList.insTail(&e[k++]);
+
+    seList.insTail(&se[17]);
+    seList.insTail(&se[14]);
+    seList.insTail(&se[19]);    
+    e[k].init(seList, k);
+    seList.purge();
+    eList.insTail(&e[k++]);
+
+    
     seList.insTail(&se[5]);
     seList.insTail(&se[9]);
     seList.insTail(&se[15]);
@@ -820,7 +836,6 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     e[k].init(seList, k);
     seList.purge();
     eList.insTail(&e[k++]);
-
     
 
 
@@ -831,7 +846,13 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     
     /* PLATOON -> SLOW */
 
-    
+    seList.insTail(&se[1]);
+    seList.insTail(&se[4]);
+    seList.insTail(&se[9]);
+    seList.insTail(&se[31]);
+    e[k].init(seList, k);
+    seList.purge();
+    eList.insTail(&e[k++]);
     
     t[PLATOON][SLOW].init(eList);
     eList.purge();
@@ -841,6 +862,7 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     seList.insTail(&se[19]);
     seList.insTail(&se[7]);
     seList.insTail(&se[0]);
+    seList.insTail(&se[3]);
     e[k].init(seList, k);
     seList.purge();
     eList.insTail(&e[k++]);

@@ -12,7 +12,7 @@
 
 /// Rules parameters:
 #define N_SUB_EVENT 32
-#define N_EVENT 30
+#define N_EVENT 33
 /* LANES: see also definition.h */
 #define MIN_LANE 0
 #define MAX_LANE 1
@@ -41,10 +41,15 @@ double dBack();
 bool forwardBlocking(const State&, const IntVars&, const State&);
 bool leftBlocking(const State&, const IntVars&, const State&);
 bool rightBlocking(const State&, const IntVars&, const State&);
+bool rightBackBlocking(const State&, const IntVars&, const State&);
 bool forwardPresent(const State&, const IntVars&, const State&);
 bool backPresent(const State&, const IntVars&, const State&);
 bool forwardCompatible(const State&, const IntVars&, const State&);
+bool rightForwardCompatible(const State&, const IntVars&, const State&);
 bool backCompatible(const State&, const IntVars&, const State&);
+bool LeftPlatoonCompatible(const State&, const IntVars&, const State&);
+bool RightPlatoonCompatible(const State&, const IntVars&, const State&);
+bool RightBlockingOvertakeable(const State&, const IntVars&, const State&);
 bool maxLane(const State&, const IntVars&, const State&);
 bool minLane(const State&, const IntVars&, const State&);
 bool targetLane(const State&, const IntVars&, const State&);
