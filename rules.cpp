@@ -207,7 +207,7 @@ bool RightBlockingOvertakeable(const State& s1, const IntVars& v1, const State& 
 
   if((s1.x - s2.x) < D_BACK && (s2.x - s1.x) < D_FORWARD &&
      s2.y < floor(s1.y) && s2.y > (floor(s1.y) - 1))
-    if (s1.desiredV > s2.desiredV)
+    if (s1.desiredV > s2.desiredV + V_TOLERANCE*s1.desiredV)
       return true;
   
   return false;
@@ -831,6 +831,8 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     
     /* PLATOON -> SLOW */
 
+    
+    
     t[PLATOON][SLOW].init(eList);
     eList.purge();
 
