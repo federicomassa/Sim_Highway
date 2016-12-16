@@ -80,7 +80,7 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ,
 	    while(is(tmpS))
 	      qList.insHead(tmpS.q);
 
-            m->predictStates(qList);
+            m->predictStates(qList); //!!! FIXME: this is not the list of the target neighbors states
         }
         else
         {
@@ -110,7 +110,7 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ,
 	      if(tmpS != s)
 		qList.insHead(tmpS.q);
 	    
-            m->predictStates(/* For platoon */ qList);
+            m->predictStates(/* For platoon */ qList); //!!! FIXME: this is not the list of the target neighbors states
         }
     }
     

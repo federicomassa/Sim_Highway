@@ -64,7 +64,7 @@ public:
          */
         int subEventID;
         /*!
-         * \brief Hipotesys about the existance of a vehicle having its
+         * \brief Hypothesis about the existence of a vehicle having its
          * continuous state q in this area.
          */
         Area positive;

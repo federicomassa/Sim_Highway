@@ -24,7 +24,7 @@
 #define FRAME_W 900
 #define FRAME_H (17 + SCALE * LANES)
 #define Y_OFFSET (FRAME_H - 9)
-#define FPS 20
+//#define FPS 20
 #define FONT_NAME INPUT_DIR "/times.ttf"
 #define AREA_OPACITY 30
 
