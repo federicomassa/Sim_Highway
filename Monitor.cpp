@@ -250,5 +250,6 @@ bool Monitor::buildNeighborhood(Neighborhood& n) const
     n.qTarget = targetLastQ;
     n.qList = lastNeighbors;
     n.hList = hypothesisList;
+    
     return true;
 }
