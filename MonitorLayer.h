@@ -13,6 +13,7 @@
 #define MONITORLAYER_H
 
 #include "Monitor.h"
+#include "systemTypes.h"
 
 /*!
  * This class represents the monitor layer of the agent.
@@ -35,7 +36,7 @@ class MonitorLayer
     /*!
      * \brief Add a monitor for an agent.
      */
-    Monitor* addMonitor(int t, const State& tQ, const Parms& tP);
+    Monitor* addMonitor(int t, const State& tQ, const Parms& tP, const Maneuver& sigma);
     /*!
      * \brief Remove a monitor.
      */

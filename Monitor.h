@@ -16,6 +16,7 @@
 #include "Neighborhood.h"
 #include "PhysicalLayer.h"
 #include "Sensing.h"
+#include "systemTypes.h"
 
 /*!
  * This class represent a monitor module embedded on an agent and used for the
@@ -106,7 +107,7 @@ public:
     /*!
      * \brief Constructor.
      */
-    Monitor(int a, int t, const State& tQ, const Parms& tP);
+    Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma);
     /*!
      * \brief Destructor.
      */
@@ -123,7 +124,7 @@ public:
     /*!
      * \brief Detect monitored agent current maneuver.
      */
-    void detectManeuver(const State& q);
+    void detectManeuver(const State& q, const Maneuver& sigma);
     /*!
      * \brief Return targetLocked value.
      */

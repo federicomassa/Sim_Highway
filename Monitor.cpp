@@ -11,16 +11,16 @@
 
 #include "Monitor.h"
 
-Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP)
+Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma = UNKNOWN)
 {
     agentID = a;
     targetID = t;
     targetQ = tQ;
     automaton.init(tQ);
     for(int i = 0; i < N_MANEUVER; i++)
-        possibleManeuvers[i] = true;
+      possibleManeuvers[i] = true;
     targetParms = tP;
-    targetManeuver = UNKNOWN;
+    targetManeuver = tSigma;
     targetLocked = false;
     hypReady = false;
 }
@@ -205,37 +205,35 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
     }
 }
 
-void Monitor::detectManeuver(const State& q)
+void Monitor::detectManeuver(const State& q, const Maneuver& sigma)
 {
-    /* reset hypothesis */
-    hypothesisList.purge();
-    for(int i = 0; i < N_MANEUVER; i++)
-        if(possibleStates[i] == q)
-        {
-            if(CONF.debug)
-                LOG.s << "Detected maneuver " << (Maneuver)i << EndLine();
-            if(targetLocked)
-            {
-                /* now Neighborhood object can be build */
-                hypothesisList = possibleHypLists[i];
-                hypReady = true;
-            }
-            if(targetManeuver == UNKNOWN)
-                targetManeuver = (Maneuver)i;
-            else if((Maneuver)i != targetManeuver || !CONF.monitorsNeedLock)
-            {
-                if(CONF.debug && CONF.monitorsNeedLock)
-                    LOG.s << "Transition detected (target locked)" << EndLine();
-                /* transition detected */
-                targetManeuver = (Maneuver)i;
-                automaton.setManeuver(targetManeuver, q);
-                /* got a good estimation of target xi */
-                targetLocked = true;
-            }
-        }
-    hypothesisList.sort();
-    targetLastQ = targetQ;
-    targetQ = q;
+  /* reset hypothesis */
+  hypothesisList.purge();
+
+  if(CONF.debug)
+    LOG.s << "Detected maneuver " << sigma << EndLine();
+  if(targetLocked)
+    {
+      /* now Neighborhood object can be build */
+      hypothesisList = possibleHypLists[(int)sigma];
+      hypReady = true;
+    }
+  if(targetManeuver == UNKNOWN)
+    targetManeuver = sigma;
+  else if(sigma != targetManeuver || !CONF.monitorsNeedLock)
+    {
+      if(CONF.debug && CONF.monitorsNeedLock)
+	LOG.s << "Transition detected (target locked)" << EndLine();
+      /* transition detected */
+      targetManeuver = sigma;
+      automaton.setManeuver(targetManeuver, q);
+      /* got a good estimation of target xi */
+      targetLocked = true;
+    }
+  
+  hypothesisList.sort();
+  targetLastQ = targetQ;
+  targetQ = q;
 }
 
 bool Monitor::getFirstHypothesis(Hypothesis& hyp) const

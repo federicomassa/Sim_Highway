@@ -20,11 +20,11 @@ MonitorLayer::~MonitorLayer()
         delete mon;
 }
 
-Monitor* MonitorLayer::addMonitor(int t, const State& tQ, const Parms& tP)
+Monitor* MonitorLayer::addMonitor(int t, const State& tQ, const Parms& tP, const Maneuver& sigma)
 {
-    Monitor* mon = new Monitor(agentID, t, tQ, tP);
-    monitorList.insHead(mon);
-    return mon;
+  Monitor* mon = new Monitor(agentID, t, tQ, tP, sigma);
+  monitorList.insHead(mon);
+  return mon;
 }
 
 Monitor* MonitorLayer::lookFor(int t)
@@ -71,45 +71,48 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ,
         Monitor* m = lookFor(s.agentID);
         if(m == NULL)
         {
-            m = addMonitor(s.agentID, s.q, s.p);
+	  m = addMonitor(s.agentID, s.q, s.p, s.sigma);
 
-	    /* building state list */
+	  /*
+	    // building state list 
 	    Iterator<Sensing> is(sList);
 	    Sensing tmpS;
 	    List<State> qList;
 	    while(is(tmpS))
 	      if(tmpS != s)
 		qList.insHead(tmpS.q);
-	    /* insert monitor agent state in the list */
+	    // insert monitor agent state in the list
 	    qList.insHead(agentQ);
 
 	    // Predict states for the next step
-            m->predictStates(qList); 
-        }
-        else
-        {
-            /* detect target maneuver */
-            m->detectManeuver(s.q);
+            m->predictStates(qList);
 
-	    /* building state list */
-	    Iterator<Sensing> is(sList);
-	    Sensing tmpS;
-	    List<State> qList;
-	    while(is(tmpS))
-	      if(tmpS != s)
-		qList.insHead(tmpS.q);
-	    /* insert monitor agent state in the list */
-	    qList.insHead(agentQ);
-	    
-            if(m->isLocked())
-            {
-	      /* predict possible maneuvers */
-	      m->predictManeuvers(qList, obs);
-            }
-            /* predict possible states for next step */
-
-	    m->predictStates(/* For platoon */ qList);
+	    */
         }
+	//        else
+	//        {
+	/* detect target maneuver */
+	m->detectManeuver(s.q, s.sigma);
+	
+	/* building state list */
+	Iterator<Sensing> is(sList);
+	Sensing tmpS;
+	List<State> qList;
+	while(is(tmpS))
+	  if(tmpS != s)
+	    qList.insHead(tmpS.q);
+	/* insert monitor agent state in the list */
+	qList.insHead(agentQ);
+	
+	if(m->isLocked())
+	  {
+	    /* predict possible maneuvers */
+	    m->predictManeuvers(qList, obs);
+	  }
+	/* predict possible states for next step */
+	
+	//m->predictStates(/* For platoon */ qList);
+	//        }
     }
     
     if(CONF.debug)
