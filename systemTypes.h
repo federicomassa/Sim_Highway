@@ -1,9 +1,8 @@
-
 #ifndef SYSTEMTYPES_H
 #define SYSTEMTYPES_H
 
-#include "State.h"
 #include "Failure.h"
+#include "State.h"
 
 /* vehicle's automaton internal vars */
 typedef double IntVars; /* target lane */

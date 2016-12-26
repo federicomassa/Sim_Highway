@@ -11,6 +11,7 @@
 
 using namespace std;
 
+
 class State
 {
     friend int size(State s)
@@ -28,7 +29,7 @@ public:
 	//Mainly for platoon --- Added by Federico Massa
 	double desiredV;
 	string initManeuver;
-
+	
 	/* constructor */
 	State(double qX = 0, double qY = 0, double qTheta = 0, double qV = 0, double qDesiredV = 0, string qInitManeuver = "FAST")
     {

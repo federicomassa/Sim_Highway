@@ -1,4 +1,3 @@
-
 #include "systemTypes.h"
 
 ostream& operator<<(ostream& os, Maneuver m)

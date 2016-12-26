@@ -81,6 +81,8 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
     Vector<int, N_SUB_EVENT> areaSign(0);
     if(CONF.debug)
         LOG.s << "SubEvents visit:" << EndLine();
+
+    
     for(int k = 0; k < N_SUB_EVENT; k++)
     {
         SubEvent& se = automaton.subEvents[k];
@@ -170,28 +172,28 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
                 while(ie(e))
                     if(e->value.nonOmniscientValue == U)
                     {
-                        Hypothesis h;
-                        h.eventID = e->idx;
-                        Iterator<SubEvent*> ise(e->subEventList);
-                        SubEvent* se;
-                        while(ise(se))
-                            if(se->value.nonOmniscientValue == U)
-                            {
-                                int j = se->idx;
-                                if(areaSign[j] == 1)
-                                {
-                                    Hypothesis::SubHypothesis sh;
-                                    sh.subEventID = i;
-                                    sh.positive = subEventArea[j];
-                                    h.subHypList.insHead(sh);
-                                }
-                                else /* areaSign[j] == -1 */
-                                {
-                                    h.negative += subEventArea[j];
-                                }
-                            }
-                        /* add generated hypothesis */
-                        possibleHypLists[i].insHead(h);
+		      Hypothesis h;
+		      h.eventID = e->idx;
+		      Iterator<SubEvent*> ise(e->subEventList);
+		      SubEvent* se;
+		      while(ise(se))
+			if(se->value.nonOmniscientValue == U)
+			  {
+			    int j = se->idx;
+			    if(areaSign[j] == 1)
+			      {
+				Hypothesis::SubHypothesis sh;
+				sh.subEventID = j; //!!!! Changed from i to j
+				sh.positive = subEventArea[j];
+				h.subHypList.insHead(sh);
+			      }
+			    else /* areaSign[j] == -1 */
+			      {
+				h.negative += subEventArea[j];
+			      }
+			  }
+		      /* add generated hypothesis */
+		      possibleHypLists[i].insHead(h);
                     }
             }
         }

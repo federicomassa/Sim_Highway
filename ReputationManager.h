@@ -17,6 +17,7 @@
 #include "Logger.h"
 #include "Neighborhood.h"
 
+
 extern Logger LOG;
 extern const Configuration CONF;
 
@@ -82,7 +83,7 @@ public:
      * @param nL my current knowledge -- i.e. according to the vision of the
      *           monitor layer.
      */
-    void setCurrentParams(const State& s, const List<Neighborhood>& nL);
+    void setCurrentParams(const State& s, const List<Neighborhood>& nl);
     /*!
      * \brief Broadcast information every communication round.
      */
@@ -99,7 +100,7 @@ public:
     void recvForConsensus()
     {
         /* message list that will contain neighborhood lists of my neighbors */
-        List<Message<List<Neighborhood> > > msgList;
+        List<Message<List<Neighborhood> > >msgList;
         repChan->recvBroadcast(agentID, q, msgList); /* receive information */
         merge(msgList); /* try to improve my knowledge */
     }
@@ -108,13 +109,13 @@ public:
      *
      * @param nL neighborhood list of my neighbor.
      */
-    void singleMerge(List<Neighborhood>& nL);
+    void singleMerge(List<Neighborhood>& nl);
     /*!
      * \brief Get neighborhood list reconstructed by the reputation manager.
      *
      * @param nL neighborhood list -- filled by this method.
      */
-    void getNeighborhoodList(List<Neighborhood>& nL) const { nL = nList; };
+    void getNeighborhoodList(List<Neighborhood>& nl) const { nl = nList; };
     /*!
      * \brief Get reputation of all current visible agents.
      *

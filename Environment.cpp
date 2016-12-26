@@ -301,7 +301,7 @@ void Environment::run()
 	  // vehicles seen by the subject are the ones within observable area
             if(j != i && v[j].inArea(obs))
             {
-                Sensing tmpS(v[j].getID(), v[j].getQ(), v[j].getParms());
+	      Sensing tmpS(v[j].getID(), v[j].getQ(), v[j].getParms(), v[j].getManeuver());
                 sList.insHead(tmpS);
             }
         }

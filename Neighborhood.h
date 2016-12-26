@@ -35,7 +35,10 @@ class Neighborhood
     }
     int targetID;
     State qTarget;
+    
+    //contains all information about the vehicles 
     List<State> qList;
+    
     List<Hypothesis> hList;
 public:
     Neighborhood() { targetID = -1; }

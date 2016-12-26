@@ -119,6 +119,7 @@ bool Automaton::detectEvents(const State& qSubj, const List<State>& qList,
                     LOG.s << "Detected transition " << sigma << " => ";
                     LOG.s << (Maneuver)i << EndLine();
                 }
+
                 return true;
             }
         }

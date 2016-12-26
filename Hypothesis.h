@@ -86,11 +86,11 @@ public:
      */
     int eventID;
     /*!
-     * \brief List of SubHypothesiss.
+     * \brief List of SubHypothesis.
      */
     List<SubHypothesis> subHypList;
     /*!
-     * \brief Hipotesys about the non-existance of a vehicle having its
+     * \brief Hypothesis about the non-existance of a vehicle having its
      * continuous state q in this area.
      */
     Area negative;

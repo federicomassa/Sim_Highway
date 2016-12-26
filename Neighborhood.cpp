@@ -1,3 +1,4 @@
+
 /*
  * DESIGN:      Cooperative Multi-Agent Systems Simulator
  *
@@ -16,7 +17,16 @@ Neighborhood::Neighborhood(int t, const State& qT, const List<State>& qL,
 {
     targetID = t;
     qTarget = qT;
-    qList = qL;
+
+    Iterator<State> iq(qL);
+    State q;
+    
+    while (iq(q))
+      {
+	qList.insHead(q);
+      }
+    
+    
     hList = hL;
 }
 
@@ -67,6 +77,25 @@ void Neighborhood::intersectionWith(const Neighborhood& n)
     
     /* merging qList with n.qList */
     qList.join(n.qList);
+
+    /*
+    // Now look for pairs with same state and different maneuver: merging
+    for (int i = 0; i < extQList.count(); i++)
+      {
+	for (int j = i+1; j < extQList.count(); j++)
+	  {
+	    if (extQList[i].first == extQList[j].first &&
+		extQList[i].second != extQList[j].second)
+	      {
+		if (extQList[i].second == UNKNOWN)
+		  extQList.delInfo(extQList[i]);
+		else if (extQList[j].second == UNKNOWN)
+		  extQList.delInfo(extQList[j]);
+	      }	
+	  }
+      }
+    */
+
     
     /* sort hypotesis list */
     hList.sort();

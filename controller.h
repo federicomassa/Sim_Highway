@@ -6,6 +6,7 @@
 
 #include "EndLine.h"
 #include "Logger.h"
+#include "State.h"
 #include "systemTypes.h"
 #include "systemParms.h"
 

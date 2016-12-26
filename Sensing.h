@@ -13,14 +13,17 @@ class Sensing
 public:
     int agentID;
     State q;
+    Maneuver sigma;
     Parms p;
     
+    
     Sensing() { agentID = -1; }
-    Sensing(int tIdx, const State& tQ, const Parms& tP)
+    Sensing(int tIdx, const State& tQ, const Parms& tP, const Maneuver& tSigma)
     {
         agentID = tIdx;
         q = tQ;
         p = tP;
+	sigma = tSigma;
     }
 };
 

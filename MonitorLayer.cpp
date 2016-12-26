@@ -72,45 +72,43 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ,
         if(m == NULL)
         {
             m = addMonitor(s.agentID, s.q, s.p);
-            /* predict possible states for next step */
-	    /* For platoon */
-	    Iterator<Sensing> is(sList);
-	    Sensing tmpS;
-	    List<State> qList;
-	    while(is(tmpS))
-	      qList.insHead(tmpS.q);
 
-            m->predictStates(qList); //!!! FIXME: this is not the list of the target neighbors states
-        }
-        else
-        {
-            /* detect target maneuver */
-            m->detectManeuver(s.q);
-            if(m->isLocked())
-            {
-                /* building state list */
-                Iterator<Sensing> is(sList);
-                Sensing tmpS;
-                List<State> qList;
-                while(is(tmpS))
-                    if(tmpS != s)
-                        qList.insHead(tmpS.q);
-                /* insert monitor agent state in the list */
-                qList.insHead(agentQ);
-                /* predict possible maneuvers */
-                m->predictManeuvers(qList, obs);
-            }
-            /* predict possible states for next step */
-
-	    /* For platoon */
+	    /* building state list */
 	    Iterator<Sensing> is(sList);
 	    Sensing tmpS;
 	    List<State> qList;
 	    while(is(tmpS))
 	      if(tmpS != s)
 		qList.insHead(tmpS.q);
+	    /* insert monitor agent state in the list */
+	    qList.insHead(agentQ);
+
+	    // Predict states for the next step
+            m->predictStates(qList); 
+        }
+        else
+        {
+            /* detect target maneuver */
+            m->detectManeuver(s.q);
+
+	    /* building state list */
+	    Iterator<Sensing> is(sList);
+	    Sensing tmpS;
+	    List<State> qList;
+	    while(is(tmpS))
+	      if(tmpS != s)
+		qList.insHead(tmpS.q);
+	    /* insert monitor agent state in the list */
+	    qList.insHead(agentQ);
 	    
-            m->predictStates(/* For platoon */ qList); //!!! FIXME: this is not the list of the target neighbors states
+            if(m->isLocked())
+            {
+	      /* predict possible maneuvers */
+	      m->predictManeuvers(qList, obs);
+            }
+            /* predict possible states for next step */
+
+	    m->predictStates(/* For platoon */ qList);
         }
     }
     

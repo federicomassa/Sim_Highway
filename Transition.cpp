@@ -31,14 +31,16 @@ void Transition::evaluate(const State& qSubj, const IntVars& vars,
             LOG.s << value;
         
         /* when value cannot change any more, iteration can be stopped */
-        if(omniscient)
+        if(omniscient) {
             /* omniscient case */
             if(value.omniscientValue == true)
                 break;
-        else
-            /* non-omniscient case */
-            if(value.nonOmniscientValue == T)
-                break;
+	}
+        else {
+	  /* non-omniscient case */
+	  if(value.nonOmniscientValue == T)
+	    break;
+	}
     }
     
     if(CONF.debug)
@@ -83,7 +85,8 @@ void Transition::reEvaluate()
     
     if(CONF.debug)
     {
-        LOG.s << EndLine(EndLine::DEC) << "Re-evaluating Transition END: ";
+        LOG.s << EndLine
+	  (EndLine::DEC) << "Re-evaluating Transition END: ";
         LOG.s << value << EndLine();
     }
 }

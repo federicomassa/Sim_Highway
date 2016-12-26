@@ -9,7 +9,7 @@ State::State(const string& str)
     // 
     double qX, qY, qTheta, qV, qDesiredV;
     string qInitManeuver; 
-
+    
     token >> qX;
     token >> qY;
     token >> qTheta;
@@ -18,7 +18,7 @@ State::State(const string& str)
     // Added by Federico Massa --- mainly for platoon
     token >> qDesiredV;
     token >> qInitManeuver;
-
+    
     init(qX, qY, qTheta, qV, qDesiredV, qInitManeuver);
 }
 
@@ -36,7 +36,7 @@ void State::init(double qX, double qY, double qTheta, double qV, double qDesired
   // Mainly for platoon --- Added by Federico Massa
   desiredV = qDesiredV*MAX_SPEED;
   initManeuver = qInitManeuver;
-
+  
 }
 
 Vector<double, 2> State::toPoint() const
@@ -62,7 +62,9 @@ ostream& operator<<(ostream& os, const State& s)
 bool operator==(const State& s1, const State& s2)
 {
     return s1.x == s2.x && s1.y == s2.y &&
-           s1.theta == s2.theta && s1.v == s2.v;
+           s1.theta == s2.theta && s1.v == s2.v &&
+      s1.desiredV == s2.desiredV &&
+      s1.initManeuver == s2.initManeuver;
 }
 
 bool operator!=(const State& s1, const State& s2){

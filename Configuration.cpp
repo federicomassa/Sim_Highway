@@ -49,22 +49,22 @@ void Configuration::parseConf(const string& fileName)
             debug = (str == "ON");
             continue;
         }
-		if(tmpS == "simulation_steps")
-		{
-            token >> nSteps;
+	if(tmpS == "simulation_steps")
+	  {
+	    token >> nSteps;
             continue;
-		}
+	  }
         if(tmpS == "communicate")
-        {
+	  {
             token >> str;
             communicate = (str == "ON");
             continue;
-        }
+	  }
         if(tmpS == "communication_interval")
-        {
+	  {
             token >> commInterval;
             continue;
-        }
+	  }
         if(tmpS == "make_video")
         {
             token >> str;
