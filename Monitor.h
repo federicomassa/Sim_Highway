@@ -107,7 +107,7 @@ public:
     /*!
      * \brief Constructor.
      */
-    Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma);
+    Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<State>&);
     /*!
      * \brief Destructor.
      */

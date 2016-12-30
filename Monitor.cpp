@@ -11,7 +11,7 @@
 
 #include "Monitor.h"
 
-Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma)
+Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<State>& qList)
 {
     agentID = a;
     targetID = t;
@@ -22,6 +22,23 @@ Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver&
     targetParms = tP;
     targetManeuver = tSigma;
     automaton.setManeuver(tSigma, targetQ);
+
+    //build starting neighborhood
+    /* compute active area for target agent */
+    Area active;
+    activeArea(targetQ, active);
+    
+    /* determine list of ``active'' agents */
+    Iterator<State> i(qList);
+    State tmpQ;
+    List<State> activeList;
+    while(i(tmpQ))
+        if(active.contains(tmpQ.toPoint()))
+            activeList.insHead(tmpQ);
+    
+    neighbors = activeList;
+
+    
     targetLocked = true; //FIXME: fixed to true for now
     hypReady = false;
 }

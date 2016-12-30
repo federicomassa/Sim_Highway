@@ -20,9 +20,9 @@ MonitorLayer::~MonitorLayer()
         delete mon;
 }
 
-Monitor* MonitorLayer::addMonitor(int t, const State& tQ, const Parms& tP, const Maneuver& tSigma)
+Monitor* MonitorLayer::addMonitor(int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<State>& qList)
 {
-  Monitor* mon = new Monitor(agentID, t, tQ, tP, tSigma);
+  Monitor* mon = new Monitor(agentID, t, tQ, tP, tSigma, qList);
   monitorList.insHead(mon);
   return mon;
 }
@@ -71,24 +71,19 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ,
         Monitor* m = lookFor(s.agentID);
         if(m == NULL)
         {
-	  m = addMonitor(s.agentID, s.q, s.p, s.sigma);
-	  /*
-	    // building state list 
-	    Iterator<Sensing> is(sList);
-	    Sensing tmpS;
-	    List<State> qList;
-	    while(is(tmpS))
-	      if(tmpS != s)
-		qList.insHead(tmpS.q);
-	    // insert monitor agent state in the list
-	    qList.insHead(agentQ);
-
-	    // Predict states for the next step
-            m->predictStates(qList);
-
-	    */
-        }
-	else
+	  // building state list 
+	  Iterator<Sensing> is(sList);
+	  Sensing tmpS;
+	  List<State> qList;
+	  while(is(tmpS))
+	    if(tmpS != s)
+	      qList.insHead(tmpS.q);
+	  // insert monitor agent state in the list
+	  qList.insHead(agentQ);
+	  
+	  m = addMonitor(s.agentID, s.q, s.p, s.sigma, qList);
+	}
+	//else
 	  {
 	    /* detect target maneuver */
 	    m->detectManeuver(s.q, s.sigma);
