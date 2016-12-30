@@ -1,5 +1,6 @@
 
 #include "Configuration.h"
+#include <iostream>
 
 Configuration::Configuration(const string& fileName)
 {
@@ -130,7 +131,7 @@ void Configuration::parseConf(const string& fileName)
             monitorsNeedLock = (str == "ON");
             continue;
         }
-		if(tmpS == "states")
+	if(tmpS == "states")
 		{
             while(!inFile.eof())
             {
@@ -144,7 +145,7 @@ void Configuration::parseConf(const string& fileName)
             }
             continue;
 		}
-		if(tmpS == "monitors")
+	if(tmpS == "monitors")
 		{
             token >> tmpS;
             if(tmpS == "ALL")
@@ -168,7 +169,7 @@ void Configuration::parseConf(const string& fileName)
             }
             continue;
 		}
-		if(tmpS == "reputation_managers")
+	if(tmpS == "reputation_managers")
 		{
             token >> tmpS;
             if(tmpS == "ALL")
@@ -192,7 +193,7 @@ void Configuration::parseConf(const string& fileName)
             }
             continue;
 		}
-		if(tmpS == "targets")
+	if(tmpS == "targets")
 		{
             token >> tmpS;
             if(tmpS == "ALL")

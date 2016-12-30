@@ -102,6 +102,11 @@ void Automaton::run(const State& qSubj, const List<State>& qList)
 bool Automaton::detectEvents(const State& qSubj, const List<State>& qList,
                              bool omniscient)
 {
+  
+  Maneuver startManeuver = UNKNOWN;
+  Maneuver endManeuver = UNKNOWN;
+  bool foundTransition = false;
+  
     for(int i = 0; i < N_MANEUVER; i++)
     {
         if(CONF.debug)
@@ -120,7 +125,18 @@ bool Automaton::detectEvents(const State& qSubj, const List<State>& qList,
                     LOG.s << (Maneuver)i << EndLine();
                 }
 
-                return true;
+		// Protect from accidental ambiguity between transitions
+		if (!foundTransition)
+		  {
+		    startManeuver = sigma;
+		    endManeuver = (Maneuver)i;
+		    foundTransition = true;
+		  }
+		else
+		  {
+		    string errorString = "Agent " + toString(agentID) + " found two valid transitions: ";
+		    error("Transition", errorString + startManeuver + " ==> " + endManeuver + " and " + sigma + " ==> " + (Maneuver)i);
+		  }
             }
         }
         else
@@ -132,10 +148,24 @@ bool Automaton::detectEvents(const State& qSubj, const List<State>& qList,
                     LOG.s << "Detected certain transition " << sigma << " => ";
                     LOG.s << (Maneuver)i << EndLine();
                 }
-                return true;
+
+		// Protect from accidental ambiguity between transitions
+		if (!foundTransition)
+		  {
+		    startManeuver = sigma;
+		    endManeuver = (Maneuver)i;
+		    foundTransition = true;
+		  }
+		else
+		  {
+		    string errorString = "Agent " + toString(agentID) + " found two valid transitions: ";
+		    // error("Transition", errorString + startManeuver + " ==> " + endManeuver + " and " + sigma + " ==> " + (Maneuver)i);
+		  }
+		
+		
             }
         }
     }
     
-    return false;
+    return foundTransition;
 }

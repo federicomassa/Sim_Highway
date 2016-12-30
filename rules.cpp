@@ -190,9 +190,10 @@ bool LeftPlatoonCompatible(const State& s1, const IntVars& v1, const State& s2)
 // Another platoon is passing on the right (not necessarily next lane), is it more compatible with our desired speed?
 bool RightPlatoonCompatible(const State& s1, const IntVars& v1, const State& s2) 
 {
-  if (fabs(s1.desiredV - s1.v) > fabs(s1.desiredV - s2.v))
-    if (s1.y > floor(s2.y + 1.0))
-      return true;
+  if (s2.x > s1.x)
+    if (fabs(s1.desiredV - s1.v) > fabs(s1.desiredV - s2.v))
+      if (s1.y > floor(s2.y + 1.0))
+	return true;
 
   return false;
 }
@@ -279,6 +280,74 @@ void rightArea(const State& s, Area& ind)
     ind.addRect(bounds);
 }
 
+void forwardVisibleArea(const State& s, Area &ind)
+{
+  if (!ind.isEmpty())
+    ind.purge();
+
+  Matrix_2x2 bounds;
+  bounds[0][0] = s.x;
+  bounds[0][1] = s.x + VISIBLE_DISTANCE;
+  bounds[1][0] = MIN_LANE;
+  bounds[1][1] = MAX_LANE + 1;
+  ind.addRect(bounds);
+  
+}
+
+void backVisibleArea(const State& s, Area &ind)
+{
+  if (!ind.isEmpty())
+    ind.purge();
+
+  Matrix_2x2 bounds;
+  bounds[0][0] = s.x - VISIBLE_DISTANCE;
+  bounds[0][1] = s.x;
+  bounds[1][0] = MIN_LANE;
+  bounds[1][1] = MAX_LANE + 1;
+  ind.addRect(bounds);
+  
+}
+
+void rightBackArea(const State& s, Area& ind)
+{
+    if (!ind.isEmpty())
+        ind.purge();
+
+    Matrix_2x2 bounds;
+    bounds[0][0] = s.x - D_BACK;
+    bounds[0][1] = s.x;
+    bounds[1][0] = floor(s.y) - 1;
+    bounds[1][1] = floor(s.y);
+    ind.addRect(bounds);
+}
+
+void leftForwardVisibleArea(const State& s, Area& ind)
+{
+    if (!ind.isEmpty())
+        ind.purge();
+
+    Matrix_2x2 bounds;
+    bounds[0][0] = s.x;
+    bounds[0][1] = s.x + VISIBLE_DISTANCE;
+    bounds[1][0] = floor(s.y) + 1;
+    bounds[1][1] = MAX_LANE + 1;
+    ind.addRect(bounds);
+}
+
+void rightForwardVisibleArea(const State& s, Area& ind)
+{
+    if (!ind.isEmpty())
+        ind.purge();
+
+    Matrix_2x2 bounds;
+    bounds[0][0] = s.x;
+    bounds[0][1] = s.x + VISIBLE_DISTANCE;
+    bounds[1][0] = MIN_LANE;
+    bounds[1][1] = floor(s.y);
+    ind.addRect(bounds);
+}
+
+
 // ---------------------------------------------------------------------------
 // IntVars reset functions
 // ---------------------------------------------------------------------------
@@ -325,8 +394,8 @@ void activeArea(const State& s, Area& active)
     else
         lowerBound = MIN_LANE - 1;
     Matrix_2x2 bounds;
-    bounds[0][0] = s.x - D_BACK;
-    bounds[0][1] = s.x + D_FORWARD;
+    bounds[0][0] = s.x - VISIBLE_DISTANCE; //It was -D_BACK : +D_FORWARD
+    bounds[0][1] = s.x + VISIBLE_DISTANCE;
     bounds[1][0] = lowerBound;
     bounds[1][1] = upperBound;
     active.addRect(bounds);
@@ -434,103 +503,103 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
 
     //14
     se[k].init(
-	       forwardPresent, forwardArea,
+	       forwardPresent, forwardVisibleArea,
 	       OR, "I can see someone in front of me", k);
     k++;
 
     //15
     se[k].init(
-	       forwardPresent, forwardArea,
+	       forwardPresent, forwardVisibleArea,
 	       NOR, "I can't see someone in front of me", k);
     k++;
     
     //16
     se[k].init(
-	       backPresent, backArea,
+	       backPresent, backVisibleArea,
 	       OR, "I can see someone behind me", k);
     k++;
 
     //17
     se[k].init(
-	       backPresent, backArea,
+	       backPresent, backVisibleArea,
 	       NOR, "I can't see someone behind me", k);
     k++;
     
     //18
     se[k].init(
-	       forwardCompatible, forwardArea,
+	       forwardCompatible, forwardVisibleArea,
 	       OR, "The vehicle in front of me moves with a velocity compatible with mine", k);
     k++;
     
     //19
     se[k].init(
-	       forwardCompatible, forwardArea,
-	       NOR, "The vehicle in front of me moves with a velocity incompatible with mine", k);
+	       forwardCompatible, forwardVisibleArea,
+	       NOR, "There is no vehicle in front of me that moves with a velocity compatible with mine", k);
     k++;
 
     //20
     se[k].init(
-	       backCompatible, backArea,
+	       backCompatible, backVisibleArea,
 	       OR, "The vehicle behind me moves with a velocity compatible with mine", k);
     k++;
 
     //21
     se[k].init(
-	       backCompatible, backArea,
-	       NOR, "The vehicle behind me moves with a velocity incompatible with mine", k);
+	       backCompatible, backVisibleArea,
+	       NOR, "There is no vehicle behind me that moves with a velocity compatible with mine", k);
     k++;
 
     //22
     se[k].init(
-	       rightBackBlocking, backArea,
+	       rightBackBlocking, rightBackArea,
 	       OR, "The vehicle on the right lane blocks me from behind", k);
     k++;
 
     //23
     se[k].init(
-	       rightBackBlocking, backArea,
+	       rightBackBlocking, rightBackArea,
 	       NOR, "The vehicle on the right lane does not block me from behind", k);
     k++;
 
     //24
     se[k].init(
-	       rightForwardIncompatible, rightArea,
+	       rightForwardIncompatible, rightForwardVisibleArea,
 	       NOR, "The vehicle on the right lane has a velocity compatible with mine", k);
     k++;
 
     //25
     se[k].init(
-	       rightForwardIncompatible, rightArea,
+	       rightForwardIncompatible, rightForwardVisibleArea,
 	       OR, "The vehicle on the right lane has a velocity incompatible with mine", k);
     k++;
 	       
     //26
-    se[k].init(LeftPlatoonCompatible, NULL,
+    se[k].init(LeftPlatoonCompatible, leftForwardVisibleArea,
 	       OR, "There is a platoon on a left lane with a velocity more compatible with mine", k);
     k++;
 
     //27
-    se[k].init(LeftPlatoonCompatible, NULL,
+    se[k].init(LeftPlatoonCompatible, leftForwardVisibleArea,
 	       NOR, "There isn't a platoon on a left lane with a velocity more compatible with mine", k);
     k++;
 
     //28
-    se[k].init(RightPlatoonCompatible, NULL,
+    se[k].init(RightPlatoonCompatible, rightForwardVisibleArea,
 	       OR, "There is a platoon on a right lane with a velocity more compatible with mine", k);
     k++;
 
     //29
-    se[k].init(RightPlatoonCompatible, NULL,
+    se[k].init(RightPlatoonCompatible, rightForwardVisibleArea,
 	       NOR, "There isn't a platoon on a right lane with a velocity more compatible with mine", k);
     k++;
 
     //30
-    se[k].init(RightBlockingOvertakeable, NULL,
+    se[k].init(RightBlockingOvertakeable, rightArea,
 	       OR, "There is at least one right blocking vehicle that can be overtaken", k);
     k++;
 
     //31
-    se[k].init(RightBlockingOvertakeable, NULL,
+    se[k].init(RightBlockingOvertakeable, rightArea,
 	       NOR, "There isn't any right blocking vehicle that can be overtaken", k);
     k++;
 
@@ -549,7 +618,7 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     
     /* FAST -> FAST */
 
-    seList.insTail(&se[4]);    
+    /*    seList.insTail(&se[4]);    
     seList.insTail(&se[14]);
     seList.insTail(&se[19]);
     seList.insTail(&se[21]);
@@ -570,7 +639,7 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     seList.insTail(&se[13]);
     e[k].init(seList, k);
     seList.purge();
-    eList.insTail(&e[k++]);
+    eList.insTail(&e[k++]); */
 
     t[FAST][FAST].init(eList);
     eList.purge();
@@ -657,7 +726,7 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
 
     /* SLOW -> SLOW */
     
-    seList.insTail(&se[0]);
+    /*seList.insTail(&se[0]);
     seList.insTail(&se[2]);
     e[k].init(seList, k);
     seList.purge();
@@ -680,7 +749,7 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     seList.insTail(&se[31]);
     e[k].init(seList, k);
     seList.purge();
-    eList.insTail(&e[k++]);
+    eList.insTail(&e[k++]);*/
 
     t[SLOW][SLOW].init(eList);
     eList.purge();
@@ -720,11 +789,11 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     
     /* LEFT -> LEFT */
 
-    seList.insTail(&se[11]);
+    /*    seList.insTail(&se[11]);
     //    seList.insTail(&se[3]);
     e[k].init(seList, k);
     seList.purge();
-    eList.insTail(&e[k++]);
+    eList.insTail(&e[k++]);*/
     
     t[LEFT][LEFT].init(eList);
     eList.purge();
@@ -762,11 +831,11 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     
     /* RIGHT -> RIGHT */
 
-    seList.insTail(&se[11]);
+    /*seList.insTail(&se[11]);
     seList.insTail(&se[5]);
     e[k].init(seList, k);
     seList.purge();
-    eList.insTail(&e[k++]);
+    eList.insTail(&e[k++]);*/
     
     t[RIGHT][RIGHT].init(eList);
     eList.purge();  
@@ -775,7 +844,7 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
 
     /* PLATOON -> PLATOON */
     
-    seList.insTail(&se[14]);
+    /*    seList.insTail(&se[14]);
     seList.insTail(&se[18]);    
     e[k].init(seList, k);
     seList.purge();
@@ -793,7 +862,7 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     seList.insTail(&se[6]);
     e[k].init(seList, k);
     seList.purge();
-    eList.insTail(&e[k++]);
+    eList.insTail(&e[k++]);*/
 
     t[PLATOON][PLATOON].init(eList);
     eList.purge();
@@ -904,11 +973,19 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
 
     seList.insTail(&se[16]);
     seList.insTail(&se[20]);
+    seList.insTail(&se[4]);
     e[k].init(seList, k);
     seList.purge();
     eList.insTail(&e[k++]);
-    
 
+    seList.insTail(&se[16]);
+    seList.insTail(&se[20]);
+    seList.insTail(&se[8]);
+    e[k].init(seList, k);
+    seList.purge();
+    eList.insTail(&e[k++]);
+
+    
     t[FAST][PLATOON].init(eList);
     eList.purge();
 

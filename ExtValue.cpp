@@ -81,6 +81,28 @@ ExtValue operator||(const ExtValue &v1, const ExtValue &v2)
     return newVal;
 }
 
+ExtValue operator!(const ExtValue& v)
+{
+  ExtValue newVal;
+
+  newVal.omniscientValue = !v.omniscientValue;
+
+  switch (v.nonOmniscientValue)
+    {
+    case T:
+      newVal.nonOmniscientValue = F;
+      break;
+    case U:
+      newVal.nonOmniscientValue = U;
+      break;
+    case F:
+      newVal.nonOmniscientValue = T;
+      break;
+    }
+
+  return newVal;
+}
+
 ostream& operator<<(ostream& os, const ExtValue& value)
 {
     os << "(";

@@ -36,7 +36,7 @@ class MonitorLayer
     /*!
      * \brief Add a monitor for an agent.
      */
-    Monitor* addMonitor(int t, const State& tQ, const Parms& tP, const Maneuver& sigma);
+    Monitor* addMonitor(int t, const State& tQ, const Parms& tP, const Maneuver& tSigma);
     /*!
      * \brief Remove a monitor.
      */

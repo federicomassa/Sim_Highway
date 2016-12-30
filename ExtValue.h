@@ -37,6 +37,7 @@ public:
 
 ExtValue operator&&(const ExtValue&, const ExtValue&);
 ExtValue operator||(const ExtValue&, const ExtValue&);
+ExtValue operator!(const ExtValue&);
 ostream& operator<<(ostream&, const ExtValue&);
 
 #endif

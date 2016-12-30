@@ -11,7 +11,7 @@
 
 #include "Monitor.h"
 
-Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma = UNKNOWN)
+Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma)
 {
     agentID = a;
     targetID = t;
@@ -21,7 +21,8 @@ Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver&
       possibleManeuvers[i] = true;
     targetParms = tP;
     targetManeuver = tSigma;
-    targetLocked = false;
+    automaton.setManeuver(tSigma, targetQ);
+    targetLocked = true; //FIXME: fixed to true for now
     hypReady = false;
 }
 
@@ -66,7 +67,7 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
     lastNeighbors = neighbors;
     neighbors = activeList;
     
-    /* estimate events for target agent */
+    /* estimate events for target agent - non omniscient */
     automaton.detectEvents(targetQ, activeList, false);
 
     for(int i = 0; i < N_MANEUVER; i++)
@@ -137,9 +138,15 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
     }
     /* check for certain events */
     bool certainEventDetected = false;
+    // if all transitions are false, then vehicle should keep the same maneuver
+    ExtValue sameManeuverDetected;
     for(int i = 0; i < N_MANEUVER; i++)
-    {
+      {
+	if (targetManeuver == (Maneuver)i)
+	  continue;
+	
         Transition& t = automaton.transitions[targetManeuver][i];
+	sameManeuverDetected = sameManeuverDetected || t.getValue();
         if(t.getValue().nonOmniscientValue == T)
         {
             possibleManeuvers[i] = true;
@@ -157,44 +164,70 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
             certainEventDetected = true;
             break;
         }
-    }
+	
+      }
+
+    // NOR
+    sameManeuverDetected = !sameManeuverDetected;
+
+    
+    if (sameManeuverDetected.nonOmniscientValue == T)
+      {
+	// SIGMA => SIGMA detected: build hypothesis without uncertainty
+	Hypothesis h;
+	possibleHypLists[(int)targetManeuver].insHead(h);
+	certainEventDetected = true;
+      }
+    
     if(!certainEventDetected)
         /* hypothesis construction */
-        for(int i = 0; i < N_MANEUVER; i++)
+      for(int i = 0; i < N_MANEUVER; i++)
         {
-            possibleHypLists[i].purge();
-            Transition& t = automaton.transitions[targetManeuver][i];
-            if(t.getValue().nonOmniscientValue == U)
+
+	  possibleHypLists[i].purge();
+	  
+	  if (targetManeuver == (Maneuver)i)
+	    {
+	      if (sameManeuverDetected.nonOmniscientValue == U)
+		{
+		  Hypothesis h;
+		  possibleHypLists[(int)targetManeuver].insHead(h);
+		}
+	      continue;
+	    }
+	  
+	  Transition& t = automaton.transitions[targetManeuver][i];
+	  if(t.getValue().nonOmniscientValue == U)
             {
-                possibleManeuvers[i] = true;
-                Iterator<Event*> ie(t.eventList);
-                Event* e;
-                while(ie(e))
-                    if(e->value.nonOmniscientValue == U)
-                    {
-		      Hypothesis h;
-		      h.eventID = e->idx;
-		      Iterator<SubEvent*> ise(e->subEventList);
-		      SubEvent* se;
-		      while(ise(se))
-			if(se->value.nonOmniscientValue == U)
-			  {
-			    int j = se->idx;
-			    if(areaSign[j] == 1)
-			      {
-				Hypothesis::SubHypothesis sh;
-				sh.subEventID = j; //!!!! Changed from i to j
-				sh.positive = subEventArea[j];
-				h.subHypList.insHead(sh);
-			      }
-			    else /* areaSign[j] == -1 */
-			      {
-				h.negative += subEventArea[j];
-			      }
-			  }
-		      /* add generated hypothesis */
-		      possibleHypLists[i].insHead(h);
-                    }
+	      possibleManeuvers[i] = true;
+	      Iterator<Event*> ie(t.eventList);
+	      Event* e;
+	      while(ie(e))
+		if(e->value.nonOmniscientValue == U)
+		  {
+		    Hypothesis h;
+		    h.eventID = e->idx;
+		    Iterator<SubEvent*> ise(e->subEventList);
+		    SubEvent* se;
+		    while(ise(se))
+		      if(se->value.nonOmniscientValue == U)
+			{
+			  int j = se->idx;
+			  if(areaSign[j] == 1)
+			    {
+			      Hypothesis::SubHypothesis sh;
+			      sh.subEventID = j; //!!!! Changed from i to j
+			      sh.positive = subEventArea[j];
+			      h.subHypList.insHead(sh);
+			    }
+			  else /* areaSign[j] == -1 */
+			    {
+			      h.negative += subEventArea[j];
+			    }
+			}
+		    /* add generated hypothesis */
+		    possibleHypLists[i].insHead(h);
+		  }
             }
         }
     if(CONF.debug)
@@ -218,15 +251,16 @@ void Monitor::detectManeuver(const State& q, const Maneuver& sigma)
       hypothesisList = possibleHypLists[(int)sigma];
       hypReady = true;
     }
-  if(targetManeuver == UNKNOWN)
-    targetManeuver = sigma;
-  else if(sigma != targetManeuver || !CONF.monitorsNeedLock)
+
+  automaton.setManeuver(sigma, q);   
+  
+  if(sigma != targetManeuver || !CONF.monitorsNeedLock)
     {
       if(CONF.debug && CONF.monitorsNeedLock)
 	LOG.s << "Transition detected (target locked)" << EndLine();
       /* transition detected */
       targetManeuver = sigma;
-      automaton.setManeuver(targetManeuver, q);
+
       /* got a good estimation of target xi */
       targetLocked = true;
     }

@@ -32,3 +32,20 @@ ostream& operator<<(ostream& os, Control c)
     os << "Control (a = " << c.a << ", omega = " << c.omega << ')';
     return os;
 }
+
+string operator+(const string& str, Maneuver m)
+{
+
+  switch(m)
+    {
+    case FAST: return (str + "FAST");
+    case SLOW: return (str + "SLOW");
+    case LEFT: return (str + "LEFT");
+    case RIGHT: return (str + "RIGHT");
+    case PLATOON: return (str + "PLATOON");
+    default: return (str + "UNKNOWN");
+    }
+
+  return "";
+  
+}

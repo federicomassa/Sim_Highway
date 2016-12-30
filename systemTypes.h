@@ -17,7 +17,7 @@ typedef double Parms; /* max speed */
 enum Maneuver { FAST, SLOW, LEFT, RIGHT, PLATOON, UNKNOWN };
 
 ostream& operator<<(ostream& os, Maneuver m);
-
+string operator+(const string&, Maneuver);
 /* continuous control */
 struct Control { double a; double omega; };
 

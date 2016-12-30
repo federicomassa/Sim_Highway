@@ -12,7 +12,7 @@
 
 /// Rules parameters:
 #define N_SUB_EVENT 32
-#define N_EVENT 33
+#define N_EVENT 22
 /* LANES: see also definition.h */
 #define MIN_LANE 0
 #define MAX_LANE 1

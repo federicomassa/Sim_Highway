@@ -185,9 +185,10 @@ int main (int argc, char* argv[])
                     LOG.s << "Consensus START..." << EndLine(EndLine::INC);
                 if(CONF.saveConsensusImages)
                 {
-                    Image tmpImg;
-                    tmpImg.saveConsensusImages(env, lastStates);
-                }
+		  Image tmpImg;
+		  tmpImg.saveConsensusImages(env, lastStates);
+		}
+		
                 const int totCSteps = 5;
                 for(int cStep = 0; cStep < totCSteps; cStep++)
                 {
@@ -199,10 +200,10 @@ int main (int argc, char* argv[])
                     env.consensusStep();
                     /* txt output */
                     if(CONF.saveTxtOutput)
-                    {
+		      {
                         env.outputNeighborhoodsMu(cStep + 1);
                         env.outputTargetsReputation(cStep + 1);
-                    }
+		      }
                     /* update progress bar */
                     cout << ProgressBar(now, CONF.nSteps);
                     if(CONF.saveConsensusImages)
@@ -215,8 +216,8 @@ int main (int argc, char* argv[])
                     LOG.s << "Consensus END." << EndLine(EndLine::DEC);
                 /* end consensus */
             }
-            for(int i = 0; i < nV; i++)
-                /* store vehicles last state and maneuver */
+	    for(int i = 0; i < nV; i++)
+                // store vehicles last state and maneuver 
                 lastStates[i] = env.getQ(i);
         }
         /* save real Configuration */
