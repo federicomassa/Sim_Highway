@@ -100,6 +100,7 @@ bool rightBackBlocking(const State& s1, const IntVars& v1, const State& s2)
 bool forwardPresent(const State& s1, const IntVars& v1, const State& s2) 
 {
   if ((s2.x - s1.x) > 0 &&
+      (s2.x - s1.x) < INTERACTION_DISTANCE &&
       s2.y < (floor(s1.y) + 1) && s2.y > (floor(s1.y)))
     return true;
 
@@ -109,6 +110,7 @@ bool forwardPresent(const State& s1, const IntVars& v1, const State& s2)
 bool backPresent(const State& s1, const IntVars& v1, const State& s2) 
 {
   if ((s1.x - s2.x) > 0 &&
+      (s1.x - s2.x) < INTERACTION_DISTANCE &&
       s2.y < (floor(s1.y)+1) && s2.y > (floor(s1.y)))
     return true;
 
@@ -117,7 +119,7 @@ bool backPresent(const State& s1, const IntVars& v1, const State& s2)
 
 bool forwardCompatible(const State& s1, const IntVars& v1, const State& s2)
 {
-  if (s2.x > s1.x && s2.y < (floor(s1.y) + 1) && s2.y > floor(s1.y))
+  if ((s2.x - s1.x) > 0 && (s2.x - s1.x) < INTERACTION_DISTANCE && s2.y < (floor(s1.y) + 1) && s2.y > floor(s1.y))
     if (fabs(s1.desiredV - s2.desiredV) < V_TOLERANCE*s1.desiredV)
       return true;
   
@@ -126,7 +128,7 @@ bool forwardCompatible(const State& s1, const IntVars& v1, const State& s2)
 
 bool rightForwardIncompatible(const State& s1, const IntVars& v1, const State& s2)
 {
-  if (s2.x > s1.x && s2.y < floor(s1.y) && s2.y > floor(s1.y - 1))
+  if ((s2.x - s1.x) > 0 && (s2.x - s1.x) < INTERACTION_DISTANCE && s2.y < floor(s1.y) && s2.y > floor(s1.y - 1))
     if (fabs(s1.desiredV - s2.desiredV) > V_TOLERANCE*s1.desiredV)
       return true;
   
@@ -136,7 +138,7 @@ bool rightForwardIncompatible(const State& s1, const IntVars& v1, const State& s
 
 bool backCompatible(const State& s1, const IntVars& v1, const State& s2)
 {
-  if (s2.x < s1.x && s2.y < (floor(s1.y) + 1) && s2.y > floor(s1.y))
+  if ((s1.x - s2.x) > 0 && (s1.x - s2.x) < INTERACTION_DISTANCE && s2.y < (floor(s1.y) + 1) && s2.y > floor(s1.y))
     if (fabs(s1.desiredV - s2.desiredV) < V_TOLERANCE*s1.desiredV)
       return true;
   
@@ -179,7 +181,7 @@ bool linedUp(const State& s1, const IntVars& v1, const State& s2)
 // Another platoon is passing on the left (not necessarily next lane), is it compatible with our desired speed?
 bool LeftPlatoonCompatible(const State& s1, const IntVars& v1, const State& s2) 
 {
-  if (s2.x > s1.x)
+  if ((s2.x - s1.x) > 0 && (s2.x - s1.x) < INTERACTION_DISTANCE)
     if (fabs(s1.desiredV - s2.desiredV) < V_TOLERANCE*s1.desiredV)
       if (s1.y < floor(s2.y))
 	return true;
@@ -190,7 +192,7 @@ bool LeftPlatoonCompatible(const State& s1, const IntVars& v1, const State& s2)
 // Another platoon is passing on the right (not necessarily next lane), is it more compatible with our desired speed?
 bool RightPlatoonCompatible(const State& s1, const IntVars& v1, const State& s2) 
 {
-  if (s2.x > s1.x)
+  if ((s2.x - s1.x) > 0 && (s2.x - s1.x) < INTERACTION_DISTANCE)
     if (fabs(s1.desiredV - s1.v) > fabs(s1.desiredV - s2.v))
       if (s1.y > floor(s2.y + 1.0))
 	return true;
@@ -252,6 +254,9 @@ void leftArea(const State& s, Area& ind)
     if (!ind.isEmpty())
         ind.purge();
 
+    if (floor(s.y) == MAX_LANE)
+      return;
+    
     Matrix_2x2 bounds;
     
     bounds[0][0] = s.x - D_BACK;
@@ -272,6 +277,9 @@ void rightArea(const State& s, Area& ind)
     if (!ind.isEmpty())
         ind.purge();
 
+    if (floor(s.y) == MIN_LANE)
+      return;
+    
     Matrix_2x2 bounds;
     bounds[0][0] = s.x - D_BACK;
     bounds[0][1] = s.x + D_FORWARD;
@@ -287,7 +295,7 @@ void forwardVisibleArea(const State& s, Area &ind)
 
   Matrix_2x2 bounds;
   bounds[0][0] = s.x;
-  bounds[0][1] = s.x + VISIBLE_DISTANCE;
+  bounds[0][1] = s.x + INTERACTION_DISTANCE;
   bounds[1][0] = MIN_LANE;
   bounds[1][1] = MAX_LANE + 1;
   ind.addRect(bounds);
@@ -300,7 +308,7 @@ void backVisibleArea(const State& s, Area &ind)
     ind.purge();
 
   Matrix_2x2 bounds;
-  bounds[0][0] = s.x - VISIBLE_DISTANCE;
+  bounds[0][0] = s.x - INTERACTION_DISTANCE;
   bounds[0][1] = s.x;
   bounds[1][0] = MIN_LANE;
   bounds[1][1] = MAX_LANE + 1;
@@ -313,6 +321,9 @@ void rightBackArea(const State& s, Area& ind)
     if (!ind.isEmpty())
         ind.purge();
 
+    if (floor(s.y) == MIN_LANE)
+      return;
+    
     Matrix_2x2 bounds;
     bounds[0][0] = s.x - D_BACK;
     bounds[0][1] = s.x;
@@ -326,9 +337,13 @@ void leftForwardVisibleArea(const State& s, Area& ind)
     if (!ind.isEmpty())
         ind.purge();
 
+    if (floor(s.y) == MAX_LANE)
+      return;
+
+    
     Matrix_2x2 bounds;
     bounds[0][0] = s.x;
-    bounds[0][1] = s.x + VISIBLE_DISTANCE;
+    bounds[0][1] = s.x + INTERACTION_DISTANCE;
     bounds[1][0] = floor(s.y) + 1;
     bounds[1][1] = MAX_LANE + 1;
     ind.addRect(bounds);
@@ -339,9 +354,13 @@ void rightForwardVisibleArea(const State& s, Area& ind)
     if (!ind.isEmpty())
         ind.purge();
 
+    if (floor(s.y) == MIN_LANE)
+      return;
+
+    
     Matrix_2x2 bounds;
     bounds[0][0] = s.x;
-    bounds[0][1] = s.x + VISIBLE_DISTANCE;
+    bounds[0][1] = s.x + INTERACTION_DISTANCE;
     bounds[1][0] = MIN_LANE;
     bounds[1][1] = floor(s.y);
     ind.addRect(bounds);

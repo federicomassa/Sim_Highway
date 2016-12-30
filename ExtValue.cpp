@@ -127,3 +127,46 @@ ostream& operator<<(ostream& os, const ExtValue& value)
     
     return os;
 }
+
+ExtBool operator!(const ExtBool& b)
+{
+  switch(b)
+    {
+    case T:
+      return F;
+      break;
+    case U:
+      return U;
+      break;
+    case F:
+      return T;
+      break;
+    }
+
+  return U;
+}
+
+
+ExtBool operator&&(const ExtBool& b1, const ExtBool& b2)
+{
+  ExtBool b;
+  
+  /* and between ExtBool */
+  switch(b1)
+    {
+    case T:
+      b = b2;
+      break;
+    case U:
+      if(b2 == T)
+	b = U;
+      else
+	b = b2;
+      break;
+    case F:
+      b = F;
+      break;
+    }
+  
+  return b;
+}

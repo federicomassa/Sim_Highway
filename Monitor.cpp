@@ -21,6 +21,7 @@ Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver&
       possibleManeuvers[i] = true;
     targetParms = tP;
     targetManeuver = tSigma;
+    targetLastManeuver = UNKNOWN;
     automaton.setManeuver(tSigma, targetQ);
 
     //build starting neighborhood
@@ -208,7 +209,8 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
 	      if (sameManeuverDetected.nonOmniscientValue == U)
 		{
 		  Hypothesis h;
-		  possibleHypLists[(int)targetManeuver].insHead(h);
+		  h.isSameManeuverUncertain = true;
+		  possibleHypLists[i].insHead(h);
 		}
 	      continue;
 	    }
@@ -260,6 +262,8 @@ void Monitor::detectManeuver(const State& q, const Maneuver& sigma)
   /* reset hypothesis */
   hypothesisList.purge();
 
+  targetLastManeuver = targetManeuver;
+  
   if(CONF.debug)
     LOG.s << "Detected maneuver " << sigma << EndLine();
   if(targetLocked)
@@ -300,7 +304,10 @@ bool Monitor::buildNeighborhood(Neighborhood& n) const
     n.targetID = targetID;
     n.qTarget = targetLastQ;
     n.qList = lastNeighbors;
+    n.targetManeuver = targetManeuver;
+    n.targetLastManeuver = targetLastManeuver;
     n.hList = hypothesisList;
+    n.possibleHypLists = possibleHypLists;
     
     return true;
 }

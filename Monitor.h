@@ -72,6 +72,7 @@ class Monitor
      * \brief Estimated maneuver of the monitored agent.
      */
     Maneuver targetManeuver;
+    Maneuver targetLastManeuver;
     /*!
      * \brief Predicted states of the monitored agent.
      */

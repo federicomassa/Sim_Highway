@@ -11,9 +11,10 @@
  */
 
 #include "Neighborhood.h"
+#include "ExtValue.h"
 
 Neighborhood::Neighborhood(int t, const State& qT, const List<State>& qL,
-                           const List<Hypothesis>& hL)
+                           const List<Hypothesis>& hL, const Vector<List<Hypothesis>, N_MANEUVER>& possibleHL)
 {
     targetID = t;
     qTarget = qT;
@@ -28,6 +29,7 @@ Neighborhood::Neighborhood(int t, const State& qT, const List<State>& qL,
     
     
     hList = hL;
+    possibleHypLists = possibleHL;
 }
 
 void Neighborhood::intersectionWith(const Neighborhood& n)
@@ -38,7 +40,9 @@ void Neighborhood::intersectionWith(const Neighborhood& n)
     
     if(this == &n)
         return;
-    
+
+
+    // ========== hypList merging: probably USELESS, replaced by possibleHypLists ============
     Hypothesis hyp;
     int nHyp = hList.count();
     for(int i = 0; i < nHyp; i++)
@@ -71,13 +75,64 @@ void Neighborhood::intersectionWith(const Neighborhood& n)
                 }
             }
             if(valid)
-                hList.insTail(hyp);
+	      hList.insTail(hyp);
         }
     }
+    // ============== END OF hypList MERGING ======================
+
+
+    // ========= Merging of possibleHypLists =============
+    for (int i = 0; i < N_MANEUVER; i++)
+      {
+	List<Hypothesis>& tmpHL = possibleHypLists[i];
+	List<Hypothesis> ntmpHL = n.possibleHypLists[i];
+	Hypothesis hyp;
+	int numHyp = tmpHL.count();
+	for(int n = 0; n < numHyp; n++)
+	  {
+	    tmpHL.extrHead(hyp);
+	    /* get corresponding hypothesis, excluding same maneuver case with -1 */
+	    Hypothesis tmpHyp;
+	    if(ntmpHL.find(hyp, tmpHyp) && hyp.eventID != -1)
+	      {
+		bool valid = true;
+		/* intersection between negative areas */
+		hyp.negative *= tmpHyp.negative;
+		/* intersection between sub-hypothesis */
+		List<Hypothesis::SubHypothesis>& shList = hyp.subHypList;
+		Hypothesis::SubHypothesis sHyp;
+		int nsHyp = shList.count();
+		for(int j = 0; j < nsHyp; j++)
+		  {
+		    shList.extrHead(sHyp);
+		    Hypothesis::SubHypothesis tmpSHyp;
+		    if (tmpHyp.subHypList.find(sHyp, tmpSHyp))
+		      {
+			sHyp.positive *= tmpSHyp.positive;
+			if(sHyp.positive.isEmpty())
+			  {
+			    valid = false;
+			    break;
+			  }
+			shList.insTail(sHyp);
+		      }
+		  }
+		if(valid)
+		  tmpHL.insTail(hyp);
+	      }
+	    else if(hyp.eventID == -1)
+	      tmpHL.insTail(hyp);
+	  }
+	/* sort hypotesis list */
+	tmpHL.sort();
+
+      }
+    
+    // ========= End of possibleHypLists merging =========
     
     /* merging qList with n.qList */
     qList.join(n.qList);
-
+    
     /*
     // Now look for pairs with same state and different maneuver: merging
     for (int i = 0; i < extQList.count(); i++)
@@ -97,22 +152,98 @@ void Neighborhood::intersectionWith(const Neighborhood& n)
     */
 
     
-    /* sort hypotesis list */
-    hList.sort();
 }
 
 RepLevel Neighborhood::getTargetReputation() const
 {
+
+  /* Old reputation system 
     if(hList.isEmpty())
         return FAULTY;
     
     Iterator<Hypothesis> i(hList);
     Hypothesis hyp;
     while(i(hyp))
-        if(!hyp.subHypList.isEmpty() || !hyp.negative.isEmpty())
+      if(!hyp.subHypList.isEmpty() || !hyp.negative.isEmpty() || hyp.isSameManeuverUncertain)
             return UNCERTAIN;
+    
+	    return CORRECT; */
 
-    return CORRECT;
+  // Count possible maneuvers
+  ExtBool possibleManeuver[N_MANEUVER];
+
+  for (int i = 0; i < N_MANEUVER; i++)
+    {
+      possibleManeuver[i] = F;
+      List<Hypothesis> tmpHL = possibleHypLists[i];
+
+
+      // No hypotheses -> next maneuver
+      if (tmpHL.isEmpty())
+	continue;
+
+      possibleManeuver[i] = T;
+
+      Iterator<Hypothesis> iHyp(tmpHL);
+      Hypothesis tmpHyp;
+      
+      while(iHyp(tmpHyp))
+	{
+	  possibleManeuver[i] = possibleManeuver[i] &&
+	    tmpHyp.subHypList.isEmpty() ? T : U &&
+	    tmpHyp.negative.isEmpty() ? T : U;
+	}     
+    }
+
+
+  // Now calculate reputation
+  //     Case 1: same maneuver
+  
+  if (targetManeuver == targetLastManeuver)
+    {
+      if (possibleManeuver[targetManeuver] == F)
+	return FAULTY;
+
+      ExtBool isCorrect = T;
+      for (int i = 0; i < N_MANEUVER; i++)
+	{
+	  if (i == (int)targetManeuver)
+	    continue;
+
+	  isCorrect = isCorrect && !possibleManeuver[i];
+	  
+	}
+
+      if (isCorrect == T)
+	return CORRECT;
+      else
+	return UNCERTAIN;
+
+    }
+
+  // Case 2: maneuver transition
+  else
+    {
+      switch(possibleManeuver[targetManeuver])
+	{
+	case T:
+	  return CORRECT;
+	  break;
+	case U:
+	  return UNCERTAIN;
+	  break;
+	case F:
+	  return FAULTY;
+	  break;
+	}
+
+      return UNSET;
+      
+    }
+  
+  
+    
+  
 }
 
 double Neighborhood::measure() const

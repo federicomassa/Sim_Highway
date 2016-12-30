@@ -94,10 +94,15 @@ public:
      * continuous state q in this area.
      */
     Area negative;
+        /*!
+     * \brief true if the hypothesis regards staying in the same discrete state
+              and is uncertain
+     */
+    bool isSameManeuverUncertain;
     /*!
      * \brief Default constructor.
      */
-    Hypothesis() { eventID = -1; }
+    Hypothesis() { eventID = -1; isSameManeuverUncertain = false;}
     /*!
      * \brief Destructor.
      */

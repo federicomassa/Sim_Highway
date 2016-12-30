@@ -21,6 +21,11 @@
 // Visible area parameters:
 #define VISIBLE_DISTANCE 8.8
 
+// Interaction distance, it should be a
+// fraction of VISIBLE_DISTANCE in order
+// to avoid micro-overlaps in the areas
+#define INTERACTION_DISTANCE 0.9*VISIBLE_DISTANCE
+
 // Platoon controller parameters
 // u_i = -SUM(b_ij (x_i - x_j)) - gamma*SUM(b_ij (v_i - v_j))
 #define B_BACK 0.005

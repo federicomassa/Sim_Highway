@@ -40,10 +40,16 @@ class Neighborhood
     List<State> qList;
     
     List<Hypothesis> hList;
+    Vector<List<Hypothesis>, N_MANEUVER> possibleHypLists;
+
+    // Needed to merge hypotheses
+    Maneuver targetManeuver;
+    Maneuver targetLastManeuver;
+    
 public:
     Neighborhood() { targetID = -1; }
     Neighborhood(int t, const State& qT, const List<State>& qL,
-                 const List<Hypothesis>& hL);
+                 const List<Hypothesis>& hL, const Vector<List<Hypothesis>, N_MANEUVER>& possibleHL);
     ~Neighborhood() { }
     void intersectionWith(const Neighborhood& n);
     int getTargetID() const { return targetID; }
