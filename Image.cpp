@@ -375,34 +375,36 @@ void Image::addHypothesis(int index, const Environment& env)
 }
 
 void Image::drawNeighborhood(const Neighborhood& n)
-{
-    Vector<double, 2> q = n.qTarget.toPoint();
-    /* center image on target x coordinate */
-    init(q[0]);
-    open();
-    const RepLevel rLev = n.getTargetReputation();
-    drawVehicle(n.qTarget, FAST, n.targetID, false, rLev);
-    /* draw other vehicles */
-    Iterator<State> qi(n.qList);
-    State tmpQ;
-    while(qi(tmpQ))
-        drawVehicle(tmpQ);
-    /* draw frame number */
-    writeFrameNumber(now - 1);
-    /* draw hypothesis */
-    if(rLev != FAULTY)
+{  
+  Vector<double, 2> q = n.qTarget.toPoint();
+  /* center image on target x coordinate */
+  init(q[0]);
+  open();
+  const RepLevel rLev = n.getTargetReputation();
+  
+  drawVehicle(n.qTarget, FAST, n.targetID, false, rLev);
+  /* draw other vehicles */
+  Iterator<State> qi(n.qList);
+  State tmpQ;
+  while(qi(tmpQ))
+    drawVehicle(tmpQ);
+  /* draw frame number */
+  writeFrameNumber(now - 1);
+  /* draw hypothesis */
+  if(rLev != FAULTY)
     {
-        Image copyImg = *this;
-        Iterator<Hypothesis> hi(n.hList);
-        Hypothesis tmpH;
-        hi(tmpH);
-        addHypothesis(tmpH);
-        while(hi(tmpH))
+      Image copyImg = *this;
+      Iterator<Hypothesis> hi(n.lastHypLists[n.targetManeuver]);
+      Hypothesis tmpH;
+      hi(tmpH);
+
+      addHypothesis(tmpH);
+      while(hi(tmpH))
         {
-            Image tmpImage = copyImg;
-            tmpImage.addHypothesis(tmpH);
-            tmpImage.writeFrameNumber(now - 1);
-            joinWith(tmpImage);
+	  Image tmpImage = copyImg;
+	  tmpImage.addHypothesis(tmpH);
+	  tmpImage.writeFrameNumber(now - 1);
+	  joinWith(tmpImage);
         }
     }
 }

@@ -90,6 +90,7 @@ class Monitor
      * \brief Hypothesis associated to the predicted maneuvers and states.
      */
     Vector<List<Hypothesis>, N_MANEUVER> possibleHypLists;
+    Vector<List<Hypothesis>, N_MANEUVER> lastHypLists;
     /*!
      * \brief A prototype of vehicle's automaton.
      */

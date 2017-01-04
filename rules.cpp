@@ -296,8 +296,8 @@ void forwardVisibleArea(const State& s, Area &ind)
   Matrix_2x2 bounds;
   bounds[0][0] = s.x;
   bounds[0][1] = s.x + INTERACTION_DISTANCE;
-  bounds[1][0] = MIN_LANE;
-  bounds[1][1] = MAX_LANE + 1;
+  bounds[1][0] = floor(s.y);
+  bounds[1][1] = floor(s.y) + 1;
   ind.addRect(bounds);
   
 }
@@ -310,8 +310,8 @@ void backVisibleArea(const State& s, Area &ind)
   Matrix_2x2 bounds;
   bounds[0][0] = s.x - INTERACTION_DISTANCE;
   bounds[0][1] = s.x;
-  bounds[1][0] = MIN_LANE;
-  bounds[1][1] = MAX_LANE + 1;
+  bounds[1][0] = floor(s.y);
+  bounds[1][1] = floor(s.y) + 1;
   ind.addRect(bounds);
   
 }
@@ -993,6 +993,7 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     seList.insTail(&se[16]);
     seList.insTail(&se[20]);
     seList.insTail(&se[4]);
+    seList.insTail(&se[9]);
     e[k].init(seList, k);
     seList.purge();
     eList.insTail(&e[k++]);

@@ -33,14 +33,14 @@ class Neighborhood
     {
         return size(n.targetID) + size(n.qTarget) + size(n.qList) + size(n.hList);
     }
-    int targetID;
+    int targetID, agentID;
     State qTarget;
     
     //contains all information about the vehicles 
     List<State> qList;
     
     List<Hypothesis> hList;
-    Vector<List<Hypothesis>, N_MANEUVER> possibleHypLists;
+    Vector<List<Hypothesis>, N_MANEUVER> lastHypLists;
 
     // Needed to merge hypotheses
     Maneuver targetManeuver;

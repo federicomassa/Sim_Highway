@@ -42,4 +42,5 @@ ostream& operator<<(ostream&, const ExtValue&);
 
 ExtBool operator!(const ExtBool&);
 ExtBool operator&&(const ExtBool&, const ExtBool&);
+ExtBool operator||(const ExtBool&, const ExtBool&);
 #endif

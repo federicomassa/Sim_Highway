@@ -149,7 +149,7 @@ ExtBool operator!(const ExtBool& b)
 
 ExtBool operator&&(const ExtBool& b1, const ExtBool& b2)
 {
-  ExtBool b;
+  ExtBool b = F;
   
   /* and between ExtBool */
   switch(b1)
@@ -170,3 +170,28 @@ ExtBool operator&&(const ExtBool& b1, const ExtBool& b2)
   
   return b;
 }
+
+ExtBool operator||(const ExtBool& b1, const ExtBool& b2)
+{
+  ExtBool b = F;
+  
+  /* and between ExtBool */
+  switch(b1)
+    {
+    case T:
+      b = T;
+      break;
+    case U:
+      if(b2 == T)
+	b = T;
+      else
+	b = U;
+      break;
+    case F:
+      b = b2;
+      break;
+    }
+  
+  return b;
+}
+

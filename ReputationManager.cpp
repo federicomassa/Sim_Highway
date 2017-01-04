@@ -72,8 +72,8 @@ void ReputationManager::singleMerge(List<Neighborhood>& nL)
                 targetFound = true;
                 break;
             }
-        if(!targetFound) //FIXME... solo nel merge: treat the case "agent too far"
-            nList.insHead(tmpNeigh); /* insert a ``new'' target */
+	// if(!targetFound) //FIXME... solo nel merge: treat the case "agent too far"
+	//   nList.insHead(tmpNeigh); /* insert a ``new'' target */
     }
 }
 

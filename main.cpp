@@ -151,13 +151,14 @@ int main (int argc, char* argv[])
             prevFrame.addMonitoredVehicles(subj, env);
             prevFrame.writeFrameNumber();
         }
-        /* txt output */
-        if(CONF.saveTxtOutput)
+        /* txt output, FIXME: only now > 0?*/
+        if(CONF.saveTxtOutput && now > 0)
         {
             /* output neighborhood measures */
             env.outputNeighborhoodsMu(0);
             env.outputTargetsReputation(0);
         }
+	
         if(CONF.communicate)
         {
             if(now > 0 && now % CONF.commInterval == 0)

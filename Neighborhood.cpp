@@ -12,9 +12,10 @@
 
 #include "Neighborhood.h"
 #include "ExtValue.h"
+#include <iostream>
 
 Neighborhood::Neighborhood(int t, const State& qT, const List<State>& qL,
-                           const List<Hypothesis>& hL, const Vector<List<Hypothesis>, N_MANEUVER>& possibleHL)
+                           const List<Hypothesis>& hL, const Vector<List<Hypothesis>, N_MANEUVER>& lastHL)
 {
     targetID = t;
     qTarget = qT;
@@ -29,7 +30,7 @@ Neighborhood::Neighborhood(int t, const State& qT, const List<State>& qL,
     
     
     hList = hL;
-    possibleHypLists = possibleHL;
+    lastHypLists = lastHL;
 }
 
 void Neighborhood::intersectionWith(const Neighborhood& n)
@@ -80,12 +81,11 @@ void Neighborhood::intersectionWith(const Neighborhood& n)
     }
     // ============== END OF hypList MERGING ======================
 
-
     // ========= Merging of possibleHypLists =============
     for (int i = 0; i < N_MANEUVER; i++)
       {
-	List<Hypothesis>& tmpHL = possibleHypLists[i];
-	List<Hypothesis> ntmpHL = n.possibleHypLists[i];
+	List<Hypothesis>& tmpHL = lastHypLists[i];
+	List<Hypothesis> ntmpHL = n.lastHypLists[i];
 	Hypothesis hyp;
 	int numHyp = tmpHL.count();
 	for(int n = 0; n < numHyp; n++)
@@ -128,7 +128,7 @@ void Neighborhood::intersectionWith(const Neighborhood& n)
 
       }
     
-    // ========= End of possibleHypLists merging =========
+    // ========= End of lastHypLists merging =========
     
     /* merging qList with n.qList */
     qList.join(n.qList);
@@ -175,10 +175,10 @@ RepLevel Neighborhood::getTargetReputation() const
   for (int i = 0; i < N_MANEUVER; i++)
     {
       possibleManeuver[i] = F;
-      List<Hypothesis> tmpHL = possibleHypLists[i];
+      List<Hypothesis> tmpHL = lastHypLists[i];
 
 
-      // No hypotheses -> next maneuver
+      // No hypotheses -> stay false, next maneuver
       if (tmpHL.isEmpty())
 	continue;
 
@@ -189,12 +189,24 @@ RepLevel Neighborhood::getTargetReputation() const
       
       while(iHyp(tmpHyp))
 	{
+	  /*
+	  //DEBUG
+	  if ((Maneuver)i == PLATOON && targetLastManeuver == FAST && targetManeuver == PLATOON)
+	    {
+	      std::cout << "sub: " << tmpHyp.subHypList.isEmpty() << std::endl;
+	      std::cout << "neg: " << tmpHyp.negative.isEmpty() << std::endl;
+	    }
+	  */
+	  
 	  possibleManeuver[i] = possibleManeuver[i] &&
-	    tmpHyp.subHypList.isEmpty() ? T : U &&
-	    tmpHyp.negative.isEmpty() ? T : U;
-	}     
-    }
+	    (tmpHyp.subHypList.isEmpty() ? T : U) &&
+	    (tmpHyp.negative.isEmpty() ? T : U);	  
 
+	  
+	  if (possibleManeuver[i] == T)
+	    break;
+	}
+    }
 
   // Now calculate reputation
   //     Case 1: same maneuver
@@ -236,13 +248,11 @@ RepLevel Neighborhood::getTargetReputation() const
 	  return FAULTY;
 	  break;
 	}
-
-      return UNSET;
       
     }
   
   
-    
+  return UNSET;
   
 }
 
