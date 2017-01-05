@@ -887,7 +887,7 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
     eList.purge();
 
     /* PLATOON -> FAST */
-
+    
     seList.insTail(&se[15]);
     seList.insTail(&se[17]);
     e[k].init(seList, k);

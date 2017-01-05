@@ -175,7 +175,7 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
                 if(e->getValue().nonOmniscientValue == T)
                 {
                     /* build Hypothesis without uncertainty */
-		  LOG.s << "Added sure hypothesis on transition: " << targetManeuver << " => " << (Maneuver)i << EndLine();
+		  LOG.s << "Added sure hypothesis on transition: " << targetManeuver << " => " << (Maneuver)i << ", event " << e->idx << EndLine();
 		  
 		  Hypothesis h;
 		  h.eventID = e->idx;
@@ -258,6 +258,8 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
 		      LOG.s << " with subhypotheses...";
 		    if (!h.negative.isEmpty())
 		      LOG.s << " with negative area...";
+
+		    LOG.s << ", event " << e->idx;
 		    LOG.s << EndLine();
 		  }
             }
