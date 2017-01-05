@@ -100,7 +100,7 @@ void Image::writeFrameNumber(int n)
                     y1 + 12, (char*)cTimeString.c_str());
 }
 
-void Image::writeTransition(const Neighborhood& n)
+void Image::writeTransition(const Maneuver& targetLastManeuver, const Maneuver& targetManeuver, const bool& invert)
 {
     /* error handling */
     if (frame == NULL)
@@ -116,9 +116,13 @@ void Image::writeTransition(const Neighborhood& n)
     const int y2 = 15;
 
     string transition = "";
-    transition = transition + n.targetLastManeuver;
-    transition = transition + " => ";
-    transition = transition + n.targetManeuver;
+    transition = transition + targetLastManeuver;
+    if (!invert)
+      transition = transition + " => ";
+    else
+      transition = transition + " !=> ";
+    
+    transition = transition + targetManeuver;
 
 
     
@@ -378,21 +382,34 @@ void Image::joinWith(const Image& i2)
     if (frame == NULL)
         error("Image::joinWith", "cannot allocate mew image");
     
+    /* gdImageCopy(newFrame, frame, 0, 0, 0, 0, frame->sx, frame->sy) ;
+    gdImageCopy(newFrame, i2.frame, 0, frame->sy,
+    0, 0, i2.frame->sx, i2.frame->sy);*/
+
     gdImageCopy(newFrame, frame, 0, 0, 0, 0, frame->sx, frame->sy) ;
     gdImageCopy(newFrame, i2.frame, 0, frame->sy,
                 0, 0, i2.frame->sx, i2.frame->sy);
+    
+    
     gdImageDestroy(frame);
     frame = newFrame;
 }
 
-void Image::addHypothesis(const Hypothesis& hyp)
+void Image::addHypothesis(const Hypothesis& hyp, const bool& invert)
 {
+  if (!invert)
     addArea(hyp.negative, 0, 255, 0);
+  else
+    addArea(hyp.negative, 255, 0, 0);
+  
     Iterator<Hypothesis::SubHypothesis> shi(hyp.subHypList);
     Hypothesis::SubHypothesis sHyp;
     while(shi(sHyp))
     {
+      if (!invert)
         addArea(sHyp.positive, 255, 0, 0);
+      else
+	addArea(sHyp.positive, 0, 255, 0);
     }
 }
 
@@ -418,30 +435,69 @@ void Image::drawNeighborhood(const Neighborhood& n)
   /* draw other vehicles */
   Iterator<State> qi(n.qList);
   State tmpQ;
+  
+  //probably doesn't write the IDs?
   while(qi(tmpQ))
     drawVehicle(tmpQ);
   /* draw frame number */
   writeFrameNumber(now - 1);
 
+  Image copyImg = *this;
+  
   /* draw transition*/
-  writeTransition(n);
+  writeTransition(n.targetLastManeuver, n.targetManeuver);
   
   /* draw hypothesis */
   if(rLev != FAULTY)
     {
-      Image copyImg = *this;
-      Iterator<Hypothesis> hi(n.lastHypLists[n.targetManeuver]);
-      Hypothesis tmpH;
-      hi(tmpH);
+      if (n.targetLastManeuver != n.targetManeuver)
+	{
+	  Iterator<Hypothesis> hi(n.lastHypLists[n.targetManeuver]);
+	  Hypothesis tmpH;
+	  hi(tmpH);
+	  
+	  addHypothesis(tmpH);
+	  while(hi(tmpH))
+	    {
+	      Image tmpImage = copyImg;
+	      tmpImage.addHypothesis(tmpH);
+	      tmpImage.writeFrameNumber(now - 1);
+	      tmpImage.writeTransition(n.targetLastManeuver, n.targetManeuver);
+	      joinWith(tmpImage);
+	    } 
+	}
+      else //same maneuver
+	{
+	  Iterator<Hypothesis> hi(n.lastHypLists[n.targetManeuver]);
+	  Hypothesis tmpH;
+	  hi(tmpH);
 
-      addHypothesis(tmpH);
-      while(hi(tmpH))
-        {
-	  Image tmpImage = copyImg;
-	  tmpImage.addHypothesis(tmpH);
-	  tmpImage.writeFrameNumber(now - 1);
-	  joinWith(tmpImage);
-        }
+	  // if uncertain hypothesis, draw all the hypotheses on the remaining transitions, with inverted positive-negative colors.
+	  if (tmpH.isSameManeuverUncertain)
+	    {
+	      for (int i = 0; i < N_MANEUVER; i++)
+		{
+		  if ((Maneuver)i == n.targetManeuver)
+		    continue;
+
+		  Iterator<Hypothesis> otherHI(n.lastHypLists[i]);
+		  Hypothesis otherH;
+
+		  while(otherHI(otherH))
+		    {		      
+		      Image tmpImg = copyImg;
+		      tmpImg.addHypothesis(otherH, true);
+		      tmpImg.writeFrameNumber(now-1);
+		      tmpImg.writeTransition(n.targetLastManeuver, (Maneuver)i, true);
+		      joinWith(tmpImg);
+		    }
+		  
+
+		  
+		}
+	    }
+	  
+	}
     }
 }
 
@@ -455,6 +511,31 @@ void Image::drawNeighborhood(const Neighborhood& n, const State& q, Maneuver m,
 void Image::saveConsensusImages(const Environment& env,
                                 const State lastStates[], int cStep)
 {
+  /* How to read consensus images:
+   
+     Blue vehicles are the observers,
+     Red, yellow and green vehicles are the monitors, respectively recognized with
+        FAULTY, UNCERTAIN and CORRECT behaviour.
+     
+     Each consensum image might contain more than one hypothesis on the transition SIGMA1 => SIGMA2
+
+     If SIGMA1 != SIGMA2
+          each hypothesis refers to a different possibility. Red areas represent hypotheses 
+	  on absence of a vehicle with a certain logical function. Green areas, analogously, 
+	  refers to the presence of a vehicle. The transition is true if both green and red
+	  areas are occupied by vehicles accordingly.
+
+
+     If SIGMA1 == SIGMA2
+          As the transition is true only if all the others are false, the different hypotheses
+	  represent the non-realization of the transition SIGMA1 => OTHER_SIGMA. The colors of
+	  the areas have the same meaning as the SIGMA1 != SIGMA2 case (the colors
+	  of the anti-hypothesis are inverted with respect to the hypothesis), but now, for the
+	  condition to be true, is sufficient that only one between the red and green areas are
+	  occupied accordingly to their meaning. This is because !(A && B) = !A || !B
+
+  */
+  
     for(int i = 0; i < env.nV; i++)
     {
         List<Neighborhood> nList;

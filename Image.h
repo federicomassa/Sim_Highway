@@ -25,7 +25,7 @@ class Image
     void addVehicle(const Vehicle&, bool isSubject = false);
     void drawVehicle(const State& q, const Maneuver m = FAST, int index = -1,
                      bool isSubject = false, RepLevel rLev = UNSET);
-    void addHypothesis(const Hypothesis& hyp);
+    void addHypothesis(const Hypothesis& hyp, const bool& invert = false);
     void cp(const Image& im);
 public:
     /* constructor */
@@ -50,7 +50,7 @@ public:
     /* write frame number in upper right corner */
     void writeFrameNumber(int n = -1);
     /* write transition at the top */
-    void writeTransition(const Neighborhood&);
+    void writeTransition(const Maneuver&, const Maneuver&, const bool& invert = false);
     /* draw all vehicles */
     void addAllVehicles(const Environment&);
     /* draw all visible vehicles from i-th vehicle */
