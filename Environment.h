@@ -17,10 +17,10 @@ class Environment
     /* array of vehicles */
     Vehicle* v;
     /* number of vehicles */
-    int nV;
+    const int nV;
 public:
     /* constructor */
-    Environment(int n, double r, double p);
+ Environment(int n, double r, double p);
     /* destructor */
     ~Environment() { delete[] v; }
     /* vehicles initialization */

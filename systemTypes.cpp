@@ -49,3 +49,9 @@ string operator+(const string& str, Maneuver m)
   return "";
   
 }
+
+string operator+(Maneuver m, const string& str)
+{
+  return (str + m);
+}
+

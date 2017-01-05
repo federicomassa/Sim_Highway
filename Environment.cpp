@@ -3,9 +3,8 @@
 #include <iostream>
 
 
-Environment::Environment(int n, double r, double p) : repChannel(r, p)
+Environment::Environment(int n, double r, double p) : repChannel(r, p), nV(n)
 {
-    nV = n;
 
     v = new Vehicle[nV];
 
@@ -271,49 +270,64 @@ void Environment::observableArea(int index, Area& obs) const
 
 void Environment::run()
 {
-    /* update states */
-    for(int i = 0; i < nV; i++)
-        v[i].run();
-
-    /* simulate */
-    for(int i = 0; i < nV; i++)
+  Area* obsAreas = new Area[nV];
+  List<Sensing>* sLists = new List<Sensing>[nV];
+  
+  /* update states */
+  for(int i = 0; i < nV; i++)
+    v[i].run();
+  
+  /* simulate */
+  for(int i = 0; i < nV; i++)
     {
-        if(CONF.debug)
+      if(CONF.debug)
         {
-            LOG.s << "Evolving vehicle ";
-            LOG.s.width(2);
-            LOG.s.fill('0');
-            LOG.s << i << ':' << EndLine(EndLine::INC);
+	  LOG.s << "Evolving vehicle ";
+	  LOG.s.width(2);
+	  LOG.s.fill('0');
+	  LOG.s << i << ':' << EndLine(EndLine::INC);
         }
-        
-        /* compute observable area of i-th vehicle */
-        Area obs;
-        observableArea(i, obs);
-        
-        List<Sensing> sList;
-        if(CONF.debug)
+      
+      Area obs;
+      observableArea(i,obs);
+      obsAreas[i] = obs;
+
+      
+      List<Sensing> sList;
+      
+      if(CONF.debug)
         {
-            LOG.s << "Evaluating vehicles inside active area:";
-            LOG.s << EndLine(EndLine::INC);
+	  LOG.s << "Evaluating vehicles inside active area:";
+	  LOG.s << EndLine(EndLine::INC);
         }
-        for(int j = 0; j < nV; j++)
+      for(int j = 0; j < nV; j++)
         {
 	  // vehicles seen by the subject are the ones within observable area
-            if(j != i && v[j].inArea(obs))
+	  if(j != i && v[j].inArea(obs))
             {
 	      Sensing tmpS(v[j].getID(), v[j].getQ(), v[j].getParms(), v[j].getManeuver());
-                sList.insHead(tmpS);
+	      sList.insHead(tmpS);
             }
         }
-        if(CONF.debug)
-            LOG.s << sList << EndLine(EndLine::DEC);
-        
-        /* stimulate vehicle */
-        v[i].preRun(sList, obs);
-        
-        if(CONF.debug)
-            LOG.s << EndLine(EndLine::DEC);
+
+      sLists[i] = sList;
+      
+      if(CONF.debug)
+	LOG.s << sList << EndLine(EndLine::DEC);
+      
+      if(CONF.debug)
+	LOG.s << EndLine(EndLine::DEC);
     }
+
+  for (int i = 0; i < nV; i++)
+    {
+      /* stimulate vehicle */
+      v[i].preRun(sLists[i], obsAreas[i]);
+    }
+
+  delete[] sLists;
+  delete[] obsAreas;
+
 }
 
 void Environment::omniscientNeighborhoodList(List<Neighborhood>& oNL)

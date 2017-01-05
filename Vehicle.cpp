@@ -35,7 +35,8 @@ void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
         mLayer.run(sList, pLayer.getQ(), obs);
     /* set reputation manager */
     if(repMan.isActive())
-        setRM();
+      setRM();
+      
 }
 
 void Vehicle::getHypothesis(List<Hypothesis>& hList)

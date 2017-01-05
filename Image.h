@@ -49,6 +49,8 @@ public:
     int getCTime() const { return cTime; }
     /* write frame number in upper right corner */
     void writeFrameNumber(int n = -1);
+    /* write transition at the top */
+    void writeTransition(const Neighborhood&);
     /* draw all vehicles */
     void addAllVehicles(const Environment&);
     /* draw all visible vehicles from i-th vehicle */

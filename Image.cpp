@@ -1,5 +1,5 @@
-
 #include "Image.h"
+#include "systemTypes.h"
 
 void Image::cp(const Image& im)
 {
@@ -99,6 +99,38 @@ void Image::writeFrameNumber(int n)
                     x1 + (int)round((double)(35 - brect[2] + brect[0]) / 2.0),
                     y1 + 12, (char*)cTimeString.c_str());
 }
+
+void Image::writeTransition(const Neighborhood& n)
+{
+    /* error handling */
+    if (frame == NULL)
+        error("Image::writeTransition", "frame is NULL");
+        
+    int white, black, brect[8];
+    
+    black = gdImageColorResolve(frame, 0, 0, 0);
+    white = gdImageColorResolve(frame, 255, 255, 255);
+    const int x1 = FRAME_W/100*3;
+    const int x2 = FRAME_W/100*25;
+    const int y1 = 1;
+    const int y2 = 15;
+
+    string transition = "";
+    transition = transition + n.targetLastManeuver;
+    transition = transition + " => ";
+    transition = transition + n.targetManeuver;
+
+
+    
+    gdImageFilledRectangle(frame, x1, y1, x2, y2, white);
+    gdImageRectangle(frame, x1, y1, x2, y2, black);
+    gdImageStringFT(NULL, brect, black, FONT_NAME,
+                    10, 0, x1, y1, (char*)transition.c_str());
+    gdImageStringFT(frame, brect, black, FONT_NAME, 10, 0,
+                    x1 + (int)round((double)(x2-x1 + 1 - brect[2] + brect[0]) / 2.0),
+                    y1 + 12, (char*)transition.c_str());
+}
+
 
 string Image::save(const string prefix, const string suffix)
 {
@@ -390,6 +422,10 @@ void Image::drawNeighborhood(const Neighborhood& n)
     drawVehicle(tmpQ);
   /* draw frame number */
   writeFrameNumber(now - 1);
+
+  /* draw transition*/
+  writeTransition(n);
+  
   /* draw hypothesis */
   if(rLev != FAULTY)
     {

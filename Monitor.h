@@ -25,6 +25,7 @@
 class Monitor
 {
     friend class Image;
+    friend class MonitorLayer; //FIXME only debug
     /*!
      * \brief Redefinition of operator ==.
      */

@@ -89,15 +89,13 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ,
 	/* detect target maneuver */
 	m->detectManeuver(s.q, s.sigma);
 	
-	if(m->isLocked())
-	  {
-	    /* predict possible maneuvers */
-	    m->predictManeuvers(qList, obs);
-	  }
-	/* predict possible states for next step */
+	/* predict possible maneuvers */
+	m->predictManeuvers(qList, obs);
+
 	
-	//m->predictStates(/* For platoon */ qList);
     }
+
+
     
     if(CONF.debug)
         LOG.s << "Deleting unused monitors: ";
@@ -147,6 +145,12 @@ void MonitorLayer::buildNeighborhoodList(List<Neighborhood>& nList) const
     {
         Neighborhood n;
         if(m->buildNeighborhood(n))
+	  {
             nList.insHead(n);
+	  }
     }
+
+
+    
+    
 }

@@ -21,9 +21,9 @@ Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver&
       possibleManeuvers[i] = true;
     targetParms = tP;
     targetManeuver = tSigma;
+    
     targetLastManeuver = UNKNOWN;
     automaton.setManeuver(tSigma, targetQ);
-
     //build starting neighborhood
     /* compute active area for target agent */
     Area active;
@@ -40,8 +40,8 @@ Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver&
     neighbors = activeList;
 
     
-    targetLocked = true; //FIXME: fixed to true for now
-    hypReady = false;
+    targetLocked = false;
+    hypReady = true; //FIXME: fixed to true
 }
 
 void Monitor::predictStates(/* For platoon */ List<State> qList)
@@ -68,6 +68,7 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
       LOG.s << "Computing possible maneuvers for vehicle " << targetID << " as seen by vehicle " << agentID;
       LOG.s << " BEGIN..." << EndLine(EndLine::INC);
     }
+
   
   /* compute active area for target agent */
   Area active;
@@ -174,10 +175,12 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
                 if(e->getValue().nonOmniscientValue == T)
                 {
                     /* build Hypothesis without uncertainty */
-                    Hypothesis h;
-                    h.eventID = e->idx;
-                    possibleHypLists[i].insHead(h);
-                    break;
+		  LOG.s << "Added sure hypothesis on transition: " << targetManeuver << " => " << (Maneuver)i << EndLine();
+		  
+		  Hypothesis h;
+		  h.eventID = e->idx;
+		  possibleHypLists[i].insHead(h);
+		  break;
                 }
             certainEventDetected = true;
             break;
@@ -192,6 +195,8 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
     if (sameManeuverDetected == T)
       {
 	// SIGMA => SIGMA detected: build hypothesis without uncertainty
+	LOG.s << "Added sure hypothesis on transition: " << targetManeuver << " => " << targetManeuver << EndLine();
+	
 	Hypothesis h;
 	possibleHypLists[(int)targetManeuver].insHead(h);
 	certainEventDetected = true;
@@ -208,6 +213,8 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
 	    {
 	      if (sameManeuverDetected == U)
 		{
+		  LOG.s << "Added hypothesis on transition: " << targetManeuver << " => " << targetManeuver << EndLine();
+		  
 		  Hypothesis h;
 		  h.isSameManeuverUncertain = true;
 		  possibleHypLists[i].insHead(h);
@@ -265,11 +272,17 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
 
 void Monitor::detectManeuver(const State& q, const Maneuver& sigma)
 {
+  //do not call the first time
+  if (!targetLocked)
+    {
+      targetLocked = true;
+      return;
+    }
+  
   /* reset hypothesis */
   hypothesisList.purge();
 
   targetLastManeuver = targetManeuver;
-  lastHypLists = possibleHypLists;
   
   if(CONF.debug)
     LOG.s << "Detected maneuver " << sigma << EndLine();
@@ -279,7 +292,7 @@ void Monitor::detectManeuver(const State& q, const Maneuver& sigma)
       hypothesisList = possibleHypLists[(int)sigma];
       hypReady = true;
     }
-
+  
   automaton.setManeuver(sigma, q);   
   
   if(sigma != targetManeuver || !CONF.monitorsNeedLock)
@@ -296,6 +309,9 @@ void Monitor::detectManeuver(const State& q, const Maneuver& sigma)
   hypothesisList.sort();
   targetLastQ = targetQ;
   targetQ = q;
+
+  lastHypLists = possibleHypLists;
+
 }
 
 bool Monitor::getFirstHypothesis(Hypothesis& hyp) const

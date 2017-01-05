@@ -18,6 +18,7 @@ enum Maneuver { FAST, SLOW, LEFT, RIGHT, PLATOON, UNKNOWN };
 
 ostream& operator<<(ostream& os, Maneuver m);
 string operator+(const string&, Maneuver);
+string operator+(Maneuver, const string&);
 /* continuous control */
 struct Control { double a; double omega; };
 

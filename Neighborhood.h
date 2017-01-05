@@ -20,6 +20,7 @@ class Neighborhood
 {
     friend class Image;
     friend class Monitor;
+    friend class MonitorLayer; //FIXME only for debug
     friend ostream& operator<<(ostream& os, const Neighborhood& n);
     friend bool operator==(const Neighborhood& n1, const Neighborhood& n2)
     {
