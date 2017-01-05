@@ -217,10 +217,10 @@ void Configuration::parseConf(const string& fileName)
             }
             continue;
 		}
-		if(tmpS == "failures")
-		{
+     	if(tmpS == "failures")
+	  {
             while(!inFile.eof())
-            {
+	      {
                 getline(inFile, str, '\n');
                 line++;
                 if(str.empty())

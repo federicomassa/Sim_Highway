@@ -90,6 +90,9 @@ void Automaton::run(const State& qSubj, const List<State>& qList)
                     if((Maneuver)i == RIGHT
                        && fail.aFailures.belongs(Failure::NORIGHT))
                         break;
+		    else if ((Maneuver)i == PLATOON &&
+			     fail.aFailures.belongs(Failure::NOPLATOON))
+		      break;
                     /* set new maneuver */
                     setManeuver((Maneuver)i, qSubj);
                 }

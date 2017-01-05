@@ -8,23 +8,31 @@ Failure::Failure(string str)
     string tmpS;
     for(token >> tmpS; (int)token.tellg() != -1; token >> tmpS)
     {
+      std::cout << "Failure read: " << tmpS << std::endl;
         /* automaton failures */
         if(tmpS == "NORIGHT")
-        {
+	  {
             aFailures.insHead(NORIGHT, true);
             continue;
-        }
+	  }
+	if(tmpS == "NOPLATOON")
+	  {
+	    std::cout << "Set NOPLATOON for vehicle " << idx << std::endl;
+            aFailures.insHead(NOPLATOON, true);
+            continue;
+	  }
+
         if(tmpS == "JAMMER")
-        {
+	  {
             aFailures.insHead(JAMMER, true);
             continue;
-        }
+	  }
         /* communication failures */
         if(tmpS == "DUMMY")
-        {
+	  {
             cFailures.insHead(DUMMY, true);
             continue;
-        }
+	  }
         /* error handling */
         error("Failure", "parse error (" + tmpS + ')');
     }    
@@ -40,6 +48,9 @@ ostream& operator<<(ostream& os, const Failure::AutomFailure& aF)
         case Failure::JAMMER:
             os << "JAMMER";
             break;
+        case Failure::NOPLATOON:
+  	    os << "NOPLATOON";
+	    break;
     }
     
     return os;

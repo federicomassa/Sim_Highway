@@ -11,7 +11,7 @@ class Failure
 {
 public:
     /* automaton failure */
-    enum AutomFailure { NORIGHT, JAMMER };
+  enum AutomFailure { NORIGHT, JAMMER, NOPLATOON };
     /* communication failure */
     enum CommFailure { DUMMY };
     
