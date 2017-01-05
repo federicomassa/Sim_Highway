@@ -377,7 +377,7 @@ void Image::joinWith(const Image& i2)
         error("Image::joinWith", "try to join NULL images");
     
     gdImagePtr newFrame =
-        gdImageCreateTrueColor(frame->sx, frame->sy + frame->sy);
+        gdImageCreateTrueColor(frame->sx, frame->sy + i2.frame->sy);
     /* error handling */
     if (frame == NULL)
         error("Image::joinWith", "cannot allocate mew image");
@@ -484,7 +484,13 @@ void Image::drawNeighborhood(const Neighborhood& n)
 		  Hypothesis otherH;
 
 		  while(otherHI(otherH))
-		    {		      
+		    {
+		      if (n.targetLastManeuver == PLATOON &&
+			  n.agentID == 0 &&
+			  n.targetID == 1 &&
+			  now == 1)
+			std::cout << "MI!!" << std::endl;
+		      
 		      Image tmpImg = copyImg;
 		      tmpImg.addHypothesis(otherH, true);
 		      tmpImg.writeFrameNumber(now-1);
