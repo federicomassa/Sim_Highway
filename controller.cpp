@@ -3,7 +3,7 @@
 #include "rules.h"
 #include <iostream>
 
-Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<State> qList)
+Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<State> qList, int idx)
 {
     Control c;
     
@@ -84,6 +84,7 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 	    else
 	      {
 		c.a = -B_BACK*(q.x - behindQ.x - D_REF) /*- GAMMA*B_BACK*(q.v - behindQ.v)*/ - 10*K_LEADER*(q.v - q.desiredV);
+
 	      }
 
 	    //	    std::cout << "a: " << c.a << std::endl;
@@ -102,7 +103,14 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 	  } else
 	    c.omega = - (q.y - (floor(q.y) + 0.5) ) * q.v;
 
-
+	  /*	  if (idx == 2)
+	    {
+	      std::cout << "aheadComp: " << isVehicleAheadCompatible << std::endl;
+	      std::cout << "backComp: " << isVehicleBehindCompatible << std::endl;
+	      std::cout << "aheadBlock: " << isVehicleAheadBlocking << std::endl;
+	      std::cout << "v: " << q.v << std::endl;
+	      }*/
+			
 	  
 	  break;
 	}
@@ -133,16 +141,25 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 	}
 	break;
       case LEFT:
-	c.a = ACCELERATION;
+	if (q.v < q.desiredV)
+	  c.a = ACCELERATION;
+	else
+	  c.a = 0;
+	
 	c.omega = MAX_ANGULAR_SPEED;
 	break;
       case RIGHT:
-	c.a = ACCELERATION;
+	if (q.v < q.desiredV)
+	  c.a = ACCELERATION;
+	else
+	  c.a = 0;
+	
 	c.omega = -MAX_ANGULAR_SPEED;
 	break;
       default:
 	error("computeControl", "maneuver UNKNOWN passed");
       }
+
     
     if(c.omega > 0)
     {

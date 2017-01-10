@@ -26,6 +26,6 @@
 #define Y_OFFSET (FRAME_H - 9)
 #define FPS 20
 #define FONT_NAME INPUT_DIR "/times.ttf"
-#define AREA_OPACITY 30
+#define AREA_OPACITY 20
 
 #endif

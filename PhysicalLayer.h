@@ -14,6 +14,7 @@ class PhysicalLayer
     State q;
     State nextQ;
     Parms maxV;
+    int idx;
 public:
     /* constructor */
     PhysicalLayer() { maxV = 0; }
@@ -35,6 +36,7 @@ public:
     State getQ() const { return q; }
     /* get parameters */
     Parms getParms() const { return maxV; }
+    void setID(int index) {idx = index;}
 };
 
 #endif

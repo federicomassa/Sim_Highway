@@ -120,12 +120,15 @@ void Neighborhood::intersectionWith(const Neighborhood& n)
 		if(valid)
 		  tmpHL.insTail(hyp);
 	      }
-	    else if(hyp.eventID == -1)
-	      tmpHL.insTail(hyp);
+	    else if(hyp.eventID == -1 && ntmpHL.find(hyp, tmpHyp))
+	      tmpHL.insTail(hyp);	    
+		  
+	      
+	   
 	  }
 	/* sort hypotesis list */
 	tmpHL.sort();
-
+	
       }
     
     // ========= End of lastHypLists merging =========

@@ -12,6 +12,6 @@
 
 extern Logger LOG;
 
-Control computeControl(Maneuver, const State&, /* For platoon */ List<State>);
+Control computeControl(Maneuver, const State&, /* For platoon */ List<State>, int idx = -1);
 
 #endif

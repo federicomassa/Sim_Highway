@@ -484,13 +484,7 @@ void Image::drawNeighborhood(const Neighborhood& n)
 		  Hypothesis otherH;
 
 		  while(otherHI(otherH))
-		    {
-		      if (n.targetLastManeuver == PLATOON &&
-			  n.agentID == 0 &&
-			  n.targetID == 1 &&
-			  now == 1)
-			std::cout << "MI!!" << std::endl;
-		      
+		    {		      
 		      Image tmpImg = copyImg;
 		      tmpImg.addHypothesis(otherH, true);
 		      tmpImg.writeFrameNumber(now-1);

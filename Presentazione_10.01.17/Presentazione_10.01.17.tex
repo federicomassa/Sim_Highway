@@ -1,0 +1,243 @@
+\documentclass{beamer}
+\usetheme{CambridgeUS}
+\usecolortheme{default}
+\setbeamercolor{itemize item}{fg=darkred!80!black}
+
+
+\makeatletter
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}F. Massa
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}Platoon: controller + monitor
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+    \usebeamerfont{date in head/foot}10 Gennaio 2017\hspace*{2em}
+    \insertframenumber{} / \ref{Conclusions}\hspace*{2ex} 
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+\makeatother
+
+\setbeamercolor{section in head/foot}{fg=white, bg=darkred!95!white}
+
+\setbeamercolor{palette quaternary}{use=structure, bg=darkred!80!black} % changed this
+
+
+\setbeamertemplate{headline}{%
+\leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1.125ex]{palette quaternary}%
+    \insertsectionnavigationhorizontal{\paperwidth}{}{\hfill \hfill}
+    \end{beamercolorbox}%
+  }
+}
+
+\title{Highway simulator: \\
+Controller e Monitor nel platoon}
+%\subtitle{Laurea Magistrale in Fisica}
+%\author{Federico Massa}
+%\institute{\large{Laurea Magistrale in Fisica \\
+%Universit\`a di Pisa}}
+\date{\small 10 Gennaio 2017}
+
+%\setbeameroption{show notes}
+\setbeameroption{hide notes}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{positioning, calc}
+\newcommand{\tikzmark}[1]{\tikz[overlay,remember picture] \node (#1) {};}
+
+\usepackage{amsmath}% mathtools includes this so this is optional
+\usepackage{mathtools}
+\usepackage[export]{adjustbox}
+\usepackage{multimedia}
+\usepackage[utf8x]{inputenc}
+\usepackage{tcolorbox}
+\definecolor{dred}{RGB}{200, 0, 0}
+
+\begin{document}
+
+%-----------------------------------------
+
+{\setbeamertemplate{footline}{}
+\setbeamertemplate{headline}{}
+\begin{frame}
+\titlepage
+\bigskip
+\medskip
+\centering\small Federico Massa
+
+\end{frame}}
+\addtocounter{framenumber}{-1}
+
+
+\begin{frame}
+\frametitle{Stato del lavoro}
+Estensione del simulatore pre-esistente per lo studio della dinamica di \textit{platoon}.
+\bigskip
+\bigskip
+\begin{itemize}
+\item Estensione della macchina a stati
+\item Definizione del controller
+\item Modifica dell'informazione comunicata
+\item Adattamento del sistema di monitoring
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Macchina a stati}
+Precedentemente costituita da 4 stati \\
+\hspace{1cm}$\rightarrow$ aggiunta dello stato di PLATOON.\\
+\medskip
+Un veicolo decide di entrare nello stato di PLATOON quando la sua ``velocità desiderata'' è compatibile con quella di un vicino.
+\begin{center}
+\includegraphics<1>[width=.7\linewidth]{State_machine_simple}
+\includegraphics<2>[width=.7\linewidth]{State_machine}
+\end{center}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Regole di transizione}
+Le regole di transizione da/verso lo stato di PLATOON si basano sul 
+concetto di ``velocità desiderata'':\\
+
+\begin{itemize}
+	\item Velocità a cui i veicoli viaggiano in assenza di impedimenti
+	\item Il leader del platoon determina a quale velocità viaggiare attraverso
+		  questo parametro
+	\item Si ipotizza che ogni veicolo metta questa informazione a disposizione
+			degli altri.
+\end{itemize}
+
+$\rightarrow$ I veicoli transiscono allo stato di PLATOON quando
+almeno uno dei veicoli che seguono/precedono hanno una velocità desiderata \emph{compatibile} con la loro (es. entro il 10\%).
+
+\bigskip
+I ``platoon'' sono quindi dinamicamente formati ogniqualvolta un veicolo si trova vicino ad un altro che ha una velocità desiderata compatibile con la propria. Non sono per il 
+momento previste alternanze del leader.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Controller}
+
+Sostanziale differenza del PLATOON rispetto agli altri stati\\
+\boldmath $\rightarrow$ \textbf{Il valore dell'accelerazione dipende dallo stato
+continuo di altri veicoli.} (implicazioni importanti per il monitor...)\\
+\bigskip
+
+\textbf{\color{dred}{Primo caso: veicoli compatibili davanti e dietro}}
+$$
+a = -b_b (x - x_b) - b_f (x - x_f) - c \left[b_b (v - v_b) + b_f (v - v_f)\right]
+$$
+
+\textbf{\color{dred}{Secondo caso: coda del platoon}}
+$$
+a = -b_{f} (x - x_{f} + d_{ref}) - c \left[b_{f} (v - v_{f})\right]
+$$
+
+\textbf{\color{dred}{Terzo caso: leader del platoon, nessuno davanti}}
+$$
+a = -b_{b} (x - x_{b} - d_{ref}) - k \left[b_{b} (v - v_{desired})\right]
+$$
+
+\textbf{\color{dred}{Quarto caso: leader del platoon, veicolo incompatibile davanti}}
+$$
+a = -b_b (x - x_b - d_{ref}) - b_f (x - x_f + d_{safe}) - c \left[b_b (v - v_b) + b_f (v - v_f)\right]
+$$
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Esempi}
+
+\movie[externalviewer]{\includegraphics[scale=0.5]{overtake1.png}}{overtake1.avi}
+\movie[externalviewer]{\includegraphics[scale=0.5]{overtake2.png}}{overtake2.avi}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Monitoring precedente}
+Come funzionava prima:
+\begin{itemize}
+\item L'osservatore misura lo stato continuo dei suoi vicini;
+\item Dal confronto con lo stato continuo dello stato precedente, deduce lo stato discreto dell'istante precedente;
+\item Elabora delle ipotesi sulle manovre successive, basandosi sulla possibile realizzazione 
+degli eventi definenti le transizioni tra stati;
+\item Una volta dedotta la reale transizione, verifica che ci siano o meno ipotesi per giustificarla e calcola una reputazione (``faulty'', ``uncertain'', ``correct'').
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Monitoring attuale}
+
+\textbf{Problema:} non è possibile dedurre lo stato discreto dal confronto tra gli stati continui in istanti consecutivi, perché il controller del PLATOON dipende dagli stati di altri veicoli, che potrebbero non essere visibili dall'osservatore. \\
+
+\boldmath $\rightarrow$ \textbf{Ipotesi semplificativa: lo stato discreto viene comunicato}
+
+Il monitor funziona come prima, con alcune modifiche/aggiunte:
+\begin{itemize}
+\item la previsione delle future manovre può essere fatta sin dal primo istante;
+\item i veicoli rimangono nello stesso stato discreto quando non si verifica nessuna delle altre transizioni. In questo caso, all'evento non è possibile associare direttamente un'area come negli altri casi.
+\item vengono salvate non solo le ipotesi relative alla transizione osservata, ma anche le altre, in modo tale da poter visualizzare correttamente la transizione verso lo stesso stato. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Consenso}
+
+Il consenso non è stato modificato: 5 iterazioni
+\begin{itemize}
+\item ogni veicolo invia in broadcast le informazioni sulle sue ``neighborhood'', ovvero
+le sue ricostruzioni dei vicini degli altri veicoli.
+\item ogni veicolo riceve il broadcast ed esegue un ``merge'' dell'informazione.
+\end{itemize}
+
+Il broadcast di ogni veicolo ha un range specificato a priori, per cui possono essere necessarie più iterazioni per raggiungere il consenso completo sulla reputazione di un veicolo.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Esempi - correct}
+\includegraphics[width=\linewidth]{situation1}
+
+\includegraphics<1>[width=\linewidth]{situation1_CS00.png}
+\includegraphics<2>[width=\linewidth]{situation1_CS01.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Esempi - NOPLATOON failure}
+\includegraphics[width=\linewidth]{situation2}
+
+\includegraphics<1>[width=\linewidth]{situation2_CS00.png}
+\includegraphics<2>[width=\linewidth]{situation2_CS01.png}
+\end{frame}
+
+\begin{frame}\label{Conclusions}
+\frametitle{Conclusioni}
+Il simulatore è stato esteso per funzionare con la dinamica di PLATOON:
+\begin{itemize}
+\item Ipotesi fondamentali: comunicazione della velocità desiderata e
+dello stato discreto;
+\item Formulazione di ipotesi chiare anche nel caso SIGMA => SIGMA
+\end{itemize}
+
+Limitazioni:
+\begin{itemize}
+\item Ciò che viene comunicato è una lista di ``neighborhood'' dei veicoli. In realtà un veicolo
+potrebbe avere informazioni utili per gli altri anche nel caso in cui non vede direttamente il monitor in esame.
+\item In automi più complicati, non tutti i ``sub-eventi'' possono essere scritti in termini di OR o NOR.
+\item A causa delle complicazioni dell'automa, la rappresentazione grafica di alcune ipotesi può risultare ambigua, a causa di sub-eventi di tipo OR e NOR che condividono parte dell'area. Occorre ricordare che ad ogni area corrisponde una determinata condizione logica.
+\end{itemize}
+\end{frame}
+
+\end{document}
+

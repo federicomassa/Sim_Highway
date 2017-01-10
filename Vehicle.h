@@ -28,6 +28,7 @@ public:
         idx = index;
         automaton.setID(index);
         mLayer.setID(index);
+	pLayer.setID(index);
     }
     /* initialize the reputation manager */
     void initRM(Channel<List<Neighborhood> >* rC) { repMan.init(rC, idx); }

@@ -3,7 +3,7 @@
 
 void PhysicalLayer::computeNextQ(Maneuver sigma, /* For platoon  */ List<State> qList)
 {
-  Control c = computeControl(sigma, q, /* For platoon */ qList);
+  Control c = computeControl(sigma, q, /* For platoon */ qList, idx);
 
     if(CONF.debug)
         LOG.s << "Computing nextQ state..." << EndLine();
