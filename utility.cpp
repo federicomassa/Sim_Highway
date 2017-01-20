@@ -10,6 +10,7 @@
 
 #include "utility.h"
 #include <cstdlib>
+#include <cmath>
 
 /**
  * this function gives information about a specific error and it terminates
@@ -53,4 +54,50 @@ string toString(int i, int pad)
     ss << i;
     ss >> str;
     return str;
+}
+
+string toString(double i, int precision, int pad)
+{
+  /* copy value */
+  double x = i;
+  
+  stringstream ss;
+  if(pad)
+    {
+      ss.fill('0');
+      ss.width(pad);
+    }
+  string str;
+  
+  if (precision && i != 0)
+    {
+      double logx = floor(log10(x));
+      
+      x = x/pow(10, logx + 1 - precision);
+      x = round(x);
+      x = x*pow(10, logx + 1 - precision);
+    }
+
+
+  ss << x;
+  
+  ss >> str;
+  return str;
+}
+
+double setPrecision(const double& n, const int& precision)
+{
+  /* copy value */
+  double x = n;
+    
+  if (precision && n != 0)
+    {
+      double logx = floor(log10(x));
+      
+      x = x/pow(10, logx + 1 - precision);
+      x = round(x);
+      x = x*pow(10, logx + 1 - precision);
+    }
+
+  return x;
 }

@@ -8,6 +8,7 @@
 #include "List.h"
 #include "systemTypes.h"
 #include "utility.h"
+#include "State.h"
 
 class Configuration
 {

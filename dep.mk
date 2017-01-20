@@ -23,6 +23,7 @@ Event.o: Event.cpp Event.h SubEvent.h Area.h Logger.h Configuration.h \
   EvalMode.h
 ExtValue.o: ExtValue.cpp ExtValue.h EvalMode.h
 Failure.o: Failure.cpp Failure.h List.h EndLine.h Iterator.h utility.h
+Grid.o: Grid.cpp Grid.h utility.h definition.h
 Hypothesis.o: Hypothesis.cpp Hypothesis.h Area.h Logger.h Configuration.h \
   EndLine.h List.h Iterator.h systemTypes.h State.h systemParms.h \
   utility.h Vector.h Failure.h definition.h Rectangle.h
@@ -56,6 +57,12 @@ Output.o: Output.cpp Output.h definition.h utility.h
 PhysicalLayer.o: PhysicalLayer.cpp PhysicalLayer.h controller.h EndLine.h \
   Logger.h Configuration.h List.h Iterator.h systemTypes.h State.h \
   systemParms.h utility.h Vector.h Failure.h definition.h #Path.h
+Predictor.o: Predictor.cpp Predictor.h Sensing.h List.h PhysicalLayer.h \
+  Environment.h EndLine.h systemTypes.h Iterator.h controller.h Logger.h \
+  systemTypes.h Vehicle.h Output.h Failure.h State.h Configuration.h definition.h \
+  ReputationManager.h MonitorLayer.h utility.h Vector.h Channel.h Neighborhood.h \
+  Monitor.h Message.h Hypothesis.h Reputation.h Automaton.h Area.h rules.h Rectangle.h \
+  Transition.h Event.h SubEvent.h ExtValue.h EvalMode.h DynVector.h Tensor4.h
 ProgressBar.o: ProgressBar.cpp ProgressBar.h
 Rectangle.o: Rectangle.cpp Rectangle.h definition.h EndLine.h List.h \
   Iterator.h utility.h Vector.h

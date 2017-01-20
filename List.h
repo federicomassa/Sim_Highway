@@ -192,6 +192,15 @@ public:
      */
     bool extrHead(T& i);
     /*!
+     * \brief Extract an element from the bottom of the list and return it.
+     *
+     * @param i information extracted from the list.
+     * @return True if extraction happens, otherwise false -- in this case
+     * information i isn't filled.
+     */
+    bool extrTail(T& i);
+
+    /*!
      * \brief Get the first element of the list and return it.
      *
      * @param i information read from the list.
@@ -401,12 +410,46 @@ bool List<T>::extrHead(T& i)
 }
 
 template<typename T>
+bool List<T>::extrTail(T& i)
+{   
+    if(head == NULL)
+        return false;
+
+    
+    int length = count();
+
+    //if only one element, head must be moved
+    if (length == 1)
+      return extrHead(i);
+    
+    /* extraction from the bottom of the list */
+    Elem* penultimate = head;
+
+    //take penultimate element
+    for (int n = 0; n < length - 2; n++)
+      penultimate = penultimate->next;
+
+    //now take last element 
+    Elem* last = penultimate->next;
+
+    //penultimate will become last
+    penultimate->next = NULL;
+
+    
+    i = last->info;
+    delete last;
+        
+    return true;
+}
+
+
+template<typename T>
 bool List<T>::getFirst(T& i) const
 {   
     if(head == NULL)
         return false;
     
-    /* return the top of the list */
+    /* retur/n the top of the list */
     i = head->info;
     
     return true;

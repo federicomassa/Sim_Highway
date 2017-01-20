@@ -6,11 +6,9 @@
 #include <cmath>
 
 #include "systemParms.h"
+#include "systemTypes.h"
 #include "utility.h"
 #include "Vector.h"
-
-using namespace std;
-
 
 class State
 {
@@ -18,8 +16,11 @@ class State
     {
         return size(s.x) + size(s.y) + size(s.theta) + size(s.v);
     }
+
+
+    
     /* initialize state's members */
-    void init(double qX, double qY, double qTheta, double qV, double qDesiredV, string qInitManeuver);
+    void init(double qX, double qY, double qTheta, double qV, double qDesiredV, std::string qInitManeuver);
 public:
 	double x;
 	double y;
@@ -28,14 +29,14 @@ public:
 
 	//Mainly for platoon --- Added by Federico Massa
 	double desiredV;
-	string initManeuver;
+	std::string initManeuver;
 	
 	/* constructor */
-	State(double qX = 0, double qY = 0, double qTheta = 0, double qV = 0, double qDesiredV = 0, string qInitManeuver = "FAST")
+	State(double qX = 0, double qY = 0, double qTheta = 0, double qV = 0, double qDesiredV = 0, std::string qInitManeuver = "FAST")
     {
       init(qX, qY, qTheta, qV, qDesiredV, qInitManeuver);
     }
-    State(const string& str);
+    State(const std::string& str);
 	/* destructor */
 	~State() { }
 	/* calculate the distance from another state */

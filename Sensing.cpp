@@ -21,3 +21,15 @@ bool operator!=(const Sensing& s1, const Sensing& s2)
 {
     return !(s1 == s2);
 }
+
+bool operator<(const Sensing& s1, const Sensing& s2)
+{
+  if (s1.agentID < s2.agentID)
+    return true;
+  else if (s1.agentID > s2.agentID)
+    return false;
+  else
+    error("Sensing", "Found two measurements of same vehicle");
+
+  return false;
+}

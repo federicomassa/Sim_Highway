@@ -17,26 +17,27 @@ void Vehicle::setRM()
 
 void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
 {
-    Sensing tmpS;
-    Iterator<Sensing> i(sList);
-    List<State> qList;
-    while(i(tmpS))
-        qList.insHead(tmpS.q);
-    /* detecting events */
-
-    automaton.run(getQ(), qList);
-
-    /* physical layer evolution */
-
-    pLayer.computeNextQ(automaton.getManeuver(), /* For platoon controller */qList);
-
-    /* monitor layer evolution */
-    if(mLayer.isActive())
-        mLayer.run(sList, pLayer.getQ(), obs);
-    /* set reputation manager */
-    if(repMan.isActive())
-      setRM();
-      
+  (*this).sList = sList;
+  Sensing tmpS;
+  Iterator<Sensing> i(sList);
+  List<State> qList;
+  while(i(tmpS))
+    qList.insHead(tmpS.q);
+  /* detecting events */
+  
+  automaton.run(getQ(), qList);
+  
+  /* physical layer evolution */
+  
+  pLayer.computeNextQ(automaton.getManeuver(), /* For platoon controller */qList);
+  
+  /* monitor layer evolution */
+  if(mLayer.isActive())
+    mLayer.run(sList, pLayer.getQ(), obs);
+  /* set reputation manager */
+  if(repMan.isActive())
+    setRM();
+  
 }
 
 void Vehicle::getHypothesis(List<Hypothesis>& hList)
@@ -44,3 +45,4 @@ void Vehicle::getHypothesis(List<Hypothesis>& hList)
     if(mLayer.isActive())
         mLayer.getHypothesis(hList);
 }
+

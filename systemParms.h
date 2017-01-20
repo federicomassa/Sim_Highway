@@ -1,4 +1,3 @@
-
 #ifndef SYSTEMPARMS_H
 #define SYSTEMPARMS_H
 

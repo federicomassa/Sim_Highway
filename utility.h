@@ -36,6 +36,10 @@ int sign(const double);
 
 string toString(int i, int pad = 0);
 
+string toString(double i, int precision = 0, int pad = 0);
+
+double setPrecision(const double& x, const int& precision);
+
 inline int size(int i) { return sizeof(i); }
 
 inline int size(double d) { return sizeof(d); }

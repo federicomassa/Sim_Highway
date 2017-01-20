@@ -1,39 +1,39 @@
 /*
  * DESIGN:      Cooperative Multi-Agent Systems Simulator
  *
- * FILE:        Vector.h
- * DESCRIPTION: Template for the Vector class
+ * FILE:        DynVector.h
+ * DESCRIPTION: Template for the DynVector class
  *
  * AUTHORS:     Marco Pellinacci <marco.pellinacci@alice.it>
  *              Gianni Valenti <posta@gianni.valenti.name>
  * DATE:        January 1, 2000
  */
 
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef DYNVECTOR_H
+#define DYNVECTOR_H
 
 #include "EndLine.h"
 #include "utility.h"
 
 /*!
- * This template represents a vector of N elements of type T with a few methods
+ * This template represents a vector of N (dynamic) elements of type T with a few methods
  * implemented. Note that, in order to use method sort(), operators > and <
  * MUST be redefined for type T.
  */
-template<typename T, int N>
-class Vector
+template<typename T>
+class DynVector
 {
   
     /*!
      * \brief Redefinition of operator <<.
      */
-    friend ostream& operator<<(ostream& os, const Vector<T, N>& v)
+    friend ostream& operator<<(ostream& os, const DynVector<T>& v)
     {
-        os << "Vector (" << EndLine(EndLine::INC);
-        for(int i = 0; i < N; i++)
+        os << "DynVector (" << EndLine(EndLine::INC);
+        for(int i = 0; i < v.length; i++)
         {
             os << '[' << i << "]\t=> " << v.elements[i];
-            if(i == N - 1)
+            if(i == v.length - 1)
                 os << EndLine(EndLine::DEC);
             else
                 os << EndLine();
@@ -45,29 +45,33 @@ class Vector
     /*!
      * \brief Redefinition of operator ==.
      */
-    friend bool operator==(const Vector<T, N>& v1, const Vector<T, N>& v2)
+    friend bool operator==(const DynVector<T>& v1, const DynVector<T>& v2)
     {
-        for(int i = 0; i < N; i++)
-            if(v1.elements[i] != v2.elements[i])
-                return false;
-        
-        return true;
+      if (v1.length != v2.length)
+	return false;
+      
+      for(int i = 0; i < v1.length; i++)
+	if(v1.elements[i] != v2.elements[i])
+	  return false;
+      
+      return true;
     }
     /*!
      * \brief Redefinition of operator !=.
      */
-    friend bool operator!=(const Vector<T, N>& v1, const Vector<T, N>& v2)
+    friend bool operator!=(const DynVector<T>& v1, const DynVector<T>& v2)
     {
         return !(v1 == v2);
     }
+
     /*!
-     * \brief Vector of elements T.
+     * \brief DynVector of elements T.
      */
-    T elements[N];
+    T* elements;
     /*!
      * \brief Copy function.
      */
-    void cp(const T v[]);
+    void cp(const DynVector<T>& v);
     /*!
      * \brief Switch function.
      */
@@ -82,30 +86,56 @@ class Vector
      */
     void quickSort(int inf, int sup);
 public:
+    // number of elements
+    int length;
     /*!
-     * \brief Number of elements.
+     * \brief Default Constructor -> To initialize run init(int).
      */
-    static const int length = N;
+    DynVector()
+      {elements = NULL;}
+    /*!
+     * \brief Constructor.
+     */
+ DynVector(const int& N)
+    {
+      init(N);
+    }
     /*!
      * \brief Default constructor.
      */
- Vector(){ }
-    /*!
-     * \brief Alternative constructor.
-     */
-    explicit Vector(T val);
-    /*!
-     * \brief Alternative constructor.
-     */
-    explicit Vector(const T v[]){ cp(v); }
-    /*!
+    ~DynVector()
+      {
+	init(0);
+      }
+        /*!
      * \brief Copy constructor.
      */
-    Vector(const Vector<T, N>& v) { cp(v.elements); }
+ DynVector(const DynVector<T>& v) : length(v.length) { cp(v); }
     /*!
-     * \brief Destructor.
+     * \brief Initialization.
      */
-    ~Vector() { }
+    void init(const int& N)
+    {
+      if (N < 0)
+	error("DynVector", "length should be > 0");
+      
+      length = N;
+      if (elements == NULL && N != 0) elements = new T[N];
+      else if (elements != NULL) {
+	delete[] elements;
+	elements = NULL;
+	if (N > 0)
+	  elements = new T[N];
+      }
+    }
+    /*!
+     * \brief Reset function.
+     */
+    void reset()
+    {
+      init(0);
+    }
+    
     /*!
      * \brief Redefinition of operator [].
      */
@@ -120,62 +150,48 @@ public:
      * This method sorts the elements of the vector using algorithm quicksort.
      * Note that operator < and operator > MUST be defined for type T.
      */
-    void sort() { quickSort(0, N - 1); }
+    void sort() { quickSort(0, length - 1); }
     /*!
      * \brief Redefinition of operator =.
      */
     
-    Vector<T, N>& operator=(const Vector<T, N>& v)
-    {
-        cp(v.elements);
-        return *this;
-    }
-    /*!
-     * \brief Redefinition of operator =.
-     */
-    Vector<T, N>& operator=(const T v[])
+    DynVector<T>& operator=(const DynVector<T>& v)
     {
         cp(v);
         return *this;
     }
 };
 
-template<typename T, int N>
-void Vector<T, N>::cp(const T v[])
+template<typename T>
+void DynVector<T>::cp(const DynVector<T>& v)
 {
-    for(int i = 0; i < N; i++)
+  elements = new T[length];
+    for(int i = 0; i < length; i++)
         elements[i] = v[i]; /* copy elements */
 }
 
-template<typename T, int N>
-  Vector<T, N>::Vector(T val)
-{
-    for(int i = 0; i < N; i++)
-        elements[i] = val;
-}
-
-template<typename T, int N>
-const T& Vector<T, N>::operator[](int i) const
+template<typename T>
+const T& DynVector<T>::operator[](int i) const
 {
     /* error handling */
     if(i >= length || i < 0)
-        error("Vector", "invalid index reference");
+        error("DynVector", "invalid index reference");
     
     return elements[i];
 }
 
-template<typename T, int N>
-T& Vector<T, N>::operator[](int i)
+template<typename T>
+T& DynVector<T>::operator[](int i)
 {
     /* error handling */
     if(i >= length || i < 0)
-        error("Vector", "invalid index reference");
+        error("DynVector", "invalid index reference");
     
     return elements[i];
 }
 
-template<typename T, int N>
-void Vector<T, N>::quickSort(int inf, int sup)
+template<typename T>
+void DynVector<T>::quickSort(int inf, int sup)
 {
     if(inf + 1 == sup)
     {

@@ -334,6 +334,7 @@ bool Monitor::buildNeighborhood(Neighborhood& n) const
     n.targetLastManeuver = targetLastManeuver;
     n.hList = hypothesisList;
     n.lastHypLists = lastHypLists;
+
     
     return true;
 }

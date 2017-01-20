@@ -20,17 +20,21 @@ class Environment
     const int nV;
 public:
     /* constructor */
- Environment(int n, double r, double p);
+    Environment(int n, double r, double p);
     /* destructor */
     ~Environment() { delete[] v; }
     /* vehicles initialization */
     void initVehicles(const List<State>&, const List<Parms>&);
     /* get vehicle state q */
     State getQ(int index) const;
+    /* get number of vehicles */
+    int getNVehicles() {return nV;}
+    /* get vehicle vector v */
+    Vehicle* getVehicles() {return v;}
     /* get vehicle maneuver m */
     Maneuver getManeuver(int index) const;
     /* returns i-th agent's observable area */
-    void observableArea(int, Area&) const;
+    void observableArea(int index, Area& obs, Area* hidden = NULL) const;
     /* call a simulation step */
     void run();
     /* get a neighborhood list reconstructed by an omniscient observer */

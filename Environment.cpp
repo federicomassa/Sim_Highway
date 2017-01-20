@@ -59,7 +59,7 @@ Maneuver Environment::getManeuver(int index) const
 /**
  * this function returns i-th agent's observable area
  */
-void Environment::observableArea(int index, Area& obs) const
+void Environment::observableArea(int index, Area& obs, Area* hiddenArea) const
 {
     /* error handling */
     if (index >= nV)
@@ -83,7 +83,7 @@ void Environment::observableArea(int index, Area& obs) const
     Matrix_2x2 bounds;
 
     Area hidden;
-    
+
     for (int k = 0; k < nV; k++)
     {
         if (k == index)
@@ -106,7 +106,14 @@ void Environment::observableArea(int index, Area& obs) const
                 LOG.s << "Too far" << EndLine(EndLine::DEC);
             continue;
         }
-        
+
+	/* alpha[] is the angle formed between the subject vehicle and
+	   each one of the four vertices of the observed vehicle's image.
+
+	   intersection[] is ?
+	
+	*/
+	
         Vector<double, 4> x, y, alpha, intersection;
         double cosTheta = 1;
         double sinTheta = 0;
@@ -139,8 +146,11 @@ void Environment::observableArea(int index, Area& obs) const
         
         const int currLane = (int)floor(subj.y);
         const int otherLane = (int)floor(s.y);
+
         for (int i = 0; i < 4; i++)
             alpha[i] = atan2(y[i] - subj.y, x[i] - subj.x);
+
+	// lmin, lmax are ?
         int lmin, lmax;
         if (otherLane == currLane)
         {
@@ -163,7 +173,10 @@ void Environment::observableArea(int index, Area& obs) const
                 LOG.s << "Lane " << lane << ": " << EndLine();
             for (int j = 0; j < 4; j++)
             {
+	      // dY is the distance between the examined lane center and the subject y position
                 const double dY = (double)lane +  0.5 - subj.y;
+
+		// if the other vehicle is perfectly aligned with ours
                 if (alpha[j] == PI/2 || alpha[j] == -PI/2)
                     intersection[j] = subj.x;
                 else
@@ -250,6 +263,10 @@ void Environment::observableArea(int index, Area& obs) const
     if(CONF.debug)
         LOG.s << " done." << EndLine();
 
+    // if not null, save hidden area
+    if (hiddenArea)
+      *hiddenArea = hidden;
+    
     /* building maximum observable area as a bounding box */
     bounds[0][0] = MINIMUM_X;
     bounds[0][1] = MAXIMUM_X;

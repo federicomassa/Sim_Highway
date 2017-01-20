@@ -1,5 +1,44 @@
 #include "systemTypes.h"
 
+/* function to pass from std::string to maneuver */
+Maneuver strToManeuver(const std::string& str)
+{
+  
+  if (str == "FAST")
+    return FAST;
+  else if (str == "SLOW")
+    return SLOW;
+  else if (str == "LEFT")
+    return LEFT;
+  else if (str == "RIGHT")
+    return RIGHT;
+  else if (str == "PLATOON")
+    return PLATOON;
+  else
+    return UNKNOWN;
+  
+}
+
+/* function to pass from maneuver to std::string */
+std::string maneuverToStr(const Maneuver& sigma)
+{
+  
+  if (sigma == FAST)
+    return "FAST";
+  else if (sigma == SLOW)
+    return "SLOW";
+  else if (sigma == LEFT)
+    return "LEFT";
+  else if (sigma == RIGHT)
+    return "RIGHT";
+  else if (sigma == PLATOON)
+    return "PLATOON";
+  else
+    return "UNKNOWN";
+  
+}
+
+
 ostream& operator<<(ostream& os, Maneuver m)
 {
     switch(m)

@@ -34,6 +34,8 @@ public:
     void updateQ() { q = nextQ; }
     /* get state q */
     State getQ() const { return q; }
+    /* get next state q */
+    State getNextQ() const { return nextQ; }
     /* get parameters */
     Parms getParms() const { return maxV; }
     void setID(int index) {idx = index;}

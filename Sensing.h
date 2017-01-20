@@ -4,12 +4,14 @@
 
 #include "EndLine.h"
 #include "systemTypes.h"
+#include "State.h"
 
 class Sensing
 {
     friend ostream& operator<<(ostream& os, const Sensing& s);
     friend bool operator==(const Sensing& s1, const Sensing& s2);
     friend bool operator!=(const Sensing& s1, const Sensing& s2);
+    friend bool operator<(const Sensing& s1, const Sensing& s2);
 public:
     int agentID;
     State q;

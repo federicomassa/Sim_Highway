@@ -15,6 +15,8 @@ class Vehicle
     int idx;
     /* set reputation manager's current parameters */
     void setRM();
+    /* List of sensor measurements */
+    List<Sensing> sList; 
 public:
     /* constructor */
     Vehicle() { idx = -1; }
