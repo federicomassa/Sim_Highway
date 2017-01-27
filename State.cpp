@@ -53,7 +53,8 @@ ostream& operator<<(ostream& os, const State& s)
     os << "State (x = " << fixed << setprecision(3) << s.x;
     os << ", y = " << s.y;
     os << ", theta = " << s.theta;
-    os << ", v = " << s.v << ')';
+    os << ", v = " << s.v;
+    os << ", desiredV = " << s.desiredV << ')';
     os.flush();
     
     return os;

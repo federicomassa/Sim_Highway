@@ -15,9 +15,9 @@ Automaton::Automaton()
 void Automaton::init(const State& q)
 {
     /* error handling */
-    if(initialized)
+  /*    if(initialized)
         error("Automaton", "object initialized twice");
-    
+  */
     /* initialization */
     // sigma = SIGMA_0;
 

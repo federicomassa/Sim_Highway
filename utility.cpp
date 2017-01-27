@@ -12,6 +12,8 @@
 #include <cstdlib>
 #include <cmath>
 
+using namespace std;
+
 /**
  * this function gives information about a specific error and it terminates
  * the program
@@ -56,30 +58,26 @@ string toString(int i, int pad)
     return str;
 }
 
-string toString(double i, int precision, int pad)
+string toStringWithPrecision(double i, int precision)
 {
   /* copy value */
-  double x = i;
+  double x = fabs(i);
   
   stringstream ss;
-  if(pad)
-    {
-      ss.fill('0');
-      ss.width(pad);
-    }
   string str;
   
-  if (precision && i != 0)
+  if (precision && x > 1E-9)
     {
       double logx = floor(log10(x));
       
       x = x/pow(10, logx + 1 - precision);
       x = round(x);
       x = x*pow(10, logx + 1 - precision);
+      
+      ss << x*i/fabs(i);
     }
-
-
-  ss << x;
+  else
+    ss << i;
   
   ss >> str;
   return str;
@@ -88,9 +86,9 @@ string toString(double i, int precision, int pad)
 double setPrecision(const double& n, const int& precision)
 {
   /* copy value */
-  double x = n;
+  double x = fabs(n);
     
-  if (precision && n != 0)
+  if (precision && x > 1E-9)
     {
       double logx = floor(log10(x));
       
@@ -99,5 +97,58 @@ double setPrecision(const double& n, const int& precision)
       x = x*pow(10, logx + 1 - precision);
     }
 
-  return x;
+  if (n < 0)
+    return -x;
+  else
+    return x;
+}
+
+/* Round to the largest number which is < n with desired precision */
+double floorPrecision(const double& n, const int& precision)
+{
+  /* copy value */
+  double x = fabs(n);
+    
+  if (precision && x > 1E-9)
+    {
+      double logx = floor(log10(x));
+      
+      x = x/pow(10, logx + 1 - precision);
+      if (n > 0)
+	x = floor(x);
+      else
+	x = ceil(x);
+      
+      x = x*pow(10, logx + 1 - precision);
+    }
+
+  if (n < 0)
+    return -x;
+  else
+    return x;
+}
+
+/* Round to the smallest number which is > n with desired precision */
+double ceilPrecision(const double& n, const int& precision)
+{
+  /* copy value */
+  double x = fabs(n);
+    
+  if (precision && x > 1E-9)
+    {
+      double logx = floor(log10(x));
+      
+      x = x/pow(10, logx + 1 - precision);
+      if (n > 0)
+	x = ceil(x);
+      else
+	x = floor(x);
+      
+      x = x*pow(10, logx + 1 - precision);
+    }
+
+  if (n < 0)
+    return -x;
+  else
+    return x;
 }

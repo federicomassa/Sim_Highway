@@ -16,13 +16,11 @@
 #include <string>
 #include <sstream>
 
-using namespace std;
-
 /**
  * this function gives information about a specific error and it terminates
  * the program
  */
-void error(const string className, const string msg);
+void error(const std::string className, const std::string msg);
 
 /**
  * this function is called by set_new_handler()
@@ -34,11 +32,13 @@ void exaustedMem();
  */
 int sign(const double);
 
-string toString(int i, int pad = 0);
+std::string toString(int i, int pad = 0);
 
-string toString(double i, int precision = 0, int pad = 0);
+std::string toStringWithPrecision(double i, int precision = 0);
 
 double setPrecision(const double& x, const int& precision);
+double floorPrecision(const double& x, const int& precision);
+double ceilPrecision(const double& x, const int& precision);
 
 inline int size(int i) { return sizeof(i); }
 

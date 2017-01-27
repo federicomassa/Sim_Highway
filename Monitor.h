@@ -17,6 +17,7 @@
 #include "PhysicalLayer.h"
 #include "Sensing.h"
 #include "systemTypes.h"
+#include "Tensor5.h"
 
 /*!
  * This class represent a monitor module embedded on an agent and used for the
@@ -82,6 +83,14 @@ class Monitor
      * \brief Predicted maneuvers of the monitored agent.
      */
     Vector<bool, N_MANEUVER> possibleManeuvers;
+
+    /* Predicted states with different maneuvers and hypotheses on hidden vehicle */
+    Vector<List<Tensor5<Sensing> >, N_MANEUVER> monitorPrediction;
+
+    /* Errors on prediction */
+    Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER> errors;
+    
+    
     /*!
      * \brief Possible hypothesis associated to the predicted maneuvers and
      *        states.
@@ -148,6 +157,16 @@ public:
      * \brief Build target estimated neighborhood.
      */
     bool buildNeighborhood(Neighborhood& n) const;
+
+    /* Accessors */
+    void getMonitorPrediction(Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {v = monitorPrediction;}
+    void setMonitorPrediction(const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {monitorPrediction = v;}
+
+    void getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err) {err = errors;}
+    void setErrors(const Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err) {errors = err;}
+    
+    void getTargetQ(State& q) {q = targetQ;}
+    
 };
 
 #endif

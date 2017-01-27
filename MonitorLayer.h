@@ -45,11 +45,14 @@ class MonitorLayer
      * \brief Search for a Monitor.
      */
     Monitor* lookFor(int t);
+
+    /* FIXME Debug */
+    bool isTargetLocked;
 public:
     /*!
      * \brief Default constructor.
      */
-    MonitorLayer() { agentID = -1; active = false; }
+    MonitorLayer() { agentID = -1; active = false;/*FIXME*/ isTargetLocked = false;}
     /*!
      * \brief Destructor.
      */
@@ -69,7 +72,7 @@ public:
     /*!
      * \brief Run a single simulation step.
      */
-    void run(const List<Sensing>& sList, const State& agentQ, const Area& obs);
+    void run(const List<Sensing>& sList, const State& agentQ, const Maneuver& agentManeuver, const Area& obs);
     /*!
      * \brief Get all monitor's simpler hypothesis.
      */

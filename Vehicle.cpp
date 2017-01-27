@@ -24,16 +24,16 @@ void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
   while(i(tmpS))
     qList.insHead(tmpS.q);
   /* detecting events */
-  
+
+  /* First change maneuver, then evolve pLayer*/
   automaton.run(getQ(), qList);
   
   /* physical layer evolution */
   
   pLayer.computeNextQ(automaton.getManeuver(), /* For platoon controller */qList);
-  
   /* monitor layer evolution */
   if(mLayer.isActive())
-    mLayer.run(sList, pLayer.getQ(), obs);
+    mLayer.run(sList, pLayer.getQ(), automaton.getManeuver(), obs);
   /* set reputation manager */
   if(repMan.isActive())
     setRM();

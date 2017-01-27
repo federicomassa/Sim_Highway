@@ -14,7 +14,7 @@
 
 #include "EndLine.h"
 #include "Iterator.h"
-
+#include <iostream>
 /*!
  * This template represents a list of elements of type T with several typical
  * methods implemented. Note that, in order to use this template, operators ==
@@ -273,6 +273,14 @@ public:
      * Note that operator > and operator < MUST be defined for type T.
      */
     void sort();
+
+    /*!
+     * \brief Get element function.
+     *
+     * Get a pointer to a specific element of the list
+     */
+    void getElem(const T*&, const int&) const;
+    
 };
 
 template<typename T>
@@ -367,6 +375,7 @@ void List<T>::sort()
 template<typename T>
 List<T>& List<T>::operator=(const List<T>& d)
 {
+  
     if(this != &d)
     {
         del();
@@ -459,8 +468,8 @@ template<typename T>
 bool List<T>::insTail(const T& i, bool unique)
 {
     /* check if i is contained in the list */
-    if (unique && belongs(i))
-        return false;
+  /*    if (unique && belongs(i))
+        return false;*/
 
     Elem* newE = new Elem;
 
@@ -564,6 +573,26 @@ int List<T>::count() const
         n++;
 
     return n;
+}
+
+template<typename T>
+void List<T>::getElem(const T*& elem, const int& index) const
+{
+  /* error handling */
+  if (index >= count())
+    {
+      elem = NULL;
+      return;
+    }
+  
+  Elem* aux = head;
+  
+  for (int i = 0; i < index; i++)
+    {
+      aux = aux->next;
+    }
+
+  elem = &(aux->info);
 }
 
 #endif

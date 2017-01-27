@@ -17,13 +17,13 @@ class Output
     
     int nCols;
     int currCol;
-    ofstream of;
+    std::ofstream of;
 public:
-    Output(string fn, int nc);
+    Output(std::string fn, int nc);
     ~Output() { of.close(); }
     void insert(int i);
     void insert(double d);
-    void insert(string s);
+    void insert(std::string s);
 };
 
 #endif

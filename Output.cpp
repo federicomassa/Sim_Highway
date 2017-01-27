@@ -3,6 +3,8 @@
 
 const char Output::separator = '\t';
 
+using namespace std;
+
 Output::Output(string fn, int nc)
 {
     /* create output dir */

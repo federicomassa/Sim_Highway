@@ -27,6 +27,17 @@ public:
         p = tP;
 	sigma = tSigma;
     }
+
+    const Sensing& operator=(const Sensing& s)
+      {
+	agentID = s.agentID;
+	q = s.q;
+	p = s.p;
+	sigma = s.sigma;
+
+	return *this;
+      }
+    
 };
 
 #endif

@@ -30,7 +30,7 @@ public:
         //nextQ.v = 0;
     }
     /* evolution */
-    void computeNextQ(Maneuver sigma, /* For platoon  */List<State> qList);
+    void computeNextQ(Maneuver sigma, /* For platoon  */List<State> qList, bool debug = false);
     void updateQ() { q = nextQ; }
     /* get state q */
     State getQ() const { return q; }

@@ -22,10 +22,15 @@ class Tensor4
 	  const int&);
 
   // Default constructor --> t has to be initialized
-  Tensor4() {};
+  Tensor4() {Dim1 = 0; Dim2 = 0; Dim3 = 0; Dim4 = 0;};
 
   // Copy constructor
-  Tensor4(const Tensor4& t1) {t = t1;}
+  Tensor4(const Tensor4& t1) {
+    Dim1 = t1.Dim1;
+    Dim2 = t1.Dim2;
+    Dim3 = t1.Dim3;
+    Dim4 = t1.Dim4;
+    t = t1;}
   void init(const int&,
 	    const int&,
 	    const int&,

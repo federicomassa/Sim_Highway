@@ -1,0 +1,24 @@
+#include "../List.h"
+#include <iostream>
+
+int main()
+{
+  List<double> p;
+  p.insTail(1.1);
+  p.insTail(2.2);
+  p.insTail(3.3);
+  p.insTail(4.4);
+
+  const double* elem = NULL;
+  p.getElem(elem, 2);
+
+  if (elem)
+    std::cout << "Get element: " << *elem << std::endl;
+  else
+    std::cout << "Error" << std::endl;
+
+  p.getElem(elem, 3);
+  std::cout << "Get element: " << *elem << std::endl;
+  
+  return 0;
+}

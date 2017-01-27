@@ -9,7 +9,7 @@
 #include "utility.h"
 #include "definition.h"
 #include "List.h"
-#include "Tensor4.h"
+#include "Tensor5.h"
 #include "Sensing.h"
 
 using namespace std;
@@ -119,8 +119,7 @@ bool Grid::drawAxes(const int& nTicksX, const int& nTicksY)
 
 bool Grid::drawLabels(const string& xlabel, const double& xmin, const double& xmax,
 		      const string& ylabel, const double& ymin, const double& ymax)
-{
-  
+{  
   
   xMin = xmin;
   xMax = xmax;
@@ -148,12 +147,12 @@ bool Grid::drawLabels(const string& xlabel, const double& xmin, const double& xm
   // Draw numbers on axis
   for (int xi = 0; xi <= nX; xi++)
     {
-      // write numbers every two lines
-      if (xi % 2 != 0)
+      // write numbers every five lines
+      if (xi % 5 != 0)
 	continue;
       
       double x = xmin + (xmax - xmin)/nX*xi;
-      string xs = toString(x, 2);
+      string xs = toStringWithPrecision(x, 4);
       
       gdImageStringFT(NULL, bounds, labelColor, FONT_NAME, textSize, 0,
 		      0, 0, const_cast<char*>(xs.c_str()));
@@ -169,18 +168,18 @@ bool Grid::drawLabels(const string& xlabel, const double& xmin, const double& xm
   gdImageStringFT(NULL, bounds, labelColor, FONT_NAME, labelSize, 0,
 		  0, 0, const_cast<char*>(ylabel.c_str()));
   /* Draw string on frame */
-  gdImageStringFT(frame, bounds, labelColor, FONT_NAME, labelSize, 0.5*PI,
+  gdImageStringFT(frame, bounds, labelColor, FONT_NAME, labelSize, 0.5*pi,
 		  bounds[3] - bounds[7] + distanceFromEdgeY, gridYmin + (bounds[2] - bounds[6]), const_cast<char*>(ylabel.c_str()));
 
   // Draw numbers on axis
   for (int yi = 0; yi <= nY; yi++)
     {
-      // Draw numbers every two lines
-      if (yi % 2 != 0)
+      // Draw numbers every five lines
+      if (yi % 5 != 0)
 	continue;
       
       double y = ymin + (ymax - ymin)/nY*yi;
-      string ys = toString(y, 2);
+      string ys = toStringWithPrecision(y, 4);
       gdImageStringFT(NULL, bounds, labelColor, FONT_NAME, textSize, 0,
 		      0, 0, const_cast<char*>(ys.c_str()));
       gdImageStringFT(frame, bounds, labelColor, FONT_NAME, textSize, 0,
@@ -194,6 +193,7 @@ bool Grid::drawLabels(const string& xlabel, const double& xmin, const double& xm
 
 void Grid::fillCell(const int& xi, const int& yi)
 {
+  
   int cellColor = gdImageColorResolve(frame, 0, 0, 255);
 
   //Filling cell, +- 1 pixel to not overlap with previous rectangle
@@ -211,9 +211,10 @@ void Grid::fillCell(const double& x, const double& y)
 
   if (x < xMin || x > xMax || y < yMin || y > yMax)
     error("Grid::fillCell", "x,y out of range specified in drawLabels");
-
+  
   int xi = floor((x - xMin)/(xMax - xMin)*nX);
-  int yi = floor((y - yMin)/(yMax - yMin)*nY);
+  /* y is upwards, but cell y is downwards */
+  int yi = (nY - 1) - floor((y - yMin)/(yMax - yMin)*nY);
 
   fillCell(xi, yi);
   
@@ -224,7 +225,10 @@ string Grid::save(const string prefix, const string suffix)
   if (frame == NULL)
     error("Grid", "Cannot save on null file");
 
-  fileName = "ProvaGrid/" + prefix + suffix + ".png";
+  string outputPath = OUTPUT_DIR;
+  outputPath += "/";
+  
+  fileName = outputPath + prefix + "C" + toString(now, 5) + suffix + ".png";
 
   FILE* out;
   /* save to disk */
@@ -244,7 +248,7 @@ string Grid::save(const string prefix, const string suffix)
    list = list of rectangles, each containing a tensor of sensing
    i1, i2 = indexes of the pair of state variables that we want to show in a grid (in the order x, y, theta, v)
 */
-void Grid::drawStateSpace(const List<Tensor4<Sensing> >& list, const int& i1, const int& i2)
+void Grid::drawStateSpace(const List<Tensor5<Sensing> >& list, const int& i1, const int& i2)
 {
 
   /* error handling */
@@ -252,8 +256,8 @@ void Grid::drawStateSpace(const List<Tensor4<Sensing> >& list, const int& i1, co
     error("Grid::drawStateSpace", "Indexes must lie between 0 and 3");
   
   
-  Iterator<Tensor4<Sensing> > iter(list);
-  Tensor4<Sensing> tens;
+  Iterator<Tensor5<Sensing> > iter(list);
+  Tensor5<Sensing> tens;
 
   double var1 = 0, var2 = 0;
   double var1Min = 1000000;
@@ -271,66 +275,104 @@ void Grid::drawStateSpace(const List<Tensor4<Sensing> >& list, const int& i1, co
 	for (int j = 0; j < tens.Dim2; j++)
 	  for (int k = 0; k < tens.Dim3; k++)
 	    for (int l = 0; l < tens.Dim4; l++)
-	      {
-		Sensing tmpS = tens(i,j,k,l);
+	      for (int m = 0; m < tens.Dim5; m++)
+		{
+		  Sensing tmpS = tens(i,j,k,l,m);
+		  
+		  switch (i1)
+		    {
+		    case 0:
+		      var1 = tmpS.q.x;
+		      break;
+		    case 1:
+		      var1 = tmpS.q.y;
+		      break;
+		    case 2:
+		      var1 = tmpS.q.theta;
+		      break;
+		    case 3:
+		      var1 = tmpS.q.v;
+		      break;
+		    }
 
-		switch (i1)
-		  {
-		  case 0:
-		    var1 = tmpS.q.x;
-		    break;
-		  case 1:
-		    var1 = tmpS.q.y;
-		    break;
-		  case 2:
-		    var1 = tmpS.q.theta;
-		    break;
-		  case 3:
-		    var1 = tmpS.q.v;
-		    break;
-		  }
-
-		switch (i2)
-		  {
-		  case 0:
-		    var2 = tmpS.q.x;
-		    break;
-		  case 1:
-		    var2 = tmpS.q.y;
-		    break;
-		  case 2:
-		    var2 = tmpS.q.theta;
-		    break;
-		  case 3:
-		    var2 = tmpS.q.v;
-		    break;
-		  }
-
-		points.insTail(make_pair(var1, var2));
-
-		if (var1 < var1Min)
-		  var1Min = var1;
-		if (var1 > var1Max)
-		  var1Max = var1;
-		if (var2 < var2Min)
-		  var2Min = var2;
-		if (var2 > var2Max)
-		  var2Max = var2;
-
-      	      }
+		  switch (i2)
+		    {
+		    case 0:
+		      var2 = tmpS.q.x;
+		      break;
+		    case 1:
+		      var2 = tmpS.q.y;
+		      break;
+		    case 2:
+		      var2 = tmpS.q.theta;
+		      break;
+		    case 3:
+		      var2 = tmpS.q.v;
+		      break;
+		    }
+		  
+		  points.insTail(make_pair(var1, var2));
+		  
+		  if (var1 < var1Min)
+		    var1Min = var1;
+		  if (var1 > var1Max)
+		    var1Max = var1;
+		  if (var2 < var2Min)
+		    var2Min = var2;
+		  if (var2 > var2Max)
+		    var2Max = var2;
+		  
+		}
     }
-
+  
   /* ==== Now create grid ==== */
+
   
   /* 10% margin of the maximum value */
-  double xmin = setPrecision(var1Min - 0.1*var1Max, 2);
-  double xmax = setPrecision(var1Max + 0.1*var1Max, 2);
+  double margin = 0.0001;
+  double xmin, xmax;
+  if (var1Max > 0)
+    {
+      xmin = floorPrecision(var1Min - margin*var1Max, 4);
+      xmax = ceilPrecision(var1Max + margin*var1Max, 4);
+    }
+  else
+    {
+      xmin = floorPrecision(var1Min + margin*var1Min, 4);
+      xmax = ceilPrecision(var1Max - margin*var1Min, 4);
+    }
 
-  double ymin = setPrecision(var2Min - 0.1*var2Max, 2);
-  double ymax = setPrecision(var2Max + 0.1*var2Max, 2);
+  double ymin, ymax;
+  if (var2Max > 0)
+    {
+      ymin = floorPrecision(var2Min - margin*var2Max, 4);
+      ymax = ceilPrecision(var2Max + margin*var2Max, 4);
+    }
+  else
+    {
+      ymin = floorPrecision(var2Min + margin*var2Min, 4);
+      ymax = ceilPrecision(var2Max - margin*var2Min, 4);
+    }
 
+
+  if (fabs(xmax - xmin) < 1E-9 &&
+      fabs(xmin) < 1E-9)
+    {
+      xmin = -0.5;
+      xmax = 0.5;
+    }
+  
+  if (fabs(ymax - ymin) < 1E-9 &&
+      fabs(ymin) < 1E-9)
+    {
+      ymin = -0.5;
+      ymax = 0.5;
+    }
+
+  
+  
   /* Init grid: 900x900, 10% white margin, 20x20 grid */
-  init(900, 900, 0.1, 20, 20);
+  init(900, 900, 0.1, 40, 40);
 
   drawGrid();
   drawAxes();
@@ -339,7 +381,6 @@ void Grid::drawStateSpace(const List<Tensor4<Sensing> >& list, const int& i1, co
   string ylabel = indexToStateVar(i2);
   
   drawLabels(xlabel, xmin, xmax, ylabel, ymin, ymax);
-
   
   /* Now actually fill cells */
   Iterator<pair<double, double> > icells(points);

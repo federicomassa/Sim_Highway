@@ -3,7 +3,7 @@
 #include "rules.h"
 #include <iostream>
 
-Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<State> qList, int idx)
+Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<State> qList, int idx, bool debug)
 {
     Control c;
     
@@ -17,6 +17,17 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
       {
       case PLATOON:
 	{
+	  if (debug)
+	    {
+	      std::cout << "See: " << qList.count() << " vehicles" << std::endl;
+	      const State* q;
+	      for (int i = 0; i < qList.count(); i++)
+		{
+		  qList.getElem(q, i);
+		  std::cout << *q << std::endl;
+		}
+	    }
+	  
 	  /* Platoon case FIXME */
 	  // Look for vehicle ahead and behind
 	  Iterator<State> is(qList);
@@ -27,6 +38,7 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 	  bool isVehicleAheadCompatible = false;
 	  bool isVehicleBehindCompatible = false;
 	  bool isVehicleAheadBlocking = false;
+
 	  
 	  for (int i = 0; i < qList.count(); i++) {
 	    is(tmpQ);
@@ -52,10 +64,12 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 		continue;
 	      }
 	    
-	    
+	      
 	    
 	    }
 	  }
+
+	  
 	  
 	  // if there is both a vehicle ahead and behind
 	  if (isVehicleAheadCompatible && isVehicleBehindCompatible) {
@@ -92,10 +106,14 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 	  }
 	  
 	  else
-	    c.a = ACCELERATION;
+	    {
+	      c.a = ACCELERATION;
+	      if (debug)
+		std::cout << "no case" << std::endl;
+	    } 
 
-	  if (fabs(c.a) > ACCELERATION)
-	    c.a = fabs(c.a)/c.a*ACCELERATION;
+	  /*	  if (fabs(c.a) > ACCELERATION)
+		  c.a = fabs(c.a)/c.a*ACCELERATION;*/
 	  
 	  if (q.theta != 0){
 	    c.omega = -(q.y - (floor(q.y) + 0.5)) * q.v * sin(q.theta)

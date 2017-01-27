@@ -13,14 +13,16 @@ template <typename T>
 class List;
 
 template <typename T>
-class Tensor4;
+class Tensor5;
 
 class Sensing;
 
 const int gridWidth = 2;
 const int tickWidth = 1;
 const int tickLength = 8;
-const double PI = 3.14159;
+const double pi = 3.14159;
+
+extern int now;
 
 class Grid
 {
@@ -72,7 +74,7 @@ class Grid
   void fillCell(const double& x, const double& y);
   
   /* Represent a pair of state variables onto a grid, taken from a tensor */
-  void drawStateSpace(const List<Tensor4<Sensing> >&, const int&, const int&);
+  void drawStateSpace(const List<Tensor5<Sensing> >&, const int&, const int&);
   
 };
 

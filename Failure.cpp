@@ -8,7 +8,6 @@ Failure::Failure(string str)
     string tmpS;
     for(token >> tmpS; (int)token.tellg() != -1; token >> tmpS)
     {
-      std::cout << "Failure read: " << tmpS << std::endl;
         /* automaton failures */
         if(tmpS == "NORIGHT")
 	  {
@@ -17,7 +16,6 @@ Failure::Failure(string str)
 	  }
 	if(tmpS == "NOPLATOON")
 	  {
-	    std::cout << "Set NOPLATOON for vehicle " << idx << std::endl;
             aFailures.insHead(NOPLATOON, true);
             continue;
 	  }
