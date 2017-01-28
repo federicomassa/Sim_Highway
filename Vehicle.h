@@ -44,12 +44,14 @@ public:
     int getID() const { return idx; }
     Parms getParms() const { return pLayer.getParms(); }
     Maneuver getManeuver() const { return automaton.getManeuver(); }
+    List<Sensing>& getSList() {return sList;}
     /* check if (part of) the vehicle state q belongs to the Area */
     bool inArea(const Area& a) const
     {
         return a.contains(pLayer.getQ().toPoint());
     }
     void preRun(const List<Sensing>& sList, const Area& obs);
+    void evolveMonitor(const Area& obs);
     void run() { pLayer.updateQ(); }
     void activateMonitorLayer() { mLayer.activate(); }
     void activateReputationManager() { repMan.activate(); }

@@ -102,6 +102,9 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
 	    Vector<List<Tensor5<Sensing> >, N_MANEUVER> monitorPrediction;
 	    Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER> errors;
 
+	    if (!isTargetLocked)
+	      std::cout << "Real Monitor maneuver: " << s.sigma << std::endl;
+	    
 	    predictor.run();
 	    
 	    if (isTargetLocked)

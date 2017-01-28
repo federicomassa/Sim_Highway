@@ -468,9 +468,9 @@ template<typename T>
 bool List<T>::insTail(const T& i, bool unique)
 {
     /* check if i is contained in the list */
-  /*    if (unique && belongs(i))
-        return false;*/
-
+  if (unique && belongs(i))
+    return false;
+    
     Elem* newE = new Elem;
 
     /* insertion at the bottom of list */

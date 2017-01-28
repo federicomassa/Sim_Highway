@@ -342,6 +342,37 @@ void Environment::run()
       v[i].preRun(sLists[i], obsAreas[i]);
     }
 
+  /* Now maneuvers have possibly changed -> update sList */
+  
+  for (int i = 0; i < nV; i++)
+    {
+      List<Sensing>& currSList = v[i].getSList();
+      Sensing tmpS;
+
+      int nmax = currSList.count();
+      
+      for (int n = 0; n < nmax; n++)
+	{
+	  currSList.extrHead(tmpS);
+	  for (int j = 0; j < nV; j++)
+	    {
+	      if (j != i && tmpS.agentID == v[j].getID())
+		{
+		  /* Update with corresponding vehicle */
+		  tmpS.sigma = v[j].getManeuver();
+		  currSList.insTail(tmpS);
+		  break;
+		}
+	    }
+	}
+    }
+  
+  for (int i = 0; i < nV; i++)
+    {
+      /* After each vehicle has evolved, run monitor (needs updated maneuvers of all vehicles) */
+      v[i].evolveMonitor(obsAreas[i]);
+    }
+
   delete[] sLists;
   delete[] obsAreas;
 

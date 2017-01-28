@@ -31,13 +31,16 @@ void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
   /* physical layer evolution */
   
   pLayer.computeNextQ(automaton.getManeuver(), /* For platoon controller */qList);
+}
+
+void Vehicle::evolveMonitor(const Area& obs)
+{
   /* monitor layer evolution */
   if(mLayer.isActive())
     mLayer.run(sList, pLayer.getQ(), automaton.getManeuver(), obs);
   /* set reputation manager */
   if(repMan.isActive())
-    setRM();
-  
+    setRM(); 
 }
 
 void Vehicle::getHypothesis(List<Hypothesis>& hList)
