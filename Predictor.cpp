@@ -256,23 +256,53 @@ void Predictor::run()
 		    /* Set monitor maneuver */
 		    monitorQ.initManeuver = maneuverToStr((Maneuver)sigma);
 		    monitorPLayer.init(monitorQ, monitorQ.v);
+		    agentPLayer.init(iAgentState, iAgentState.v);
 		    
-		    //create monitor qList
-		    List<State> monitorQList;
-		    for (int n = 0; n < simulEnv.getNVehicles(); n++)
+		    /* Predict each vehicle's behaviour within nTSteps time steps. 
+		     Hypothesis: all vehicles except observer and monitored move with const speed */
+		    for (int steps = 0; steps < nTimeSteps; steps++)
 		      {
-			if (simulEnv.getVehicles()[n].getID() == monitorID)
-			  continue;
+			//create monitor qList
+			List<State> monitorQList;
+			List<State> agentQList;
+			for (int n = 0; n < simulEnv.getNVehicles(); n++)
+			  {
+			    if (simulEnv.getVehicles()[n].getID() != monitorID)
+			      monitorQList.insHead(simulEnv.getVehicles()[n].getQ());
+
+			    if (simulEnv.getVehicles()[n].getID() != agentID)
+			      agentQList.insHead(simulEnv.getVehicles()[n].getQ());
+			    
+			  }
 			
-			monitorQList.insHead(simulEnv.getVehicles()[n].getQ());
+			//monitorPLayer.updateQ();
+			monitorPLayer.computeNextQ((Maneuver)sigma, monitorQList);
+			agentPLayer.computeNextQ((Maneuver)agentManeuver, agentQList);
+
+			/* update pLayer for next iteration */
+			monitorPLayer.updateQ();
+			agentPLayer.updateQ();
+
+			/* evolve remaining vehicles */
+			for (int n = 0; n < simulEnv.getNVehicles(); n++)
+			  {
+			    if (simulEnv.getVehicles()[n].getID() == agentID ||
+				simulEnv.getVehicles()[n].getID() == monitorID)
+			      continue;
+
+			    Vehicle& veh = simulEnv.getVehicles()[n];
+			    State oldQ = simulEnv.getVehicles()[n].getQ();
+			    /* uniform speed motion */
+			    State newQ(oldQ.x + oldQ.v*cos(oldQ.theta),
+				       oldQ.y + oldQ.v*sin(oldQ.theta),
+				       oldQ.theta,
+				       oldQ.v);
+
+			    veh.setQ(newQ);
+				
+			  }
+			
 		      }
-
-		    //monitorPLayer.updateQ();
-		    if (xi == 1 && yi == 0 && thetai == 0 && (vi == 5 || vi == 4 || vi == 6) && desiredVi == 8 && sigma == 4)
-		      monitorPLayer.computeNextQ((Maneuver)sigma, monitorQList);
-		    else
-		      monitorPLayer.computeNextQ((Maneuver)sigma, monitorQList);
-
 		    
 		    State monitorNextQ = monitorPLayer.getNextQ();
 

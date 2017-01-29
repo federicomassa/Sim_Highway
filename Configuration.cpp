@@ -13,12 +13,14 @@ Configuration::Configuration(const string& fileName)
     splitView = false;
     cRadius = 100;
     cProb = 1;
+    nTimeSteps = 1;
     communicate = false;
     commInterval = 1;
     makeVideo = false;
     saveSubjectiveVisions = false;
     saveVideoImages = false;
     saveConsensusImages = false;
+    savePredictionImages = false;
     saveTxtOutput = false;
     subjID = 0;
     parseConf(fileName);
@@ -90,6 +92,13 @@ void Configuration::parseConf(const string& fileName)
             saveConsensusImages = (str == "ON");
             continue;
         }
+	if(tmpS == "save_prediction_images")
+	{
+            token >> str;
+            savePredictionImages = (str == "ON");
+            continue;
+	}
+
         if(tmpS == "save_txt_output")
         {
             token >> str;
@@ -110,6 +119,11 @@ void Configuration::parseConf(const string& fileName)
         if(tmpS == "channel_probability")
         {
             token >> cProb;
+            continue;
+        }
+        if(tmpS == "prediction_time_steps")
+        {
+            token >> nTimeSteps;
             continue;
         }
         if(tmpS == "subject_vehicle")

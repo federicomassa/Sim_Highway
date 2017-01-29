@@ -10,6 +10,8 @@
  */
 
 #include "Monitor.h"
+#include "Predictor.h"
+#include "Grid.h"
 
 Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<State>& qList)
 {
@@ -39,22 +41,63 @@ Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver&
     
     neighbors = activeList;
 
+    timeStepsCount = 0;
     
     targetLocked = false;
     hypReady = true; //FIXME: fixed to true
 }
 
-void Monitor::predictStates(/* For platoon */ List<State> qList)
+void Monitor::predictStates(const List<Sensing>& sList, const State& agentQ, const Maneuver& agentManeuver)
 {
-    for(int i = 0; i < N_MANEUVER; i++)
-        if(possibleManeuvers[i])
-        {
-            Maneuver m = (Maneuver)i;
-            pLayer.init(targetQ, targetParms);
-            pLayer.computeNextQ(m, /* For platoon */ qList);
-            pLayer.updateQ();
-            possibleStates[i] = pLayer.getQ();
-        }
+
+  if (timeStepsCount == 0)
+    {
+      std::cout << "Real Monitor maneuver: " << targetManeuver << std::endl;
+
+      Predictor predictor(agentID, agentQ, agentManeuver, sList, targetID, CONF.nTimeSteps);
+      predictor.run();
+      predictor.getMonitor(monitorPrediction);
+      predictor.getErrors(errors);
+      
+    }
+  
+  else if (timeStepsCount == CONF.nTimeSteps)
+    {
+            
+      Maneuver detectedManeuver;
+      State monitorQ;
+      /* NB targetQ is filled in detectManeuver */
+      getTargetQ(monitorQ);
+      
+      Sensing monitorS(targetID, monitorQ, monitorQ.v, FAST);
+      if (Predictor::detectManeuver(monitorS, monitorPrediction, errors, detectedManeuver))
+	std::cout << "Detected Maneuver" << detectedManeuver << std::endl;
+      else
+	std::cout << "Not detected" << std::endl;
+      
+      std::cout << "After detect" << std::endl;
+      
+      
+      if (timeStepsCount == 0 && CONF.savePredictionImages)
+	{
+	  Grid g;
+	  for (int i = 0; i < N_MANEUVER; i++)
+	    for (int v1 = 0; v1 < 4; v1++)
+	      for (int v2 = v1 + 1; v2 < 4; v2++)
+		{
+		  g.drawStateSpace(monitorPrediction[i], v1, v2);
+		  // C**time** A**agent** T**target** M**maneuver** V**pair of variables**
+		  g.save("Pred", "A" + toString(agentID,2) + "T" + toString(targetID,2) + "M" + toString(i) + "V" + toString(v1) + toString(v2));
+		}
+	}
+
+      /* Reset for next prediction */
+      timeStepsCount = 0;
+    }
+  
+
+  timeStepsCount++;
+  
 }
 
 void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
@@ -338,3 +381,4 @@ bool Monitor::buildNeighborhood(Neighborhood& n) const
     
     return true;
 }
+

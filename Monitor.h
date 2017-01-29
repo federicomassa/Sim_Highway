@@ -84,6 +84,9 @@ class Monitor
      */
     Vector<bool, N_MANEUVER> possibleManeuvers;
 
+    /* Time steps since beginning of prediction */
+    int timeStepsCount;
+    
     /* Predicted states with different maneuvers and hypotheses on hidden vehicle */
     Vector<List<Tensor5<Sensing> >, N_MANEUVER> monitorPrediction;
 
@@ -127,7 +130,7 @@ public:
     /*!
      * \brief Predict possible states for monitored agent.
      */
-    void predictStates(/* For platoon */ List<State>);
+    void predictStates(const List<Sensing>&, const State&, const Maneuver&);
     /*!
      * \brief Detect events for target agent and predict possible maneuvers for
      *        monitored agent.

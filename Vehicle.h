@@ -40,6 +40,10 @@ public:
     void recvRM() { if(repMan.isActive()) repMan.recvForConsensus(); }
     /* get continuous state q */
     State getQ() const { return pLayer.getQ(); }
+
+    /* set continuous state q - for predictor */
+    void setQ(const State& q) {pLayer.init(q, q.v);}
+    
     /* get vehicle identifier */
     int getID() const { return idx; }
     Parms getParms() const { return pLayer.getParms(); }

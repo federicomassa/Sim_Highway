@@ -43,13 +43,14 @@ Monitor.o: Monitor.cpp Monitor.h Automaton.h rules.h Area.h Logger.h \
   Configuration.h EndLine.h List.h Iterator.h systemTypes.h State.h \
   systemParms.h utility.h Vector.h Failure.h definition.h Rectangle.h \
   Transition.h Event.h SubEvent.h ExtValue.h EvalMode.h Neighborhood.h \
-  Hypothesis.h Reputation.h PhysicalLayer.h controller.h Sensing.h Tensor5.h
+  Hypothesis.h Reputation.h PhysicalLayer.h controller.h Sensing.h Tensor5.h \
+  Predictor.h Grid.h
 MonitorLayer.o: MonitorLayer.cpp MonitorLayer.h Monitor.h Automaton.h \
   rules.h Area.h Logger.h Configuration.h EndLine.h List.h Iterator.h \
   systemTypes.h State.h systemParms.h utility.h Vector.h Failure.h \
   definition.h Rectangle.h Transition.h Event.h SubEvent.h ExtValue.h \
   EvalMode.h Neighborhood.h Hypothesis.h Reputation.h PhysicalLayer.h \
-  controller.h Sensing.h Predictor.h
+  controller.h Sensing.h 
 Neighborhood.o: Neighborhood.cpp Neighborhood.h List.h EndLine.h \
   Iterator.h Hypothesis.h Area.h Logger.h Configuration.h systemTypes.h \
   State.h systemParms.h utility.h Vector.h Failure.h definition.h \

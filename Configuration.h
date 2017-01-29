@@ -42,10 +42,14 @@ public:
     /* channel parameters */
     double cRadius;
     double cProb;
+
+    /* prediction span */
+    int nTimeSteps;
     /* other parameters */
     bool makeVideo;
     bool saveVideoImages;
     bool saveConsensusImages;
+    bool savePredictionImages;
     bool saveSubjectiveVisions;
     bool saveTxtOutput;
     bool showImages;
