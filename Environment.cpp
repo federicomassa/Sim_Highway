@@ -62,7 +62,7 @@ Maneuver Environment::getManeuver(int index) const
 void Environment::observableArea(int index, Area& obs, Area* hiddenArea) const
 {
     /* error handling */
-    if (index >= nV)
+    if (index >= nV || index < 0)
         error("Environment", "vehicle index exceeded Environment bounds");
 
     const State subj = getQ(index);

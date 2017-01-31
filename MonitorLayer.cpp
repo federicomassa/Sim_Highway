@@ -10,6 +10,7 @@
  */
 
 #include "MonitorLayer.h"
+#include "Environment.h"
 
 MonitorLayer::~MonitorLayer()
 {
@@ -53,29 +54,88 @@ bool MonitorLayer::removeMonitor(int t)
 void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Maneuver& agentManeuver,
                        const Area& obs)
 {
+
+  
     if(CONF.debug)
     {
         LOG.s << "Monitor Layer " << agentID << " START...";
         LOG.s << EndLine(EndLine::INC);
     }
+
+    /* Create environment to calculate observable areas of monitored vehicles based on 
+     agent's partial knowledge */
+    
+    Environment env(sList.count(), CONF.cRadius, CONF.cProb);
+    List<State> totalQList;
+    List<Parms> totalPList;
     Iterator<Sensing> i(sList);
     Sensing s;
+
+    while (i(s))
+      {
+	totalQList.insHead(s.q);
+	totalPList.insHead(s.q.v);
+      }
+
+    env.initVehicles(totalQList, totalPList);
+
+    const Sensing* sens;
+    for (int n = 0; n < env.getNVehicles(); n++)
+      {
+	sList.getElem(sens, n);
+	env.getVehicles()[n].setID(sens->agentID);
+      }
+    
+    /* Reset iterator */
+    i.initialize(sList);
+
     List<int> processedID;
     while(i(s))
     {
         /* check if the target id is in the active targets list */
         if(!CONF.allTargetsActive && !CONF.activeTargets.belongs(s.agentID))
             continue;
-        
+
+	/* Look for correspondence between vehicles index in environment and in sList */
+	int monitorIndex = -1;
+	for (int n = 0; n < env.getNVehicles(); n++)
+	  {
+	    if (env.getVehicles()[n].getID() == s.agentID)
+	      {
+		monitorIndex = n;
+		break;
+	      }
+	  }
+	
         processedID.insHead(s.agentID);
 
-	// building state list 
+	// building state list, as seen by monitored vehicle
 	Iterator<Sensing> is(sList);
 	Sensing tmpS;
 	List<State> qList;
+
+	Area monitorObs;
+	env.observableArea(monitorIndex, monitorObs);
+	
 	while(is(tmpS))
-	  if(tmpS != s)
-	    qList.insHead(tmpS.q);
+	  {
+	    if (tmpS == s)
+	      continue;
+	    
+	    /* search corresponding index in vehicles list in environment */
+	    int tmpIndex = -1;
+	    for (int n = 0; n < env.getNVehicles(); n++)
+	      {
+		if (env.getVehicles()[n].getID() == tmpS.agentID)
+		  {
+		    tmpIndex = n;
+		    break;
+		  }
+	      }
+	    
+	    if (env.getVehicles()[tmpIndex].inArea(monitorObs))
+       	      qList.insHead(tmpS.q);
+	  }
 	// insert monitor agent state in the list
 	qList.insHead(agentQ);
 	
@@ -97,6 +157,7 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
 	if (m->getAgentID() == 0 && m->getTargetID() == 1)
 	  {
 	    m->predictStates(sList, agentQ, agentManeuver);
+
 	  }
 	
 	
@@ -123,6 +184,7 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
         LOG.s << EndLine(EndLine::DEC);
         LOG.s << "Monitor Layer " << agentID << " STOP.";
     }
+    
 }
 
 void MonitorLayer::getHypothesis(List<Hypothesis>& hList) const

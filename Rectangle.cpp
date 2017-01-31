@@ -13,6 +13,7 @@
 
 Rectangle::Rectangle(const Vector<Vector<double, 2>, Q_DIM>& b)
 {
+  isDummy = false;
     /* error handling */
     for(int i = 0; i < Q_DIM; i++)
         if(b[i][0] > b[i][1])
@@ -136,6 +137,7 @@ bool Rectangle::slice(const Rectangle& r, List<Rectangle>& list) const
 
 void Rectangle::weld(const Rectangle& r, int n)
 {
+  isDummy = false;
     /* error handling */
     if(n < 0 || n > Q_DIM)
         error("Rectangle", "dimension n greater than space dimension");

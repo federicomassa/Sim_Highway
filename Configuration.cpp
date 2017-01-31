@@ -308,6 +308,7 @@ ostream& operator<<(ostream& os, const Configuration& c)
         os << "Save consensus images: ";
         os << (c.saveConsensusImages ? "ON" : "OFF") << EndLine();
     }
+    os << "Prediction simulation steps: " << c.nTimeSteps << EndLine();
     os << "Video output: " << (c.makeVideo ? "ON" : "OFF") << EndLine();
     os << "Split view: " << (c.splitView ? "ON" : "OFF") << EndLine();
     if(c.splitView)

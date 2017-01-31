@@ -1,4 +1,3 @@
-
 #include "Vehicle.h"
 #include <iostream>
 

@@ -49,7 +49,7 @@ Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver&
 
 void Monitor::predictStates(const List<Sensing>& sList, const State& agentQ, const Maneuver& agentManeuver)
 {
-
+  
   if (timeStepsCount == 0)
     {
       std::cout << "Real Monitor maneuver: " << targetManeuver << std::endl;
@@ -58,6 +58,20 @@ void Monitor::predictStates(const List<Sensing>& sList, const State& agentQ, con
       predictor.run();
       predictor.getMonitor(monitorPrediction);
       predictor.getErrors(errors);
+
+      if (CONF.savePredictionImages)
+	{
+	  Grid g;
+	  for (int i = 0; i < N_MANEUVER; i++)
+	    for (int v1 = 0; v1 < 4; v1++)
+	      for (int v2 = v1 + 1; v2 < 4; v2++)
+		{
+		  g.drawStateSpace(monitorPrediction[i], v1, v2);
+		  // C**time** A**agent** T**target** M**maneuver** V**pair of variables**
+		  g.save("Pred", "A" + toString(agentID,2) + "T" + toString(targetID,2) + "M" + toString(i) + "V" + toString(v1) + toString(v2));
+		}
+	}
+
       
     }
   
@@ -76,27 +90,16 @@ void Monitor::predictStates(const List<Sensing>& sList, const State& agentQ, con
 	std::cout << "Not detected" << std::endl;
       
       std::cout << "After detect" << std::endl;
-      
-      
-      if (timeStepsCount == 0 && CONF.savePredictionImages)
-	{
-	  Grid g;
-	  for (int i = 0; i < N_MANEUVER; i++)
-	    for (int v1 = 0; v1 < 4; v1++)
-	      for (int v2 = v1 + 1; v2 < 4; v2++)
-		{
-		  g.drawStateSpace(monitorPrediction[i], v1, v2);
-		  // C**time** A**agent** T**target** M**maneuver** V**pair of variables**
-		  g.save("Pred", "A" + toString(agentID,2) + "T" + toString(targetID,2) + "M" + toString(i) + "V" + toString(v1) + toString(v2));
-		}
-	}
 
       /* Reset for next prediction */
-      timeStepsCount = 0;
+      if (timeStepsCount == CONF.nTimeSteps)
+	timeStepsCount = -1;
+      
     }
   
 
   timeStepsCount++;
+  
   
 }
 

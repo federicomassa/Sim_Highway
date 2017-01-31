@@ -206,7 +206,7 @@ const T& DynVector<T>::operator[](int i) const
 {
     /* error handling */
     if(i >= length || i < 0)
-        error("DynVector::operator[] const", "invalid index reference");
+      error("DynVector::operator[] const", "invalid index reference " + toString(i) + " with length " + toString(length));
     
     return elements[i];
 }

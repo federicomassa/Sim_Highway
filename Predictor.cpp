@@ -15,7 +15,7 @@
 #include "systemParms.h"
 #include "utility.h"
 
-const double Predictor::compatibilityCut = 1;
+const double Predictor::compatibilityCut = 10;
 
 /* Function to compute the indexes needed for the numerical derivative calculus */
 void computeIndexes(const int& i, const int& dim, int& iPlus, int& iMinus)
@@ -125,6 +125,11 @@ void Predictor::run()
   hidden->getRectList(rList);
 
 
+  /* Add an empty rectangle to the TOP OF THE LIST (important for error computation), that represents the hypothesis
+   with no hidden vehicles -> tensor(1,1,1,1,1) */
+  Rectangle dummyRect;
+  rList.insHead(dummyRect);
+
   // loop on the possible monitor maneuvers
   for (int sigma = 0; sigma < N_MANEUVER; sigma++)
     {
@@ -134,6 +139,11 @@ void Predictor::run()
       
       while(iRect(tmpRect))
 	{
+	  bool noHiddenVehicle = false;
+	  
+	  if (tmpRect.isDummy)
+	    noHiddenVehicle = true;
+	  
 	  Vector<Vector<double,2>, 2> b;
 	  tmpRect.getBounds(b);
 	  
@@ -143,23 +153,34 @@ void Predictor::run()
 	  double ymin = b[1][0];
 	  double ymax = b[1][1];
 	  
-	  if (xmax <= xmin || ymax <= ymin)
+	  if ((xmax <= xmin || ymax <= ymin) && !noHiddenVehicle)
 	    continue;
 	  
 	  // n bins 
 	  int nX, nY, nTheta, nV, nDesiredV;
 	  
-	  // if the ratio is not exact, we also take the center of the remaining bin: |__x__|__x__|__x__|_x_|
-	  nX = ceil((xmax - xmin)/deltaX);
-	  nY = ceil((ymax - ymin)/deltaY);
-	  nTheta = ceil(2*MAX_THETA/deltaTheta);
-	  nV = ceil(1.0/deltaV);
-	  nDesiredV = ceil(1.0/deltaDesiredV);
+	  // if the ratio is not exact, we also take the smaller remainder : x_____x_____x_____x___x
+	  if (!noHiddenVehicle)
+	    {
+	      nX = ceil((xmax - xmin)/deltaX) + 1;
+	      nY = ceil((ymax - ymin)/deltaY) + 1;
+	      nTheta = ceil(2*MAX_THETA/deltaTheta) + 1;
+	      nV = ceil(1.0/deltaV) + 1;
+	      nDesiredV = ceil(1.0/deltaDesiredV) + 1;
+	    }
+	  else
+	    {
+	      nX = 1;
+	      nY = 1;
+	      nTheta = 1;
+	      nV = 1;
+	      nDesiredV = 1;
+	    }
 	  
 	  Tensor5<Sensing> tmpHidden(nX, nY, nTheta, nV, nDesiredV);
 	  Tensor5<Sensing> tmpMonitor(nX, nY, nTheta, nV, nDesiredV);
 	
-	  
+
 	  // Hypothesis on a grid
 	  for (int xi = 0; xi < nX; xi++)
 	    for (int yi = 0; yi < nY; yi++)
@@ -169,172 +190,186 @@ void Predictor::run()
 		    {
 		      
 		      //Simulated environment with all vehicles, including the one hidden
-		      Environment simulEnv(sList.count() + 2, CONF.cRadius, CONF.cProb);
-		    
+		      Environment* simulEnv;
+
+		      if (!noHiddenVehicle)
+			simulEnv = new Environment(sList.count() + 2, CONF.cRadius, CONF.cProb);
+		      else
+			simulEnv = new Environment(sList.count() + 1, CONF.cRadius, CONF.cProb);
+		      
 		      //check for very small rect case
 		      // compute state value taking the center of each bin
 		      double x, y, theta, v, desiredV;
 		      
 		      
 		      if (xi != nX -1)
-			x = (xmin + deltaX/2) + xi*deltaX;
+			x = xmin + xi*deltaX;
 		      else //this case is to account for possible remainder in the ratio. If exact, doesn't change anything
-			x = xmin + (nX - 1)*deltaX + (xmax - (xmin + (nX - 1)*deltaX))/2;
+			x = xmax;
 		      
 		      if (yi != nY -1)
-			y = (ymin + deltaY/2) + yi*deltaY;
+			y = ymin + yi*deltaY;
 		      else //this case is to account for possible remainder in the ratio. If exact, doesn't change anything
-			y = ymin + (nY - 1)*deltaY + (ymax - (ymin + (nY - 1)*deltaY))/2;
+			y = ymax;
 		      
 		      if (thetai != nTheta -1)
-			theta = (-MAX_THETA + deltaTheta/2) + thetai*deltaTheta;
+			theta = -MAX_THETA + thetai*deltaTheta;
 		      else //this case is to account for possible remainder in the ratio. If exact, doesn't change anything
-			theta = -MAX_THETA + (nTheta - 1)*deltaTheta + (MAX_THETA - (-MAX_THETA + (nTheta - 1)*deltaTheta))/2;
+			theta = MAX_THETA;
 		      
 		      if (vi != nV -1)
-			v = (0 + deltaV/2) + vi*deltaV;
+			v = 0 + vi*deltaV;
 		      else //this case is to account for possible remainder in the ratio. If exact, doesn't change anything
-			v = 0 + (nV - 1)*deltaV + (1.0 - (0 + (nV - 1)*deltaV))/2;
-
+			v = 1.0;
+		      
 		      if (desiredVi != nDesiredV -1)
-			desiredV = (0 + deltaDesiredV/2) + desiredVi*deltaDesiredV;
+			desiredV = 0 + desiredVi*deltaDesiredV;
 		      else //this case is to account for possible remainder in the ratio. If exact, doesn't change anything
-			desiredV = 0 + (nDesiredV - 1)*deltaDesiredV + (1.0 - (0 + (nDesiredV - 1)*deltaDesiredV))/2;
+			desiredV = 1.0;
+		      
 
-
-		      if (xi == 1 && yi == 0 && thetai == 0 && (vi == 4 || vi == 5 || vi == 6) && desiredVi == 8 && sigma == 4)
-			std::cout << std::fixed << std::setprecision(6) << "Coords: " << x << '\t' << y << '\t' << theta << '\t' << v << '\t' << desiredV << std::endl;
-		    //hidden state, with 1 desired velocity and FAST initial maneuver,
-		    // these last two are irrelevant for monitor prediction if only one time step
-		    // is considered. FIXME if not
-
-		    State hiddenQ(x, y, theta, v, desiredV, "FAST");
-		    if (xi == 1 && yi == 0 && thetai == 0 && (vi == 4 || vi == 5 || vi == 6) && desiredVi == 8 && sigma == 4)
-		      std::cout << "hiddenQ: " << desiredV << std::endl;
-		    
-		    // Simulated sensor response, hidden vehicle as special ID = 100
-		    Sensing hiddenS(100, hiddenQ, hiddenQ.v, FAST);
-		    Parms hiddenP = hiddenQ.v;
-		    // fill tensor
-		    tmpHidden(xi, yi, thetai, vi, desiredVi) = hiddenS;
-		    if (xi == 1 && yi == 0 && thetai == 0 && (vi == 4 || vi == 5 || vi == 6) && desiredVi == 8 && sigma == 4)
-		      std::cout << "hiddenS: " << tmpHidden(xi, yi, thetai, vi, desiredVi).q.desiredV << std::endl;
-		    
-		    //Simulate the environment 
-		    tmpSList.insTail(hiddenS);
-		    tmpQList.insTail(hiddenQ);
-		    tmpPList.insTail(hiddenP);
-		    
-		    simulEnv.initVehicles(tmpQList, tmpPList);
-		    iSensing.initialize(tmpSList);
-		    
-		    for (int n = 0; n < simulEnv.getNVehicles(); n++)
-		      {
-			if (iSensing(tmpS))
-			  simulEnv.getVehicles()[n].setID(tmpS.agentID);
-			else
-			  error("Predictor", "Something wrong in sensing list");
-		      }
-		    
-		    //simulEnv.run();
-		    
-		    Vehicle* monitorV = NULL;
-		    for (int n = 0; n < simulEnv.getNVehicles(); n++)
-		      {
-			if(simulEnv.getVehicles()[n].getID() == monitorID)
-			  {
-			    monitorV = &simulEnv.getVehicles()[n];
-			    break;
-			  }
-		      }
-		    
-		    if (monitorV == NULL)
-		      error("Predictor", "Monitor not found in environment");
-		    
-		    State monitorQ = monitorV->getQ();
-
-		    /* Set monitor maneuver */
-		    monitorQ.initManeuver = maneuverToStr((Maneuver)sigma);
-		    monitorPLayer.init(monitorQ, monitorQ.v);
-		    agentPLayer.init(iAgentState, iAgentState.v);
-		    
-		    /* Predict each vehicle's behaviour within nTSteps time steps. 
-		     Hypothesis: all vehicles except observer and monitored move with const speed */
-		    for (int steps = 0; steps < nTimeSteps; steps++)
-		      {
-			//create monitor qList
-			List<State> monitorQList;
-			List<State> agentQList;
-			for (int n = 0; n < simulEnv.getNVehicles(); n++)
-			  {
-			    if (simulEnv.getVehicles()[n].getID() != monitorID)
-			      monitorQList.insHead(simulEnv.getVehicles()[n].getQ());
-
-			    if (simulEnv.getVehicles()[n].getID() != agentID)
-			      agentQList.insHead(simulEnv.getVehicles()[n].getQ());
-			    
-			  }
-			
-			//monitorPLayer.updateQ();
-			monitorPLayer.computeNextQ((Maneuver)sigma, monitorQList);
-			agentPLayer.computeNextQ((Maneuver)agentManeuver, agentQList);
-
-			/* update pLayer for next iteration */
-			monitorPLayer.updateQ();
-			agentPLayer.updateQ();
-
-			/* evolve remaining vehicles */
-			for (int n = 0; n < simulEnv.getNVehicles(); n++)
-			  {
-			    if (simulEnv.getVehicles()[n].getID() == agentID ||
-				simulEnv.getVehicles()[n].getID() == monitorID)
-			      continue;
-
-			    Vehicle& veh = simulEnv.getVehicles()[n];
-			    State oldQ = simulEnv.getVehicles()[n].getQ();
-			    /* uniform speed motion */
-			    State newQ(oldQ.x + oldQ.v*cos(oldQ.theta),
-				       oldQ.y + oldQ.v*sin(oldQ.theta),
-				       oldQ.theta,
-				       oldQ.v);
-
-			    veh.setQ(newQ);
-				
-			  }
-			
-		      }
-		    
-		    State monitorNextQ = monitorPLayer.getNextQ();
-
-		    if (xi == 1 && yi == 0 && thetai == 0 && (vi == 5 || vi == 4 || vi == 6) && desiredVi == 8 && sigma == 4)
-		      std::cout << std::fixed << std::setprecision(5) << "Monitor: " << monitorNextQ.x << '\t' << monitorNextQ.y << '\t' << monitorNextQ.theta << '\t' << monitorNextQ.v << std::endl;
-		    
-		    Sensing monitorS(monitorID, monitorNextQ, monitorNextQ.v, (Maneuver)sigma);
-		    
-		    tmpMonitor(xi, yi, thetai, vi, desiredVi) = monitorS;
-		    
-		    //remove for next iteration
-		    tmpSList.extrTail(hiddenS);
-		    tmpQList.extrTail(hiddenQ);
-		    tmpPList.extrTail(hiddenP);
-		    
-		  }
+		      /* If in the hypothesis with no hidden vehicles, fill but it won't be used */
+		      State hiddenQ(x, y, theta, v, desiredV, "FAST");
+		      
+		      // Simulated sensor response, hidden vehicle as special ID = 100
+		      Sensing hiddenS(100, hiddenQ, hiddenQ.v, FAST);
+		      Parms hiddenP = hiddenQ.v;
+		      // fill tensor
+		      tmpHidden(xi, yi, thetai, vi, desiredVi) = hiddenS;
+		      
+		      //Simulate the environment
+		      if (!noHiddenVehicle)
+			{
+			  tmpSList.insTail(hiddenS);
+			  tmpQList.insTail(hiddenQ);
+			  tmpPList.insTail(hiddenP);
+			}
+		      
+		      simulEnv->initVehicles(tmpQList, tmpPList);
+		      iSensing.initialize(tmpSList);
+		      
+		      for (int n = 0; n < simulEnv->getNVehicles(); n++)
+			{
+			  if (iSensing(tmpS))
+			    simulEnv->getVehicles()[n].setID(tmpS.agentID);
+			  else
+			    error("Predictor", "Something wrong in sensing list");
+			}
+		      
+		      //simulEnv.run();
+		      
+		      Vehicle* monitorV = NULL;
+		      int monitorIndex = -1;
+		      for (int n = 0; n < simulEnv->getNVehicles(); n++)
+			{
+			  if(simulEnv->getVehicles()[n].getID() == monitorID)
+			    {
+			      monitorV = &(simulEnv->getVehicles()[n]);
+			      monitorIndex = n;
+			      break;
+			    }
+			}
+		      
+		      if (monitorV == NULL)
+			error("Predictor", "Monitor not found in environment");
+		      
+		      State monitorQ = monitorV->getQ();
+		      
+		      /* Set monitor maneuver */
+		      monitorQ.initManeuver = maneuverToStr((Maneuver)sigma);
+		      monitorPLayer.init(monitorQ, monitorQ.v);
+		      agentPLayer.init(iAgentState, iAgentState.v);
+		      
+		      /* Predict each vehicle's behaviour within nTSteps time steps. 
+			 Hypothesis: all vehicles except observer and monitored move with const speed */
+		      for (int steps = 0; steps < nTimeSteps; steps++)
+			{
+			  //create monitor qList
+			  List<State> monitorQList;
+			  List<State> agentQList;
+			  
+			  /* Evaluate monitored vehicle's observable area */
+			  Area monitorObs;
+			  simulEnv->observableArea(monitorIndex, monitorObs);
+			  
+			  for (int n = 0; n < simulEnv->getNVehicles(); n++)
+			    {
+			      if (simulEnv->getVehicles()[n].getID() != monitorID && simulEnv->getVehicles()[n].inArea(monitorObs))
+				monitorQList.insHead(simulEnv->getVehicles()[n].getQ());
+			      
+			      if (simulEnv->getVehicles()[n].getID() != agentID && simulEnv->getVehicles()[n].inArea(obs))
+				agentQList.insHead(simulEnv->getVehicles()[n].getQ());
+			      
+			    }
+			  
+			  //monitorPLayer.updateQ();
+			  monitorPLayer.computeNextQ((Maneuver)sigma, monitorQList);
+			  agentPLayer.computeNextQ((Maneuver)agentManeuver, agentQList);
+			  
+			  /* update pLayer for next iteration */
+			  monitorPLayer.updateQ();
+			  agentPLayer.updateQ();
+			  
+			  /* evolve remaining vehicles */
+			  for (int n = 0; n < simulEnv->getNVehicles(); n++)
+			    {
+			      if (simulEnv->getVehicles()[n].getID() == agentID ||
+				  simulEnv->getVehicles()[n].getID() == monitorID)
+				continue;
+			      
+			      Vehicle& veh = simulEnv->getVehicles()[n];
+			      State oldQ = simulEnv->getVehicles()[n].getQ();
+			      /* uniform speed motion */
+			      State newQ(oldQ.x + oldQ.v*cos(oldQ.theta),
+					 oldQ.y + oldQ.v*sin(oldQ.theta),
+					 oldQ.theta,
+					 oldQ.v);
+			      
+			      veh.setQ(newQ);
+			      
+			    }
+			  
+			}
+		      
+		      State monitorNextQ = monitorPLayer.getNextQ();
+		      Sensing monitorS(monitorID, monitorNextQ, monitorNextQ.v, (Maneuver)sigma);
+		      
+		      tmpMonitor(xi, yi, thetai, vi, desiredVi) = monitorS;
+		      
+		      //remove for next iteration
+		      if (!noHiddenVehicle)
+			{
+			  tmpSList.extrTail(hiddenS);
+			  tmpQList.extrTail(hiddenQ);
+			  tmpPList.extrTail(hiddenP);
+			}
+		      
+		    }
+	    
+	  if (!noHiddenVehicle)
+	    hiddenState[sigma].insTail(tmpHidden);
 	  
-	  hiddenState[sigma].insTail(tmpHidden);
 	  monitorState[sigma].insTail(tmpMonitor);
 	  
 	}
+
 
       /* Now compute errors */
       List<Tensor5<Vector<double, 4> > > errList;
     
       for (int list = 0; list < monitorState[sigma].count(); list++)
 	{
+	  bool noHiddenVehicle = false;
+	  
 	  const Tensor5<Sensing>* monitor;
 	  monitorState[sigma].getElem(monitor, list);
 	  
 	  Tensor5<Vector<double,4> > errTens(monitor->Dim1, monitor->Dim2, monitor->Dim3, monitor->Dim4, monitor->Dim5);
-	  
+
+	  /* When there is a hidden vehicle, nX... is at least 2 */
+	  if (monitor->Dim1 == 1 && monitor->Dim2 == 1 && monitor->Dim3 == 1 && monitor->Dim4 == 1 && monitor->Dim5 == 1)
+	    noHiddenVehicle = true;
+	    
 	  for (int i = 0; i < monitor->Dim1; i++)
 	    for (int j = 0; j < monitor->Dim2; j++)
 	      for (int k = 0; k < monitor->Dim3; k++)
@@ -342,7 +377,17 @@ void Predictor::run()
 		  for (int m = 0; m < monitor->Dim5; m++)
 		    {
 		      Vector<double, 4> tmpErr;
-		      getError(tmpErr, monitor, i, j, k, l, m);
+
+		      if (!noHiddenVehicle)
+			getError(tmpErr, monitor, i, j, k, l, m);
+		      else
+			{
+			  tmpErr[0] = 0;
+			  tmpErr[1] = 0;
+			  tmpErr[2] = 0;
+			  tmpErr[3] = 0;
+			}
+		      
 		      errTens(i,j,k,l,m) = tmpErr;
 
 		      /*		      if ((Maneuver)sigma == PLATOON)

@@ -69,11 +69,13 @@ class Rectangle
      * \brief A matrix of double representing rectangle's edges.
      */
     Vector<Vector<double, 2>, Q_DIM> bounds;
+
 public:
+    bool isDummy;
     /*!
      * \brief Default constructor.
      */
-    Rectangle() { }
+    Rectangle() { isDummy = true;}
     /*!
      * \brief Alternative constructor.
      *
