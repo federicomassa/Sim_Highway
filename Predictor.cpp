@@ -124,6 +124,7 @@ void Predictor::run()
   List<Rectangle> rList;
   hidden->getRectList(rList);
 
+  std::cout << "NRectangles: " << rList.count() << std::endl;
 
   /* Add an empty rectangle to the TOP OF THE LIST (important for error computation), that represents the hypothesis
    with no hidden vehicles -> tensor(1,1,1,1,1) */
@@ -356,9 +357,11 @@ void Predictor::run()
 
       /* Now compute errors */
       List<Tensor5<Vector<double, 4> > > errList;
-    
+
+      std::cout << "monitorList: " << monitorState[sigma].count() << std::endl;
       for (int list = 0; list < monitorState[sigma].count(); list++)
 	{
+	 
 	  bool noHiddenVehicle = false;
 	  
 	  const Tensor5<Sensing>* monitor;

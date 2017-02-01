@@ -41,7 +41,7 @@ Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver&
     
     neighbors = activeList;
 
-    timeStepsCount = 0;
+    timeStepsCount = -1;
     
     targetLocked = false;
     hypReady = true; //FIXME: fixed to true
@@ -349,7 +349,7 @@ void Monitor::detectManeuver(const State& q, const Maneuver& sigma)
 	LOG.s << "Transition detected (target locked)" << EndLine();
       /* transition detected */
       targetManeuver = sigma;
-
+ 
       /* got a good estimation of target xi */
       targetLocked = true;
     }

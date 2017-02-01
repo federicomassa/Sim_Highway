@@ -147,6 +147,8 @@ public:
     /*!
      * \brief Return targetID.
      */
+    /* Return true if nTimeSteps have passed since last prediction */
+    bool isReady() {timeStepsCount++; return (timeStepsCount == CONF.nTimeSteps);}
     int getTargetID() const { return targetID; }
     /*!
      * \brief Return agentID.
@@ -169,7 +171,9 @@ public:
     void setErrors(const Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err) {errors = err;}
     
     void getTargetQ(State& q) {q = targetQ;}
-    
+
+    /* Run monitor: prediction of possible states -> detection of maneuver -> formulation of hypothesis */
+    void run();
 };
 
 #endif
