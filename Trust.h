@@ -3,8 +3,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 class Trust
 {
 public:
@@ -28,7 +26,7 @@ public:
     }
 };
 
-ostream& operator<<(ostream&, const Trust&);
+std::ostream& operator<<(std::ostream&, const Trust&);
 bool operator==(const Trust&, const Trust&);
 bool operator!=(const Trust&, const Trust&);
 

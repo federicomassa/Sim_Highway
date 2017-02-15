@@ -1,6 +1,7 @@
 
 #include "Automaton.h"
 
+using namespace std;
 /* Jammer failure makes automaton to switch between FAST and SLOW maneuver
 every JAMMER_SWITCHING_INTERVAL simulation steps */
 #define JAMMER_SWITCHING_INTERVAL 5
@@ -87,12 +88,16 @@ void Automaton::run(const State& qSubj, const List<State>& qList)
                 if ((Maneuver)i != sigma)
                 {
                     /* failure handling */
-                    if((Maneuver)i == RIGHT
-                       && fail.aFailures.belongs(Failure::NORIGHT))
-                        break;
-		    else if ((Maneuver)i == PLATOON &&
-			     fail.aFailures.belongs(Failure::NOPLATOON))
-		      break;
+		  if ((Maneuver)sigma == PLATOON &&
+		      fail.aFailures.belongs(Failure::STAYPLATOON))
+		    break;
+		  else if((Maneuver)i == RIGHT
+			  && fail.aFailures.belongs(Failure::NORIGHT))
+		    break;
+		  else if ((Maneuver)i == PLATOON &&
+			   fail.aFailures.belongs(Failure::NOPLATOON))
+		    break;
+		  
                     /* set new maneuver */
                     setManeuver((Maneuver)i, qSubj);
                 }

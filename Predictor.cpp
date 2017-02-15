@@ -2,7 +2,9 @@
   Implementation of class Predictor
  */
 
-/*FIXME Add hypothesis with no hidden vehicles */
+/* FIXME Fix issue with counter. When vehicles are no longer visible there are problems 
+FIXME when considering uniform speed error, agent qList does not change as it should
+*/
 
 
 #include <cmath>
@@ -43,11 +45,11 @@ Predictor::Predictor(const int& aID, const State& aState, const Maneuver& aManeu
     error("Predictor", "Invalid number of time steps, should be > 0");
 
   // Initialize hidden state vector with fixed spacing
-  deltaX = VISIBLE_DISTANCE/10;
+  deltaX = VISIBLE_DISTANCE/4;
   deltaY = LANE_HEIGHT/4;
   deltaTheta = 2*MAX_THETA/3;
-  deltaV = 1.0/10.0;
-  deltaDesiredV = 1.0/10.0;
+  deltaV = 1.0/4;
+  deltaDesiredV = 1.0/4;
   
   //set starting time
   currentStep = 0;
@@ -86,6 +88,8 @@ Predictor::~Predictor() {}
 
 void Predictor::run()
 {
+
+  std::cout << "SList count: " << sList.count() << std::endl;
   
   if (currentStep == nTimeSteps)
     error("Predictor", "Predictor run after maximum time");
@@ -104,20 +108,46 @@ void Predictor::run()
   Sensing tmpS;
   
   List<Parms> tmpPList;
-
+  State iMonitorState;
   //need q and p list to initialize vehicles
   while(iSensing(tmpS))
     {
       tmpQList.insTail(tmpS.q);
       tmpPList.insTail(tmpS.q.v);
+      if (tmpS.agentID == monitorID)
+	iMonitorState = tmpS.q;
     }
 
   tmpEnv.initVehicles(tmpQList, tmpPList);
   Area obs;
   Area* hidden = new Area;
+
   // NB agent is the first, so index 0
   tmpEnv.observableArea(0, obs, hidden);
 
+  /* Hidden area is calculated based on the visibility of
+   the agent. But we want to add the part hidden to the agent
+  that is visible to the monitored vehicle */
+  Vector<Vector<double, 2>, 2> newRect;
+  
+  /* case monitored ahead */
+  if (iAgentState.x < iMonitorState.x)
+    {
+      newRect[0][0] = iAgentState.x + VISIBLE_DISTANCE;
+      newRect[0][1] = iMonitorState.x + VISIBLE_DISTANCE;
+      newRect[1][0] = MIN_LANE;
+      newRect[1][1] = MAX_LANE + 1;
+    }
+  else
+    {
+      newRect[0][0] = iMonitorState.x - VISIBLE_DISTANCE;
+      newRect[0][1] = iAgentState.x - VISIBLE_DISTANCE;
+      newRect[1][0] = MIN_LANE;
+      newRect[1][1] = MAX_LANE + 1;
+    }
+  hidden->addRect(newRect);
+  hidden->simplify();
+  
   // Get list of rectangles forming the area to
   // compute x,y segmentation
 
@@ -126,7 +156,7 @@ void Predictor::run()
 
   std::cout << "NRectangles: " << rList.count() << std::endl;
 
-  /* Add an empty rectangle to the TOP OF THE LIST (important for error computation), that represents the hypothesis
+  /* Add an empty rectangle to the TOP OF THE LIST (important for error computation?), that represents the hypothesis
    with no hidden vehicles -> tensor(1,1,1,1,1) */
   Rectangle dummyRect;
   rList.insHead(dummyRect);
@@ -137,13 +167,21 @@ void Predictor::run()
 
       Iterator<Rectangle> iRect(rList);
       Rectangle tmpRect;
-      
+
+      int rCount = -1;
       while(iRect(tmpRect))
 	{
+	  rCount++;
+	  
 	  bool noHiddenVehicle = false;
 	  
 	  if (tmpRect.isDummy)
 	    noHiddenVehicle = true;
+
+	  /* FIXME */
+	  if (!noHiddenVehicle)
+	    continue;
+
 	  
 	  Vector<Vector<double,2>, 2> b;
 	  tmpRect.getBounds(b);
@@ -153,6 +191,9 @@ void Predictor::run()
 	  double xmax = b[0][1];
 	  double ymin = b[1][0];
 	  double ymax = b[1][1];
+
+	  if (!tmpRect.isDummy)
+	    std::cout << xmin << '\t' << xmax << '\t' << ymin << '\t' << ymax << std::endl;
 	  
 	  if ((xmax <= xmin || ymax <= ymin) && !noHiddenVehicle)
 	    continue;
@@ -180,7 +221,7 @@ void Predictor::run()
 	  
 	  Tensor5<Sensing> tmpHidden(nX, nY, nTheta, nV, nDesiredV);
 	  Tensor5<Sensing> tmpMonitor(nX, nY, nTheta, nV, nDesiredV);
-	
+	  Tensor5<Vector<double, 4> > uniformTens(nX, nY, nTheta, nV, nDesiredV);
 
 	  // Hypothesis on a grid
 	  for (int xi = 0; xi < nX; xi++)
@@ -189,7 +230,7 @@ void Predictor::run()
 		for (int vi = 0; vi < nV; vi++)
 		  for (int desiredVi = 0; desiredVi < nDesiredV; desiredVi++)
 		    {
-		      
+
 		      //Simulated environment with all vehicles, including the one hidden
 		      Environment* simulEnv;
 
@@ -258,7 +299,7 @@ void Predictor::run()
 			}
 		      
 		      //simulEnv.run();
-		      
+		    
 		      Vehicle* monitorV = NULL;
 		      int monitorIndex = -1;
 		      for (int n = 0; n < simulEnv->getNVehicles(); n++)
@@ -270,19 +311,39 @@ void Predictor::run()
 			      break;
 			    }
 			}
-		      
 		      if (monitorV == NULL)
 			error("Predictor", "Monitor not found in environment");
 		      
 		      State monitorQ = monitorV->getQ();
 		      
-		      /* Set monitor maneuver */
+		      /* Set monitor maneuver on separate physical layer. We do not
+		       use vehicle directly (preRun) because we do not want
+		      to run the automaton --> NB simulEnv for monitored and agent vehicle
+		      is not updated with the evolved state */
 		      monitorQ.initManeuver = maneuverToStr((Maneuver)sigma);
 		      monitorPLayer.init(monitorQ, monitorQ.v);
-		      agentPLayer.init(iAgentState, iAgentState.v);
+
 		      
+		      DynVector<Vector<PhysicalLayer, 2> > monitorPLayerError(simulEnv->getNVehicles() - 2);
+		      
+		      for (int cnt = 0; cnt < monitorPLayerError.length; cnt++)
+			{
+			  monitorPLayerError[cnt][0].init(monitorQ, monitorQ.v);
+			  monitorPLayerError[cnt][1].init(monitorQ, monitorQ.v);
+			}
+		      
+		      agentPLayer.init(iAgentState, iAgentState.v);
 		      /* Predict each vehicle's behaviour within nTSteps time steps. 
 			 Hypothesis: all vehicles except observer and monitored move with const speed */
+
+		      /* Vector containing extreme cases to compute errors due to uniform speed motion
+		       hypothesis. External vector is for vehicles (except agent and monitored), internal is 
+		      for the number of cases sampled (3 in this case: const acc, 0 acc, -const acc) */
+		      DynVector<Vector<State, 2> > extremeCaseStates;
+		      /* Evaluate monitored vehicle's observable area */
+		      Area iMonitorObs;
+		      simulEnv->observableArea(monitorIndex, iMonitorObs);
+
 		      for (int steps = 0; steps < nTimeSteps; steps++)
 			{
 			  //create monitor qList
@@ -292,7 +353,8 @@ void Predictor::run()
 			  /* Evaluate monitored vehicle's observable area */
 			  Area monitorObs;
 			  simulEnv->observableArea(monitorIndex, monitorObs);
-			  
+
+			  int counter = 0;
 			  for (int n = 0; n < simulEnv->getNVehicles(); n++)
 			    {
 			      if (simulEnv->getVehicles()[n].getID() != monitorID && simulEnv->getVehicles()[n].inArea(monitorObs))
@@ -300,37 +362,175 @@ void Predictor::run()
 			      
 			      if (simulEnv->getVehicles()[n].getID() != agentID && simulEnv->getVehicles()[n].inArea(obs))
 				agentQList.insHead(simulEnv->getVehicles()[n].getQ());
-			      
+
+			      if (simulEnv->getVehicles()[n].getID() == monitorID ||
+				  simulEnv->getVehicles()[n].getID() == agentID)
+				continue;
+
+			      if (extremeCaseStates.length == 0)
+				{
+				  extremeCaseStates.init(monitorPLayerError.length);
+				  
+				  extremeCaseStates[counter][0] = simulEnv->getVehicles()[n].getQ();
+				  extremeCaseStates[counter][1] = extremeCaseStates[counter][0];
+				}
+
+			      counter++;
 			    }
-			  
+			
 			  //monitorPLayer.updateQ();
 			  monitorPLayer.computeNextQ((Maneuver)sigma, monitorQList);
 			  agentPLayer.computeNextQ((Maneuver)agentManeuver, agentQList);
-			  
+
+			  /* Same thing for the extreme case, to compute the uniform speed
+			     hypothesis error */
+
+			  /* NB This works because counter is defined as below, where
+			   extremeCaseStates is filled. No other reference exists
+			  between vehicles in simulEnv and extremeCaseStates... */
+			  for (int cnt = 0; cnt < monitorPLayerError.length; cnt++)
+			    for (int extr = 0; extr < 2; extr++)
+			      {
+				List<State> monitorQListError;
+				Vehicle tmpV;
+				tmpV.init(extremeCaseStates[cnt][extr], extremeCaseStates[cnt][extr].v);
+
+				if (tmpV.inArea(monitorObs))
+				  monitorQListError.insHead(extremeCaseStates[cnt][extr]);
+				
+				int counter = 0;
+
+				for (int n = 0; n < simulEnv->getNVehicles(); n++)
+				  {
+
+				    
+				    if (simulEnv->getVehicles()[n].getID() == agentID)
+				      {
+					monitorQListError.insHead(simulEnv->getVehicles()[n].getQ());
+					continue;
+				      }
+
+				    if (simulEnv->getVehicles()[n].getID() == monitorID)
+				      continue;
+
+				    if (cnt != counter && simulEnv->getVehicles()[n].inArea(monitorObs))
+				      monitorQListError.insHead(simulEnv->getVehicles()[n].getQ());
+				    
+				    
+				    counter++;
+				    
+				  }
+			      
+				/*				if (monitorQListError.count() == 1 && !tmpRect.isDummy)
+								std::cout << "monitorQListError is 1 at: " << steps << std::endl;*/
+				monitorPLayerError[cnt][extr].computeNextQ((Maneuver)sigma, monitorQListError);
+				monitorPLayerError[cnt][extr].updateQ();
+
+			      }
+			
 			  /* update pLayer for next iteration */
 			  monitorPLayer.updateQ();
 			  agentPLayer.updateQ();
 			  
 			  /* evolve remaining vehicles */
+			  
+			  /* Also, estimate errors coming from the uniform speed hypothesis:
+			   this is estimated by measuring x,y,... of the monitored vehicle 
+			  when the others move with a const acceleration/deceleration motion*/
+
+			  counter = 0;
+			
 			  for (int n = 0; n < simulEnv->getNVehicles(); n++)
 			    {
-			      if (simulEnv->getVehicles()[n].getID() == agentID ||
-				  simulEnv->getVehicles()[n].getID() == monitorID)
-				continue;
+			      if (simulEnv->getVehicles()[n].getID() == agentID)
+				{
+				  Vehicle& veh = simulEnv->getVehicles()[n];
+				  veh.setQ(agentPLayer.getQ());
+				  continue;
+				}
+
+			      if (simulEnv->getVehicles()[n].getID() == monitorID)
+				{
+				  Vehicle& veh = simulEnv->getVehicles()[n];
+				  veh.setQ(monitorPLayer.getQ());
+				  continue;
+				}
+
 			      
+			    			      
 			      Vehicle& veh = simulEnv->getVehicles()[n];
-			      State oldQ = simulEnv->getVehicles()[n].getQ();
+			      State oldQ = veh.getQ();
 			      /* uniform speed motion */
 			      State newQ(oldQ.x + oldQ.v*cos(oldQ.theta),
 					 oldQ.y + oldQ.v*sin(oldQ.theta),
 					 oldQ.theta,
-					 oldQ.v);
+					 oldQ.v/MAX_SPEED,
+					 oldQ.desiredV/MAX_SPEED);
 			      
 			      veh.setQ(newQ);
+
+
+			      /* Extreme cases computation */
+
+			      /* Acceleration */
+			      if ((extremeCaseStates[counter][0].v/MAX_SPEED + ERROR_ACC/MAX_SPEED) < /*extremeCaseStates[counter][0].desiredV/MAX_SPEED*/ 1.0)
+				extremeCaseStates[counter][0] = State(extremeCaseStates[counter][0].x +
+								      extremeCaseStates[counter][0].v*cos(extremeCaseStates[counter][0].theta) +
+								      0.5*cos(extremeCaseStates[counter][0].theta)*ERROR_ACC,
+								      extremeCaseStates[counter][0].y +
+								      extremeCaseStates[counter][0].v*sin(extremeCaseStates[counter][0].theta) +
+								      0.5*sin(extremeCaseStates[counter][0].theta)*ERROR_ACC,
+								      extremeCaseStates[counter][0].theta,
+								      extremeCaseStates[counter][0].v/MAX_SPEED + ERROR_ACC/MAX_SPEED,
+						 		      extremeCaseStates[counter][0].desiredV/MAX_SPEED);
+			      else
+				extremeCaseStates[counter][0] = State(extremeCaseStates[counter][0].x +
+								      extremeCaseStates[counter][0].v*cos(extremeCaseStates[counter][0].theta) +
+								      0.5*cos(extremeCaseStates[counter][0].theta)*(1.0 - extremeCaseStates[counter][0].v),
+								      extremeCaseStates[counter][0].y +
+								      extremeCaseStates[counter][0].v*sin(extremeCaseStates[counter][0].theta) +
+								      0.5*sin(extremeCaseStates[counter][0].theta)*(1.0 - extremeCaseStates[counter][0].v),
+								      extremeCaseStates[counter][0].theta,
+								      1.0,
+								      extremeCaseStates[counter][0].desiredV/MAX_SPEED);
+
+
+			      /* Deceleration */
+			      if ((extremeCaseStates[counter][1].v/MAX_SPEED - ERROR_ACC/MAX_SPEED) > 0)
+				extremeCaseStates[counter][1] = State(extremeCaseStates[counter][1].x +
+								      extremeCaseStates[counter][1].v*cos(extremeCaseStates[counter][1].theta) -
+								      0.5*cos(extremeCaseStates[counter][1].theta)*ERROR_ACC,
+								      extremeCaseStates[counter][1].y +
+								      extremeCaseStates[counter][1].v*sin(extremeCaseStates[counter][1].theta) -
+								      0.5*sin(extremeCaseStates[counter][1].theta)*ERROR_ACC,
+								      extremeCaseStates[counter][1].theta,
+								      extremeCaseStates[counter][1].v/MAX_SPEED - ERROR_ACC/MAX_SPEED,
+								      extremeCaseStates[counter][1].desiredV/MAX_SPEED);
+			      else
+				extremeCaseStates[counter][1] = State(extremeCaseStates[counter][1].x +
+								      extremeCaseStates[counter][1].v*cos(extremeCaseStates[counter][1].theta) +
+								      0.5*cos(extremeCaseStates[counter][1].theta)*(0.0 - extremeCaseStates[counter][1].v),
+								      extremeCaseStates[counter][1].y +
+								      extremeCaseStates[counter][1].v*sin(extremeCaseStates[counter][1].theta) +
+								      0.5*sin(extremeCaseStates[counter][1].theta)*(0.0 - extremeCaseStates[counter][1].v),
+								      extremeCaseStates[counter][1].theta,
+								      0.0,
+								      extremeCaseStates[counter][1].desiredV/MAX_SPEED);
+
+
+			      
+			      // if (counter == 0)
+			      // 	{
+			      // 	  std::cout << "Diff: " << std::fixed << std::setprecision(6) <<
+			      // 	    extremeCaseStates[counter][1].v - simulEnv->getVehicles()[n].getQ().v << std::endl;
+			      // 	}
+			      
+			      counter++;
 			      
 			    }
-			  
+
 			}
+
 		      
 		      State monitorNextQ = monitorPLayer.getNextQ();
 		      Sensing monitorS(monitorID, monitorNextQ, monitorNextQ.v, (Maneuver)sigma);
@@ -344,6 +544,42 @@ void Predictor::run()
 			  tmpQList.extrTail(hiddenQ);
 			  tmpPList.extrTail(hiddenP);
 			}
+
+
+		      /* Now compute errors due to non uniform speed */
+		      int counter = 0;
+		    
+		      Vector<double, 4> uniformVect;
+
+		      for (int n = 0; n < 4; n++)
+			uniformVect[n] = 0;
+		      
+		      for (int n = 0; n < simulEnv->getNVehicles(); n++)
+			{
+			  if (simulEnv->getVehicles()[n].getID() == agentID ||
+			      simulEnv->getVehicles()[n].getID() == monitorID)
+			    continue;
+
+			  /* divide by 12: prior hypothesis on uniformity */
+			  uniformVect[0] += (pow(monitorPLayerError[counter][0].getQ().x - monitorNextQ.x, 2) +
+					     pow(monitorPLayerError[counter][1].getQ().x - monitorNextQ.x, 2))/12.0;
+			  uniformVect[1] += (pow(monitorPLayerError[counter][0].getQ().y - monitorNextQ.y, 2) +
+					     pow(monitorPLayerError[counter][1].getQ().y - monitorNextQ.y, 2) )/12.0;
+			  uniformVect[2] += (pow(monitorPLayerError[counter][0].getQ().theta - monitorNextQ.theta, 2) +
+					     pow(monitorPLayerError[counter][1].getQ().theta - monitorNextQ.theta, 2) )/12.0;
+			  uniformVect[3] += (pow(monitorPLayerError[counter][0].getQ().v - monitorNextQ.v, 2) +
+					     pow(monitorPLayerError[counter][1].getQ().v - monitorNextQ.v, 2) )/12.0;
+
+			  
+			  counter++;
+			}
+
+		      for (int n = 0; n < 4; n++)
+			uniformVect[n] = sqrt(uniformVect[n]);
+
+		      uniformTens(xi, yi, thetai, vi, desiredVi) = uniformVect;
+
+		      delete simulEnv;
 		      
 		    }
 	    
@@ -351,11 +587,11 @@ void Predictor::run()
 	    hiddenState[sigma].insTail(tmpHidden);
 	  
 	  monitorState[sigma].insTail(tmpMonitor);
-	  
+	  uniformErrors[sigma].insTail(uniformTens);
 	}
 
 
-      /* Now compute errors */
+      /* Now compute discretization errors */
       List<Tensor5<Vector<double, 4> > > errList;
 
       std::cout << "monitorList: " << monitorState[sigma].count() << std::endl;
@@ -382,7 +618,7 @@ void Predictor::run()
 		      Vector<double, 4> tmpErr;
 
 		      if (!noHiddenVehicle)
-			getError(tmpErr, monitor, i, j, k, l, m);
+			computeDiscrError(tmpErr, monitor, i, j, k, l, m);
 		      else
 			{
 			  tmpErr[0] = 0;
@@ -408,7 +644,7 @@ void Predictor::run()
 	  
 	}
 
-      errors[sigma] = errList;
+      discrErrors[sigma] = errList;
     }
 
 
@@ -416,10 +652,10 @@ void Predictor::run()
   // increment time
   currentStep++;
   
-  
+  delete hidden;
 }
 
-void Predictor::getError(Vector<double, 4>& err, const int& listIndex,
+void Predictor::computeDiscrError(Vector<double, 4>& err, const int& listIndex,
 			 const int& i, const int& j, const int& k, const int& l, const int& m,
 			 const Maneuver& monitorSigma)
 {
@@ -427,10 +663,10 @@ void Predictor::getError(Vector<double, 4>& err, const int& listIndex,
   
   monitorState[(int)monitorSigma].getElem(monitor, listIndex);
 
-  getError(err, monitor, i, j, k, l, m);
+  computeDiscrError(err, monitor, i, j, k, l, m);
 }
 
-void Predictor::getError(Vector<double, 4>& err, const Tensor5<Sensing>* monitor,
+void Predictor::computeDiscrError(Vector<double, 4>& err, const Tensor5<Sensing>* monitor,
 			 const int& i, const int& j, const int& k, const int& l, const int& m)
 {
    
@@ -532,7 +768,10 @@ double Predictor::getCompatibility(const Sensing& measure, const Vector<List<Ten
 
       
       if (fabs((*monitor)(i,j,k,l,m).q.x - measure.q.x) > 1E-10)
-	return 1000000;
+	{
+	  std::cout << "ERROR X: " << ((*monitor)(i,j,k,l,m).q.x - measure.q.x) << std::endl;
+	  return 1000000;
+	}
       /*      else
 	      std::cout << "DiffX: " << fabs((*monitor)(i,j,k,l,m).q.x - measure.q.x) << std::endl;*/
     }
@@ -657,6 +896,44 @@ void Predictor::chooseBestPrediction(const Vector<List<Tensor5<double> >, N_MANE
   
 }
 
+void Predictor::getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& v)
+{
+  for (int sigma = 0; sigma < N_MANEUVER; sigma++)
+    {
+      v[sigma].purge();
+      for (int n = 0; n < discrErrors[sigma].count(); n++)
+	{
+
+	  const Tensor5<Vector<double, 4> >* discrTens;
+	  discrErrors[sigma].getElem(discrTens, n);
+
+	  const Tensor5<Vector<double, 4> >* uniformTens;
+	  uniformErrors[sigma].getElem(uniformTens, n);
+
+	  if ((*discrTens).Dim1 != (*uniformTens).Dim1 ||
+	      (*discrTens).Dim2 != (*uniformTens).Dim2 ||
+	      (*discrTens).Dim3 != (*uniformTens).Dim3 ||
+	      (*discrTens).Dim4 != (*uniformTens).Dim4 ||
+	      (*discrTens).Dim5 != (*uniformTens).Dim5)
+	    error("Predictor::getTotalError", "Uniform and discrete errors size mismatch");
+	  
+	  Tensor5<Vector<double, 4> > tmpTens(discrTens->Dim1, discrTens->Dim2, discrTens->Dim3, discrTens->Dim4, discrTens->Dim5);
+	  
+	  for (int xi = 0; xi < discrTens->Dim1; xi++)
+	    for (int yi = 0; yi < discrTens->Dim2; yi++)
+	      for (int thetai = 0; thetai < discrTens->Dim3; thetai++)
+		for (int vi = 0; vi < discrTens->Dim4; vi++)
+		  for (int desiredVi = 0; desiredVi < discrTens->Dim5; desiredVi++)
+		    for (int var = 0; var < 4; var++)
+		      tmpTens(xi, yi, thetai, vi, desiredVi)[var] = sqrt(pow((*discrTens)(xi, yi, thetai, vi, desiredVi)[var], 2) +
+									 pow((*uniformTens)(xi, yi, thetai, vi, desiredVi)[var], 2));
+		    
+
+	  v[sigma].insTail(tmpTens);
+	  
+	}
+    }
+}
 
 bool Predictor::detectManeuver(const Sensing& measure, const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& monitorPrediction,
 			       const Vector<List<Tensor5<Vector<double,4> > >, N_MANEUVER>& errV,
@@ -689,7 +966,7 @@ bool Predictor::detectManeuver(const Sensing& measure, const Vector<List<Tensor5
 	detectedManeuvers.insert((Maneuver)sigma);
 
       /* FIXME Debug*/
-      std::cout << "Best comp: " << bestCompatibility[sigma] << '\t' << iV[sigma] << '\t' << jV[sigma] << '\t' << kV[sigma] << '\t' << lV[sigma] << '\t' << mV[sigma] << std::endl;
+      std::cout << "Best comp: " << bestCompatibility[sigma] << '\t' << bestList[sigma] << '\t' << iV[sigma] << '\t' << jV[sigma] << '\t' << kV[sigma] << '\t' << lV[sigma] << '\t' << mV[sigma] << std::endl;
       const Tensor5<Vector<double, 4> >* tens;
       errV[sigma].getElem(tens, bestList[sigma]);
       std::cout << "ErrX: " << (*tens)(iV[sigma], jV[sigma], kV[sigma], lV[sigma], mV[sigma])[0] << '\t';

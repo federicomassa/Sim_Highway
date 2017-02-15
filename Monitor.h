@@ -19,6 +19,8 @@
 #include "systemTypes.h"
 #include "Tensor5.h"
 
+extern Logger monitorLog;
+
 /*!
  * This class represent a monitor module embedded on an agent and used for the
  * observation of the behavior of another agent.
@@ -53,6 +55,8 @@ class Monitor
      * \brief The continuous state of the monitored agent.
      */
     State targetQ;
+
+    
     /*!
      * \brief Last observed state of the monitored agent.
      */
@@ -75,6 +79,10 @@ class Monitor
      */
     Maneuver targetManeuver;
     Maneuver targetLastManeuver;
+
+    /* Store real maneuver at the beginning and at the end of the prediction time span */
+    Maneuver realInitialManeuver;
+    Maneuver realFinalManeuver;
     /*!
      * \brief Predicted states of the monitored agent.
      */
@@ -127,6 +135,12 @@ public:
      * \brief Destructor.
      */
     ~Monitor() { }
+
+    /* agent Q when this monitor started last prediction */
+    State lastPredictionAgentQ;
+    State predictionAgentQ;
+
+    
     /*!
      * \brief Predict possible states for monitored agent.
      */
@@ -135,11 +149,36 @@ public:
      * \brief Detect events for target agent and predict possible maneuvers for
      *        monitored agent.
      */
+    void preDetectManeuver(const State& q, const Maneuver& sigma);
     void predictManeuvers(const List<State>& qList, const Area& obs);
+    
+    void increaseCounter() {
+      if (timeStepsCount < CONF.nTimeSteps)
+	timeStepsCount++;
+      else
+	timeStepsCount = 0;
+    }
+
+    int getCountdown()
+    {
+      /* +1 because after detection it does not predict right away, but waits for 1 step */
+      if (timeStepsCount >= 0)
+	return (CONF.nTimeSteps - timeStepsCount + 1);
+      else
+	return (-timeStepsCount);
+    }
+
+    int getTimeCount() {return timeStepsCount;}
+
+    void setTimeCount(const int& cnt)
+    {
+      timeStepsCount = cnt;
+    }
+
     /*!
      * \brief Detect monitored agent current maneuver.
      */
-    void detectManeuver(const State& q, const Maneuver& sigma);
+    void detectManeuver(const State&, const State&);
     /*!
      * \brief Return targetLocked value.
      */
@@ -148,7 +187,9 @@ public:
      * \brief Return targetID.
      */
     /* Return true if nTimeSteps have passed since last prediction */
-    bool isReady() {timeStepsCount++; return (timeStepsCount == CONF.nTimeSteps);}
+    bool isReadyToPredict() {return (timeStepsCount == 0);}
+    bool isReadyToDetect() {return (timeStepsCount == CONF.nTimeSteps);}
+    bool isReadyForHypotheses() {return hypReady;}
     int getTargetID() const { return targetID; }
     /*!
      * \brief Return agentID.
@@ -172,8 +213,9 @@ public:
     
     void getTargetQ(State& q) {q = targetQ;}
 
-    /* Run monitor: prediction of possible states -> detection of maneuver -> formulation of hypothesis */
-    void run();
+    /* set real maneuver, useful for comparisons */
+    void setRealInitialManeuver(const Maneuver& sigma) {realInitialManeuver = sigma;}
+    void setRealFinalManeuver(const Maneuver& sigma) {realFinalManeuver = sigma;}
 };
 
 #endif

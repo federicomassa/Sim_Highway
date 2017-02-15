@@ -55,7 +55,11 @@ class Predictor
      List: rectangles of hidden area 
   Tensor5: discretization of state space
   Vector<double, 4> error as produced by getError method */
-  Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER> errors;
+  Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER> discrErrors;
+
+  /* Errors due to the uniform speed motion hypothesis of the vehicles (except 
+   monitored and observer) */
+  Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER> uniformErrors;
   
   /* List of rectangles containing a tensor that contains all the possible hidden vehicle states in that rect, in the order x, y, theta, v */
   /* Unlike the other vehicles' vectors, this does NOT contain a prediction, but only a hypothesis. */
@@ -86,16 +90,16 @@ class Predictor
   //Accessors
   void getHidden(Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {v = hiddenState;}
   void getMonitor(Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {v = monitorState;}
-  void getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err) {err = errors;}
+  void getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err);
   
   
   /* Computes the error propagation from the hidden vehicle to the monitor, err[n] contains the error of the n-th variable, listIndex 
      is the index of the current rectangle (from 0), tensor index (i,j,k,l,m), 
      monitorSigma is the monitor maneuver hypothesis */
-  void getError(Vector<double, 4>& err, const int& listIndex,
+  void computeDiscrError(Vector<double, 4>& err, const int& listIndex,
 		const int& i, const int& j, const int& k, const int& l, const int& m,
 		const Maneuver& monitorSigma);
-  void getError(Vector<double, 4>& err, const Tensor5<Sensing>*,
+  void computeDiscrError(Vector<double, 4>& err, const Tensor5<Sensing>*,
 		const int& i, const int& j, const int& k, const int& l, const int& m);
 
   

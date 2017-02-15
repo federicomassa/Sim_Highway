@@ -1,5 +1,7 @@
 #include "Trust.h"
 
+using namespace std;
+
 ostream& operator<<(ostream& os, const Trust& t)
 {
     os << "Trust (ID = " << t.agentID << ", global trust = " << t.global;

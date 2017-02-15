@@ -1,6 +1,8 @@
 
 #include "EvalMode.h"
 
+using namespace std;
+
 ostream& operator<<(ostream& os, EvalMode mode)
 {
     switch(mode)

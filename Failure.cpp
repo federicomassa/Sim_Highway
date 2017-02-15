@@ -1,6 +1,8 @@
 
 #include "Failure.h"
 
+using namespace std;
+
 Failure::Failure(string str)
 {
     stringstream token(str);
@@ -19,7 +21,11 @@ Failure::Failure(string str)
             aFailures.insHead(NOPLATOON, true);
             continue;
 	  }
-
+	if(tmpS == "STAYPLATOON")
+	  {
+            aFailures.insHead(STAYPLATOON, true);
+            continue;
+	  }
         if(tmpS == "JAMMER")
 	  {
             aFailures.insHead(JAMMER, true);
@@ -49,6 +55,10 @@ ostream& operator<<(ostream& os, const Failure::AutomFailure& aF)
         case Failure::NOPLATOON:
   	    os << "NOPLATOON";
 	    break;
+        case Failure::STAYPLATOON:
+            os << "STAYPLATOON";
+            break;
+	    
     }
     
     return os;

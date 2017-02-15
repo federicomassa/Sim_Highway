@@ -4,11 +4,11 @@
 
 #include <iostream>
 
-using namespace std;
+
 
 // Evaluation mode
 enum EvalMode { OR, NOR, SINGLE, NSINGLE };
 
-ostream& operator<<(ostream&, EvalMode);
+std::ostream& operator<<(std::ostream&, EvalMode);
 
 #endif

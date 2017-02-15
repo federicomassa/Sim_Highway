@@ -7,7 +7,7 @@
 class Event
 {
     friend class Monitor;
-    friend ostream& operator<<(ostream&, const Event&);
+    friend std::ostream& operator<<(std::ostream&, const Event&);
     friend bool operator==(const Event&, const Event&);
     friend bool operator!=(const Event&, const Event&);
     int idx;
@@ -37,6 +37,6 @@ public:
     ExtValue getValue() const { return value; }
 };
 
-ostream& operator<<(ostream&, const Event*);
+std::ostream& operator<<(std::ostream&, const Event*);
 
 #endif

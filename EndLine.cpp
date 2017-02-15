@@ -1,6 +1,7 @@
 
 #include "EndLine.h"
 
+using namespace std;
 /* initialize indentation depth */
 int EndLine::depth = 0;
 

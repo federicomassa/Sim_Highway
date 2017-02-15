@@ -8,7 +8,7 @@
 
 class Sensing
 {
-    friend ostream& operator<<(ostream& os, const Sensing& s);
+    friend std::ostream& operator<<(std::ostream& os, const Sensing& s);
     friend bool operator==(const Sensing& s1, const Sensing& s2);
     friend bool operator!=(const Sensing& s1, const Sensing& s2);
     friend bool operator<(const Sensing& s1, const Sensing& s2);

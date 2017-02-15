@@ -1,6 +1,8 @@
 
 #include "Transition.h"
 
+using namespace std;
+
 void Transition::evaluate(const State& qSubj, const IntVars& vars,
                           const List<State>& qList, bool omniscient)
 {   

@@ -1,6 +1,9 @@
 
 #include "Configuration.h"
 #include <iostream>
+#include <string>
+
+using namespace std;
 
 Configuration::Configuration(const string& fileName)
 {

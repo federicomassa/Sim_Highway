@@ -29,7 +29,7 @@ class DynVector
     /*!
      * \brief Redefinition of operator <<.
      */
-    friend ostream& operator<<(ostream& os, const DynVector<T>& v)
+    friend std::ostream& operator<<(std::ostream& os, const DynVector<T>& v)
     {
         os << "DynVector (" << EndLine(EndLine::INC);
         for(int i = 0; i < v.length; i++)

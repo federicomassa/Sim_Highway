@@ -4,8 +4,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 #include "EvalMode.h"
 
 // Extended boolean (false, uncertain, true)
@@ -38,7 +36,7 @@ public:
 ExtValue operator&&(const ExtValue&, const ExtValue&);
 ExtValue operator||(const ExtValue&, const ExtValue&);
 ExtValue operator!(const ExtValue&);
-ostream& operator<<(ostream&, const ExtValue&);
+std::ostream& operator<<(std::ostream&, const ExtValue&);
 
 ExtBool operator!(const ExtBool&);
 ExtBool operator&&(const ExtBool&, const ExtBool&);

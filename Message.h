@@ -25,7 +25,7 @@ class Message
     /*!
      * \brief Redefinition of operator <<.
      */
-    friend ostream& operator<<(ostream& os, const Message<T>& m)
+    friend std::ostream& operator<<(std::ostream& os, const Message<T>& m)
     {
         os << "Message {" << EndLine(EndLine::INC);
         os << "AgentID: ";

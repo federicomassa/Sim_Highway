@@ -4,6 +4,7 @@
 
 #include <fstream>
 
+
 #include "EndLine.h"
 #include "List.h"
 #include "systemTypes.h"
@@ -12,8 +13,8 @@
 
 class Configuration
 {
-    friend ostream& operator<<(ostream& os, const Configuration& c);
-    void parseConf(const string& fileName);
+    friend std::ostream& operator<<(std::ostream& os, const Configuration& c);
+    void parseConf(const std::string& fileName);
 public:
     /* debug */
     bool debug;
@@ -56,7 +57,7 @@ public:
     /* failures */
     List<Failure> failures;
     /* constructor */
-    Configuration(const string& fileName);
+    Configuration(const std::string& fileName);
     /* destructor */
     ~Configuration() { }
 };

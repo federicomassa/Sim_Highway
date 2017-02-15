@@ -8,6 +8,8 @@
 #include <sys/dir.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <string>
+#include <iostream>
 
 #include "Configuration.h"
 #include "definition.h"
@@ -18,7 +20,7 @@ extern int now;
 class Logger
 {
     /* start the log */
-    void start(int n = 0);
+  void start(int n = 0, const std::string& fname = LOG_FILE_NAME);
     /* stop the log */
     void stop();
     /* check if the stream is open or not */
@@ -27,11 +29,13 @@ class Logger
     void close() { s.close(); }
     /* simulation step */
     int step;
+    std::string fileName;
+    
 public:
     /* stream */
-    ofstream s;
+    std::ofstream s;
     /* constructor */
-    Logger() { start(); }
+    Logger(const std::string& fname = LOG_FILE_NAME) { start(0, fname); }
     /* destructor */
     ~Logger() { stop(); }
     /* mark log file with a timestamp */

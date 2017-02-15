@@ -37,7 +37,7 @@ class Rectangle
     /*!
      * \brief Redefinition of operator <<.
      */
-    friend ostream& operator<<(ostream& os, const Rectangle& r);
+    friend std::ostream& operator<<(std::ostream& os, const Rectangle& r);
     /*!
      * \brief Redefinition of operator ==.
      *

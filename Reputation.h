@@ -52,7 +52,7 @@ public:
 /*!
  * \brief Redefinition of operator <<.
  */
-ostream& operator<<(ostream& os, const Reputation& r);
+std::ostream& operator<<(std::ostream& os, const Reputation& r);
 /*!
  * \brief Redefinition of operator ==.
  *

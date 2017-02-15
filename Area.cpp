@@ -11,6 +11,8 @@
 
 #include "Area.h"
 
+using namespace std;
+
 bool Area::addRect(const Rectangle& r)
 {
     return rectList.insHead(r, true);

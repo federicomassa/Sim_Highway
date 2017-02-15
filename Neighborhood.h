@@ -21,7 +21,8 @@ class Neighborhood
     friend class Image;
     friend class Monitor;
     friend class MonitorLayer; //FIXME only for debug
-    friend ostream& operator<<(ostream& os, const Neighborhood& n);
+    
+    friend std::ostream& operator<<(std::ostream& os, const Neighborhood& n);
     friend bool operator==(const Neighborhood& n1, const Neighborhood& n2)
     {
         return n1.targetID == n2.targetID && n1.qTarget == n2.qTarget;
@@ -54,7 +55,10 @@ public:
     ~Neighborhood() { }
     void intersectionWith(const Neighborhood& n);
     int getTargetID() const { return targetID; }
+    int getAgentID() const { return agentID; }
     State getTargetState() const { return qTarget; }
+    List<State> getQList() const { return qList; }
+    List<Hypothesis> getHList() const { return hList; }
     RepLevel getTargetReputation() const;
     double measure() const;
 };

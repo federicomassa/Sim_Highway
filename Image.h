@@ -16,7 +16,7 @@ class Image
     /* creation time */
     int cTime;
     /* filename */
-    string fileName;
+    std::string fileName;
 
     void init(double);
     void open();
@@ -39,12 +39,12 @@ public:
     /* reset the image */
     void reset(double cX) { init(cX); /* set cameraX */ }
     /* save the image and returns the file name */
-    string save(const char prefix = 'F', const string suffix = "")
+    std::string save(const char prefix = 'F', const std::string suffix = "")
     {
-        string sprefix(1, prefix);
+        std::string sprefix(1, prefix);
         return save(sprefix, suffix);
     }
-    string save(const string prefix, const string suffix = "");
+    std::string save(const std::string prefix, const std::string suffix = "");
     /* get creation time */
     int getCTime() const { return cTime; }
     /* write frame number in upper right corner */

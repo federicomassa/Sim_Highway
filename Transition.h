@@ -7,7 +7,7 @@
 class Transition
 {
     friend class Monitor;
-    friend ostream& operator<<(ostream&, const Transition&);
+    friend std::ostream& operator<<(std::ostream&, const Transition&);
     List<Event*> eventList;
     ExtValue value;
     /* reset the value */

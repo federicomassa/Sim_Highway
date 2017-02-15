@@ -4,6 +4,8 @@
 #include "ReputationManager.h"
 #include "MonitorLayer.h"
 
+class Knowledge;
+
 class Vehicle
 {
     friend class Image;
@@ -32,12 +34,14 @@ public:
 	pLayer.setID(index);
     }
     /* initialize the reputation manager */
-    void initRM(Channel<List<Neighborhood> >* rC) { repMan.init(rC, idx); }
+    void initRM(Channel<Knowledge>* rC) { repMan.init(rC, idx); }
     /* execute the first step of the reputation manager's task */
     void sendRM() { if(repMan.isActive()) repMan.sendForConsensus(); }
     /* execute the reputation manager's core-task */
     void recvRM() { if(repMan.isActive()) repMan.recvForConsensus(); }
-    /* get continuous state q */
+    /* get pointer to reputation manager */
+    const ReputationManager& getRM() const {return repMan;}
+    /* get continuous state q */    
     State getQ() const { return pLayer.getQ(); }
 
     /* set continuous state q - for predictor */
@@ -66,6 +70,14 @@ public:
     void getAgentReputationList(List<Reputation>& repList) const
     {
         repMan.getAgentsReputation(repList);
+    }
+    MonitorLayer* getMonitorLayer() {return &mLayer;}
+    /* Send wait request from reputation manager to monitor layer to
+     sync prediction */
+    void shareWaitingList();
+    const Knowledge& getKnowledge()
+    {
+      return repMan.getKnowledge();
     }
 };
 

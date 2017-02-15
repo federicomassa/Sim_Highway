@@ -3,6 +3,7 @@
 #define ENVIRONMENT_H
 
 #include "Vehicle.h"
+#include "Knowledge.h"
 #include "Output.h"
 
 extern const Configuration CONF;
@@ -13,7 +14,7 @@ class Environment
     /*!
      * \brief Channel used by the Reputation Manager to exchange ``neighborhood''.
      */
-    Channel<List<Neighborhood> > repChannel;
+    Channel<Knowledge> repChannel;
     /* array of vehicles */
     Vehicle* v;
     /* number of vehicles */
@@ -34,7 +35,7 @@ public:
     /* get vehicle maneuver m */
     Maneuver getManeuver(int index) const;
     /* returns i-th agent's observable area */
-    void observableArea(int index, Area& obs, Area* hidden = NULL) const;
+    void observableArea(int index, Area& obs, Area* hidden = NULL, const double& visible_distance = VISIBLE_DISTANCE) const;
     /* call a simulation step */
     void run();
     /* get a neighborhood list reconstructed by an omniscient observer */

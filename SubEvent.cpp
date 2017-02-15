@@ -1,6 +1,8 @@
 
 #include "SubEvent.h"
 
+using namespace std;
+
 void SubEvent::init(bool (*f)(const State&, const IntVars&, const State&),
           void (*aF)(const State&, Area&), EvalMode m, const string n,
           int i)

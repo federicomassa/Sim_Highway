@@ -1,6 +1,8 @@
 
 #include "Event.h"
 
+using namespace std;
+
 void Event::evaluate(const State& qSubj, const IntVars& vars,
                      const List<State>& qList, bool omniscient)
 {

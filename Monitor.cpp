@@ -12,6 +12,7 @@
 #include "Monitor.h"
 #include "Predictor.h"
 #include "Grid.h"
+#include "Logger.h"
 
 Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<State>& qList)
 {
@@ -22,8 +23,9 @@ Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver&
     for(int i = 0; i < N_MANEUVER; i++)
       possibleManeuvers[i] = true;
     targetParms = tP;
-    targetManeuver = tSigma;
-    
+    targetManeuver = UNKNOWN;
+    realInitialManeuver = UNKNOWN;
+    realFinalManeuver = UNKNOWN;
     targetLastManeuver = UNKNOWN;
     automaton.setManeuver(tSigma, targetQ);
     //build starting neighborhood
@@ -41,73 +43,125 @@ Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver&
     
     neighbors = activeList;
 
-    timeStepsCount = -1;
+    /* It doesn't start right away, it starts at the next iteration
+     so that it can receive a waiting request from other vehicles */
+    timeStepsCount = -2;
     
-    targetLocked = false;
-    hypReady = true; //FIXME: fixed to true
+    hypReady = false;
 }
 
 void Monitor::predictStates(const List<Sensing>& sList, const State& agentQ, const Maneuver& agentManeuver)
 {
+
   
-  if (timeStepsCount == 0)
+  monitorLog.s << "Real initial Monitor maneuver: " << realInitialManeuver << EndLine();
+
+  monitorLog.s << "Prediction started..." << EndLine();
+  
+  /* reset value */
+  hypReady = false;
+  
+  Predictor predictor(agentID, agentQ, agentManeuver, sList, targetID, CONF.nTimeSteps);
+  predictor.run();
+  predictor.getMonitor(monitorPrediction);
+  predictor.getErrors(errors);
+  
+  if (CONF.savePredictionImages)
     {
-      std::cout << "Real Monitor maneuver: " << targetManeuver << std::endl;
+      Grid g;
+      for (int i = 0; i < N_MANEUVER; i++)
+	for (int v1 = 0; v1 < 4; v1++)
+	  for (int v2 = v1 + 1; v2 < 4; v2++)
+	    {
+	      g.drawStateSpace(monitorPrediction[i], v1, v2);
+	      // C**time** A**agent** T**target** M**maneuver** V**pair of variables**
+	      g.save("Pred", "A" + toString(agentID,2) + "T" + toString(targetID,2) + "M" + toString(i) + "V" + toString(v1) + toString(v2));
+	    }
+    }
+  
+}
 
-      Predictor predictor(agentID, agentQ, agentManeuver, sList, targetID, CONF.nTimeSteps);
-      predictor.run();
-      predictor.getMonitor(monitorPrediction);
-      predictor.getErrors(errors);
+void Monitor::detectManeuver(const State& agentQ, const State& q)
+{
+  hypothesisList.purge();
+  
+  targetLastManeuver = targetManeuver;
 
-      if (CONF.savePredictionImages)
+  lastPredictionAgentQ = predictionAgentQ;
+  predictionAgentQ = agentQ;
+
+  /* NB now detect maneuver is not called at each simulation step */
+  targetLastQ = targetQ;
+  targetQ = q;
+
+  
+  monitorLog.s << "Real final maneuver: " << realFinalManeuver << EndLine();
+  
+  targetManeuver = UNKNOWN;
+  
+  Sensing monitorS(targetID, targetQ, targetQ.v, FAST);
+  if (Predictor::detectManeuver(monitorS, monitorPrediction, errors, targetManeuver))
+    {
+      monitorLog.s << "Detected Maneuver: " << targetManeuver << EndLine();
+      hypReady = true;
+    }
+  else
+    {
+      monitorLog.s << "Maneuver not detected: " << EndLine();
+      hypReady = false;
+    }
+  
+
+  
+  /* Immediatly predict?
+     timeStepsCount = 0;
+     predictStates(...)
+   */
+
+  if(hypReady)
+    {
+      /* now Neighborhood object can be build */
+      hypothesisList = possibleHypLists[(int)targetManeuver];
+    }
+  
+  automaton.setManeuver(targetManeuver, targetQ);   
+  
+  if(targetManeuver != targetLastManeuver)
+    {
+      if(CONF.debug)
+	LOG.s << "Transition detected" << EndLine();
+    }
+  
+  hypothesisList.sort();
+
+  lastHypLists = possibleHypLists;
+  lastNeighbors = neighbors;
+
+  /*  Iterator<State> iter(lastNeighbors);
+  State tmpState;
+
+  while (iter(tmpState))
+    {
+      if (floor(tmpState.y) == 1)
 	{
-	  Grid g;
-	  for (int i = 0; i < N_MANEUVER; i++)
-	    for (int v1 = 0; v1 < 4; v1++)
-	      for (int v2 = v1 + 1; v2 < 4; v2++)
-		{
-		  g.drawStateSpace(monitorPrediction[i], v1, v2);
-		  // C**time** A**agent** T**target** M**maneuver** V**pair of variables**
-		  g.save("Pred", "A" + toString(agentID,2) + "T" + toString(targetID,2) + "M" + toString(i) + "V" + toString(v1) + toString(v2));
-		}
+	  std::cout << "Neighbors state: " << tmpState.x << std::endl;
+	  break;
 	}
+      
+    };
 
-      
-    }
-  
-  else if (timeStepsCount == CONF.nTimeSteps)
-    {
-            
-      Maneuver detectedManeuver;
-      State monitorQ;
-      /* NB targetQ is filled in detectManeuver */
-      getTargetQ(monitorQ);
-      
-      Sensing monitorS(targetID, monitorQ, monitorQ.v, FAST);
-      if (Predictor::detectManeuver(monitorS, monitorPrediction, errors, detectedManeuver))
-	std::cout << "Detected Maneuver" << detectedManeuver << std::endl;
-      else
-	std::cout << "Not detected" << std::endl;
-      
-      std::cout << "After detect" << std::endl;
-
-      /* Reset for next prediction */
-      if (timeStepsCount == CONF.nTimeSteps)
-	timeStepsCount = -1;
-      
-    }
-  
-
-  timeStepsCount++;
-  
+  std::cout << "lastPred state: " << lastPredictionAgentQ.x << std::endl;
+  */
   
 }
 
 void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
 { 
   /* error handling */
-  if(!targetLocked)
-    error("Monitor", "predictManeuvers called without target being locked");
+  if(!hypReady)
+    error("Monitor::predictManeuvers", "predictManeuvers called with monitor not ready");
+
+  monitorLog.s << "Formulating hypotheses..." << EndLine();
   
   if(CONF.debug)
     {
@@ -129,8 +183,9 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
       activeList.insHead(tmpQ);
   
   /* updating neighbors state list */
-  lastNeighbors = neighbors;
+  /*  lastNeighbors = neighbors;*/
   neighbors = activeList;
+
   
   /* estimate events for target agent - non omniscient */
   automaton.detectEvents(targetQ, activeList, false);
@@ -318,18 +373,23 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
     }
 }
 
-void Monitor::detectManeuver(const State& q, const Maneuver& sigma)
+void Monitor::preDetectManeuver(const State& q, const Maneuver& sigma)
 {
   //do not call the first time
-  if (!targetLocked)
-    {
+  /*  if (!targetLocked)
+      {
       targetLocked = true;
       return;
-    }
+      }*/
   
   /* reset hypothesis */
-  hypothesisList.purge();
 
+  /* If sigma was not detected do nothing */
+  if (sigma == UNKNOWN)
+    return;
+  
+  hypothesisList.purge();
+  
   targetLastManeuver = targetManeuver;
   
   if(CONF.debug)
@@ -384,4 +444,5 @@ bool Monitor::buildNeighborhood(Neighborhood& n) const
     
     return true;
 }
+
 

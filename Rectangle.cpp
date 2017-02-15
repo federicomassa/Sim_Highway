@@ -11,6 +11,8 @@
 
 #include "Rectangle.h"
 
+using namespace std;
+
 Rectangle::Rectangle(const Vector<Vector<double, 2>, Q_DIM>& b)
 {
   isDummy = false;

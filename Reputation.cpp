@@ -11,6 +11,8 @@
 
 #include "Reputation.h"
 
+using namespace std;
+
 ostream& operator<<(ostream& os, const Reputation& r)
 {
     os << "Reputation {" << EndLine(EndLine::INC);

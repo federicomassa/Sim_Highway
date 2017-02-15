@@ -23,12 +23,12 @@ Maneuver strToManeuver(const std::string& str);
 /* function to pass from maneuver to std::string */
 std::string maneuverToStr(const Maneuver& sigma);
 
-ostream& operator<<(ostream& os, Maneuver m);
-string operator+(const string&, Maneuver);
-string operator+(Maneuver, const string&);
+std::ostream& operator<<(std::ostream& os, Maneuver m);
+std::string operator+(const std::string&, Maneuver);
+std::string operator+(Maneuver, const std::string&);
 /* continuous control */
 struct Control { double a; double omega; };
 
-ostream& operator<<(ostream& os, Control c);
+std::ostream& operator<<(std::ostream& os, Control c);
 
 #endif

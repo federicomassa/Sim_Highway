@@ -1,6 +1,8 @@
 
 #include "ProgressBar.h"
 
+using namespace std;
+
 int ProgressBar::rollIndex = 0;
 
 ProgressBar::ProgressBar()

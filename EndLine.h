@@ -4,13 +4,13 @@
 
 #include <iostream>
 
-using namespace std;
+
 
 #define INDENTATION "   "
 
 class EndLine
 {
-    friend ostream& operator<<(ostream&, const EndLine&);
+  friend std::ostream& operator<<(std::ostream&, const EndLine&);
 public:
     enum Operation { INC, DEC, NOP };
 private:

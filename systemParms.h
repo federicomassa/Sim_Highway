@@ -10,7 +10,7 @@
 #define MAX_SPEED 0.06
 //#define MAX_SPEED 0.08
 #define ACCELERATION 0.005
-
+#define ERROR_ACC ACCELERATION/2.0
 //#define MAX_SPEED 0.06
 //#define ACCELERATION 0.005
 //#define MAX_SPEED 1.2

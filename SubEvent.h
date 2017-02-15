@@ -4,8 +4,6 @@
 
 #include <string>
 
-using namespace std;
-
 #include "Area.h"
 #include "EndLine.h"
 #include "ExtValue.h"
@@ -22,14 +20,14 @@ extern int now;
 class SubEvent
 {
     friend class Monitor;
-    friend ostream& operator<<(ostream&, const SubEvent&);
+    friend std::ostream& operator<<(std::ostream&, const SubEvent&);
     int idx;
     bool (*func)(const State&, const IntVars&, const State&);
     void (*areaFunc)(const State&, Area&);
     EvalMode mode;
     ExtValue value;
     int evalTime;
-    string name;
+    std::string name;
 public:
     /* constructor */
     SubEvent() { idx = -1; }
@@ -37,7 +35,7 @@ public:
     ~SubEvent() { }
     /* initialization */
     void init(bool (*f)(const State&, const IntVars&, const State&), 
-              void (*aF)(const State&, Area&), EvalMode m, const string n,
+              void (*aF)(const State&, Area&), EvalMode m, const std::string n,
               int i);
     /* reset SubEvent evaluation time */
     void reset() { evalTime = -1; }
@@ -50,6 +48,6 @@ public:
     ExtValue getValue() const { return value; }
 };
 
-ostream& operator<<(ostream&, const SubEvent*);
+std::ostream& operator<<(std::ostream&, const SubEvent*);
 
 #endif

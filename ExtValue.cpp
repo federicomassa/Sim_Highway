@@ -4,6 +4,9 @@
 /**
  * COMMENT
  */
+
+using namespace std;
+
 void ExtValue::extendValue(EvalMode mode)
 {
     switch(mode)

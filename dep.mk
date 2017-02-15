@@ -15,7 +15,7 @@ Environment.o: Environment.cpp Environment.h Vehicle.h \
   Failure.h Logger.h definition.h Neighborhood.h Hypothesis.h \
   Area.h Rectangle.h Reputation.h MonitorLayer.h Monitor.h Automaton.h \
   rules.h Transition.h Event.h SubEvent.h ExtValue.h EvalMode.h \
-  PhysicalLayer.h controller.h Sensing.h Output.h #Path.h
+  PhysicalLayer.h controller.h Sensing.h Output.h Knowledge.h
 EvalMode.o: EvalMode.cpp EvalMode.h
 Event.o: Event.cpp Event.h SubEvent.h Area.h Logger.h Configuration.h \
   EndLine.h List.h Iterator.h systemTypes.h State.h systemParms.h \
@@ -36,6 +36,7 @@ Image.o: Image.cpp Image.h definition.h Environment.h Vehicle.h \
   Reputation.h MonitorLayer.h Monitor.h Automaton.h rules.h Transition.h \
   Event.h SubEvent.h ExtValue.h EvalMode.h PhysicalLayer.h controller.h \
   Sensing.h Output.h
+Knowledge.o: Knowledge.cpp Knowledge.h List.h Neighborhood.h
 Logger.o: Logger.cpp Logger.h Configuration.h EndLine.h List.h Iterator.h \
   systemTypes.h State.h systemParms.h utility.h Vector.h Failure.h \
   definition.h
@@ -50,7 +51,7 @@ MonitorLayer.o: MonitorLayer.cpp MonitorLayer.h Monitor.h Automaton.h \
   systemTypes.h State.h systemParms.h utility.h Vector.h Failure.h \
   definition.h Rectangle.h Transition.h Event.h SubEvent.h ExtValue.h \
   EvalMode.h Neighborhood.h Hypothesis.h Reputation.h PhysicalLayer.h \
-  controller.h Sensing.h 
+  controller.h Sensing.h Environment.h Knowledge.h
 Neighborhood.o: Neighborhood.cpp Neighborhood.h List.h EndLine.h \
   Iterator.h Hypothesis.h Area.h Logger.h Configuration.h systemTypes.h \
   State.h systemParms.h utility.h Vector.h Failure.h definition.h \
@@ -61,7 +62,7 @@ PhysicalLayer.o: PhysicalLayer.cpp PhysicalLayer.h controller.h EndLine.h \
   Logger.h Configuration.h List.h Iterator.h systemTypes.h State.h \
   systemParms.h utility.h Vector.h Failure.h definition.h #Path.h
 Predictor.o: Predictor.cpp Predictor.h Sensing.h List.h PhysicalLayer.h \
-  Environment.h EndLine.h systemTypes.h Iterator.h controller.h Logger.h \
+  Environment.h EndLine.h systemTypes.h systemParms.h Iterator.h controller.h Logger.h \
   systemTypes.h Vehicle.h Output.h Failure.h State.h Configuration.h definition.h \
   ReputationManager.h MonitorLayer.h utility.h Vector.h Channel.h Neighborhood.h \
   Monitor.h Message.h Hypothesis.h Reputation.h Automaton.h Area.h rules.h Rectangle.h \
@@ -75,7 +76,7 @@ ReputationManager.o: ReputationManager.cpp ReputationManager.h Channel.h \
   List.h EndLine.h Iterator.h Message.h utility.h State.h \
 	systemParms.h \
   Vector.h Configuration.h systemTypes.h Failure.h Logger.h definition.h \
-  Neighborhood.h Hypothesis.h Area.h Rectangle.h Reputation.h
+  Neighborhood.h Hypothesis.h Area.h Rectangle.h Reputation.h Knowledge.h
 #Scenario.o: Scenario.cpp Scenario.h #Path.h
 Sensing.o: Sensing.cpp Sensing.h EndLine.h systemTypes.h State.h \
   systemParms.h utility.h Vector.h Failure.h List.h Iterator.h
@@ -94,7 +95,7 @@ Vehicle.o: Vehicle.cpp Vehicle.h ReputationManager.h Channel.h List.h \
   Configuration.h systemTypes.h Failure.h Logger.h definition.h \
   Neighborhood.h Hypothesis.h Area.h Rectangle.h Reputation.h \
   MonitorLayer.h Monitor.h Automaton.h rules.h Transition.h Event.h \
-  SubEvent.h ExtValue.h EvalMode.h PhysicalLayer.h controller.h Sensing.h #Path.h
+  SubEvent.h ExtValue.h EvalMode.h PhysicalLayer.h controller.h Sensing.h Knowledge.h
 controller.o: controller.cpp controller.h EndLine.h Logger.h \
   Configuration.h List.h Iterator.h systemTypes.h State.h systemParms.h \
   utility.h Vector.h Failure.h definition.h

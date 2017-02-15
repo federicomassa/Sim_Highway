@@ -1,18 +1,21 @@
 
 #include "Logger.h"
 
-void Logger::start(int n)
+using namespace std;
+
+void Logger::start(int n, const std::string& fname)
 {
     if(!CONF.debug)
         return;
     
     step = n;
+    fileName = fname;
     
     /* create output dir */
     mkdir(OUTPUT_DIR, S_IRWXU | S_IRGRP | S_IROTH);
     
     /* build file name */
-    string fileName = LOG_FILE_NAME + (string)"." + toString(n, 5);
+    string fileName = fname + (string)"." + toString(n, 5);
     
     /* open log stream */
     s.open(fileName.c_str(), ios_base::out);
@@ -58,7 +61,7 @@ void Logger::setFile()
         if(step != now)
         {
             stop();
-            start(now);
+            start(now, fileName);
         }
     }
 }

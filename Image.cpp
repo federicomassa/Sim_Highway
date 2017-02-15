@@ -1,6 +1,8 @@
 #include "Image.h"
 #include "systemTypes.h"
 
+using namespace std;
+
 void Image::cp(const Image& im)
 {
     if(im.frame == NULL)
@@ -509,7 +511,7 @@ void Image::drawNeighborhood(const Neighborhood& n, const State& q, Maneuver m,
 }
 
 void Image::saveConsensusImages(const Environment& env,
-                                const State lastStates[], int cStep)
+                                /*FIXME dummy */const State lastStates[], int cStep)
 {
   /* How to read consensus images:
    
@@ -539,15 +541,38 @@ void Image::saveConsensusImages(const Environment& env,
     for(int i = 0; i < env.nV; i++)
     {
         List<Neighborhood> nList;
+	
+	/* take nList from reputation manager */
         env.v[i].getNeighborhoodList(nList);
+	
+	/* take monitor list from monitorLayer */
+	List<Monitor*> mList = env.v[i].getMonitorLayer()->getMonitorList();
+	
         Iterator<Neighborhood> ni(nList);
         Neighborhood tmpN;
         while(ni(tmpN))
         {
-            drawNeighborhood(tmpN, lastStates[i], FAST, i);
-            string suffix = "-A" + toString(i, 2) + "-T"
+	    if (tmpN.targetLastManeuver == UNKNOWN)
+	      continue;
+
+	    Iterator<Monitor*> mI(mList);
+	    Monitor* m;
+	    State tmpQ(-100, 0, 0, 0);
+	    
+	    while (mI(m))
+	      {
+		if (m->getTargetID() == tmpN.targetID)
+		  {
+		    tmpQ = m->lastPredictionAgentQ;
+		    break;
+		  }
+	      };
+	    
+            drawNeighborhood(tmpN, tmpQ, FAST, env.v[i].idx);
+            string suffix = "-A" + toString(env.v[i].idx, 2) + "-T"
                           + toString(tmpN.targetID, 2) + "-CS"
                           + toString(cStep, 2);
+	    
             save('C', suffix);
         }
     }

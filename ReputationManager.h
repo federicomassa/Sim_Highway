@@ -16,9 +16,10 @@
 #include "Configuration.h"
 #include "Logger.h"
 #include "Neighborhood.h"
-
+#include "Knowledge.h"
 
 extern Logger LOG;
+extern Logger monitorLog;
 extern const Configuration CONF;
 
 /*!
@@ -31,33 +32,32 @@ extern const Configuration CONF;
  */
 class ReputationManager
 {
-    /*!
-     * \brief True if the monitor layer is active.
-     */
-    bool active;
-    /*!
-     * \brief Pointer to the channel used to exchange ``neighborhood''.
-     */
-    Channel<List<Neighborhood> >* repChan;
-    /*!
-     * \brief My agent identifier.
-     */
-    int agentID;
-    /*!
-     * \brief My current state.
-     */
-    State q;
-    /*!
-     * \brief My neighborhood list -- i.e. my knowledge or simply my
-     *        ``neighborhood''.
-     */
-    List<Neighborhood> nList;
-    /*!
-     * \brief Merge my knowledge with information received from other agents.
-     *
-     * @param msgList list containing neighborhood lists of my neighbors.
-     */
-    void merge(const List<Message<List<Neighborhood> > >& msgList);
+  /*!
+   * \brief True if the monitor layer is active.
+   */
+  bool active;
+  /*!
+   * \brief Pointer to the channel used to exchange ``neighborhood''.
+   */
+  Channel<Knowledge>* repChan;
+  /*!
+   * \brief My agent identifier.
+   */
+  int agentID;
+  /*!
+   * \brief My current state.
+   */
+  State q;
+  
+  /* Knowledge available to the vehicle */
+  Knowledge knowledge;
+  
+  /*!
+   * \brief Merge my knowledge with information received from other agents.
+   *
+   * @param msgList list containing neighborhood lists of my neighbors.
+   */
+  void merge(const List<Message<Knowledge> >& msgList);
 public:
     /*!
      * \brief Default constructor.
@@ -75,7 +75,7 @@ public:
      * @param rC pointer to the channel.
      * @param a agent identifier.
      */
-    void init(Channel<List<Neighborhood> >* rC, int a);
+    void init(Channel<Knowledge>* rC, int a);
     /*!
      * \brief Set my state and my knowledge every simulation step.
      *
@@ -83,13 +83,13 @@ public:
      * @param nL my current knowledge -- i.e. according to the vision of the
      *           monitor layer.
      */
-    void setCurrentParams(const State& s, const List<Neighborhood>& nl);
+    void setCurrentParams(const State& s, const Knowledge& k);
     /*!
      * \brief Broadcast information every communication round.
      */
     void sendForConsensus()
     {
-        repChan->sendBroadcast(agentID, q, nList); /* send my knowledge */
+        repChan->sendBroadcast(agentID, q, knowledge); /* send my ID and knowledge */
     }
     /*!
      * \brief Execute the reputation manager's core-task.
@@ -100,7 +100,7 @@ public:
     void recvForConsensus()
     {
         /* message list that will contain neighborhood lists of my neighbors */
-        List<Message<List<Neighborhood> > >msgList;
+        List<Message<Knowledge> >msgList;
         repChan->recvBroadcast(agentID, q, msgList); /* receive information */
         merge(msgList); /* try to improve my knowledge */
     }
@@ -109,19 +109,23 @@ public:
      *
      * @param nL neighborhood list of my neighbor.
      */
-    void singleMerge(List<Neighborhood>& nl);
+    void singleMerge(const Knowledge& k);
     /*!
      * \brief Get neighborhood list reconstructed by the reputation manager.
      *
      * @param nL neighborhood list -- filled by this method.
      */
-    void getNeighborhoodList(List<Neighborhood>& nl) const { nl = nList; };
+    void getNeighborhoodList(List<Neighborhood>& nl) const { nl = knowledge.nList; };
     /*!
      * \brief Get reputation of all current visible agents.
      *
      * @param repList reputation list -- filled by this method.
      */
     void getAgentsReputation(List<Reputation>& repList) const;
+
+    /* Get knowledge */
+    const Knowledge& getKnowledge() const {return knowledge;}
+    
     /*!
      * \brief Activate behavior classification.
      */

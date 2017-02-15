@@ -29,7 +29,7 @@ class Channel
     /*!
      * \brief Redefinition of operator <<.
      */
-    friend ostream& operator<<(ostream& os, const Channel<T>& c)
+    friend std::ostream& operator<<(std::ostream& os, const Channel<T>& c)
     {
         os << "Channel {" << EndLine(EndLine::INC);
         os << c.pktList << EndLine(EndLine::DEC);
@@ -47,7 +47,7 @@ class Channel
         /*!
          * \brief Redefinition of operator <<.
          */
-        friend ostream& operator<<(ostream& os, const Packet<U>& p)
+        friend std::ostream& operator<<(std::ostream& os, const Packet<U>& p)
         {
             os << "Packet {" << EndLine(EndLine::INC);
             os << "qSender: " << p.qSender << EndLine();

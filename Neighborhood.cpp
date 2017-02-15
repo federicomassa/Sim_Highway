@@ -14,6 +14,8 @@
 #include "ExtValue.h"
 #include <iostream>
 
+using namespace std;
+
 Neighborhood::Neighborhood(int t, const State& qT, const List<State>& qL,
                            const List<Hypothesis>& hL, const Vector<List<Hypothesis>, N_MANEUVER>& lastHL)
 {

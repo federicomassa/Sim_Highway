@@ -14,6 +14,11 @@
 
 #include "Monitor.h"
 #include "systemTypes.h"
+#include <string>
+
+extern Logger monitorLog;
+
+class Knowledge;
 
 /*!
  * This class represents the monitor layer of the agent.
@@ -46,13 +51,12 @@ class MonitorLayer
      */
     Monitor* lookFor(int t);
 
-    /* FIXME Debug */
-    bool isTargetLocked;
+    
 public:
     /*!
      * \brief Default constructor.
      */
-    MonitorLayer() { agentID = -1; active = false;/*FIXME*/ isTargetLocked = false;}
+    MonitorLayer() { agentID = -1; active = false;}
     /*!
      * \brief Destructor.
      */
@@ -81,6 +85,8 @@ public:
      * \brief Build a list of neighborhood.
      */
     void buildNeighborhoodList(List<Neighborhood>& nList) const;
+    void buildKnowledge(Knowledge& k) const;
+    List<Monitor*>& getMonitorList() {return monitorList;}
 };
 
 #endif

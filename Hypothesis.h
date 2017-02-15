@@ -34,7 +34,7 @@ public:
         /*!
          * \brief Redefinition of operator <<.
          */
-        friend ostream& operator<<(ostream& os, const SubHypothesis& sh);
+        friend std::ostream& operator<<(std::ostream& os, const SubHypothesis& sh);
         /*!
          * \brief Redefinition of operator ==.
          */
@@ -116,7 +116,7 @@ public:
 /*!
  * \brief Redefinition of operator <<.
  */
-ostream& operator<<(ostream& os, const Hypothesis& h);
+std::ostream& operator<<(std::ostream& os, const Hypothesis& h);
 /*!
  * \brief Redefinition of operator <.
  */

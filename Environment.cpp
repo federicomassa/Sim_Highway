@@ -1,7 +1,9 @@
 
 #include "Environment.h"
 #include <iostream>
+#include <string>
 
+using namespace std;
 
 Environment::Environment(int n, double r, double p) : repChannel(r, p), nV(n)
 {
@@ -59,7 +61,7 @@ Maneuver Environment::getManeuver(int index) const
 /**
  * this function returns i-th agent's observable area
  */
-void Environment::observableArea(int index, Area& obs, Area* hiddenArea) const
+void Environment::observableArea(int index, Area& obs, Area* hiddenArea, const double& visible_distance) const
 {
     /* error handling */
     if (index >= nV || index < 0)
@@ -76,8 +78,8 @@ void Environment::observableArea(int index, Area& obs, Area* hiddenArea) const
         LOG.s << " BEGIN:" << EndLine(EndLine::INC);
         LOG.s << "Subject state: " << subj << EndLine();
     }
-    const double MINIMUM_X = subj.x - VISIBLE_DISTANCE;
-    const double MAXIMUM_X = subj.x + VISIBLE_DISTANCE;
+    const double MINIMUM_X = subj.x - visible_distance;
+    const double MAXIMUM_X = subj.x + visible_distance;
     
     /* matrix needed for rectangles costructor */
     Matrix_2x2 bounds;
@@ -383,15 +385,15 @@ void Environment::omniscientNeighborhoodList(List<Neighborhood>& oNL)
     ReputationManager oRM; /* omniscient reputation manager */
     for(int i = 0; i < nV; i++)
     {
-        List<Neighborhood> tmpONL;
-        v[i].getNeighborhoodList(tmpONL);
-        oRM.singleMerge(tmpONL);
+        Knowledge k = v[i].getKnowledge();
+        oRM.singleMerge(k);
     }
     oRM.getNeighborhoodList(oNL);
 }
 
 void Environment::consensusStep()
 {
+  std::cout << "consensus step" << std::endl;
     for(int i = 0; i < nV; i++)
         v[i].sendRM();
     if(CONF.debug)
@@ -400,6 +402,12 @@ void Environment::consensusStep()
     for(int i = 0; i < nV; i++)
         v[i].recvRM();
     repChannel.clearAll();
+
+    /* If a countdown was received, set other observers to wait for the desired time to sync */
+    for (int i = 0; i < nV; i++)
+      {
+	v[i].shareWaitingList();
+      }
 }
 
 void Environment::activateMonitorLayer(int index)

@@ -1,6 +1,8 @@
 
 #include "Sensing.h"
 
+using namespace std;
+
 ostream& operator<<(ostream& os, const Sensing& s)
 {
     os << "Sensing {" << EndLine(EndLine::INC);

@@ -1,6 +1,8 @@
 
 #include "Hypothesis.h"
 
+using namespace std;
+
 double Hypothesis::measure() const
 {
     double mu = negative.measure();

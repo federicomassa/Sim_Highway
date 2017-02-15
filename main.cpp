@@ -5,11 +5,15 @@
 #include "Image.h"
 #include "ProgressBar.h"
 
+using namespace std;
 /* initialize Simulator's configuration file */
 const Configuration CONF(INPUT(Simulator.conf));
 
 /* global Logger object */
 Logger LOG;
+
+/* global monitor log */
+Logger monitorLog(OUTPUT_DIR + std::string("/Monitor.log"));
 
 /* time step */
 int now = 0;
@@ -111,7 +115,10 @@ int main (int argc, char* argv[])
     {
         /* mark log file */
         if(now > 0 && CONF.debug)
-            LOG.setFile();
+	  {
+	    LOG.setFile();
+	    monitorLog.setFile();
+	  }
         /* update progress bar */
         cout << ProgressBar(now, CONF.nSteps);
         /* simulation step */
@@ -190,7 +197,7 @@ int main (int argc, char* argv[])
 		  tmpImg.saveConsensusImages(env, lastStates);
 		}
 		
-                const int totCSteps = 5;
+                const int totCSteps = 1;
                 for(int cStep = 0; cStep < totCSteps; cStep++)
                 {
                     if(CONF.debug)

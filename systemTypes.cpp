@@ -1,5 +1,6 @@
 #include "systemTypes.h"
 
+using namespace std;
 /* function to pass from std::string to maneuver */
 Maneuver strToManeuver(const std::string& str)
 {

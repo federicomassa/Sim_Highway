@@ -27,7 +27,7 @@ class Vector
     /*!
      * \brief Redefinition of operator <<.
      */
-    friend ostream& operator<<(ostream& os, const Vector<T, N>& v)
+    friend std::ostream& operator<<(std::ostream& os, const Vector<T, N>& v)
     {
         os << "Vector (" << EndLine(EndLine::INC);
         for(int i = 0; i < N; i++)

@@ -30,7 +30,7 @@ class List
     /*!
      * \brief Redefinition of operator <<.
      */
-    friend ostream& operator<<(ostream& os, const List<T>& il)
+    friend std::ostream& operator<<(std::ostream& os, const List<T>& il)
     {
         Elem* aux = il.head;
         

@@ -1,5 +1,7 @@
 #include "State.h"
 
+using namespace std;
+
 State::State(const string& str)
 {
     stringstream token(str);

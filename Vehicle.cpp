@@ -1,5 +1,7 @@
 #include "Vehicle.h"
+#include "Knowledge.h"
 #include <iostream>
+#include <utility>
 
 void Vehicle::init(const State& s, const Parms& p)
 {
@@ -9,9 +11,9 @@ void Vehicle::init(const State& s, const Parms& p)
 
 void Vehicle::setRM()
 {
-    List<Neighborhood> nList;
-    mLayer.buildNeighborhoodList(nList); /* take current neighborhood list */
-    repMan.setCurrentParams(pLayer.getQ(), nList);
+    Knowledge k;
+    mLayer.buildKnowledge(k); /* take current neighborhood list */
+    repMan.setCurrentParams(pLayer.getQ(), k);
 }
 
 void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
@@ -48,3 +50,26 @@ void Vehicle::getHypothesis(List<Hypothesis>& hList)
         mLayer.getHypothesis(hList);
 }
 
+
+void Vehicle::shareWaitingList()
+{
+  Iterator<Monitor*> mI(mLayer.getMonitorList());
+  Monitor* m;
+
+  Iterator<std::pair<int, int> > pairI(getRM().getKnowledge().monitoredVehicles);
+  std::pair<int, int> p;
+  
+  while (mI(m))
+    {
+      while (pairI(p))
+	{
+	  if (!(p.first == m->getTargetID()))
+	    continue;
+
+	  m->setTimeCount(p.second);
+	  
+	  break;
+	};
+    };
+  
+}

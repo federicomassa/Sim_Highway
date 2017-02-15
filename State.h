@@ -48,7 +48,7 @@ public:
 	Vector<double, 2> toPoint() const;
 };
 
-ostream& operator<<(ostream&, const State&);
+std::ostream& operator<<(std::ostream&, const State&);
 bool operator==(const State&, const State&);
 bool operator!=(const State&, const State&);
 
