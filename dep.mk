@@ -1,3 +1,6 @@
+Action.o: Action.cpp Action.h
+ActionManager.o: ActionManager.cpp ActionManager.h Action.h List.h EndLine.h Iterator.h \
+	State.h systemParms.h systemTypes.h utility.h Vector.h
 Area.o: Area.cpp Area.h Logger.h Configuration.h EndLine.h List.h \
   Iterator.h systemTypes.h State.h systemParms.h utility.h Vector.h \
   Failure.h definition.h Rectangle.h
@@ -37,6 +40,7 @@ Image.o: Image.cpp Image.h definition.h Environment.h Vehicle.h \
   Event.h SubEvent.h ExtValue.h EvalMode.h PhysicalLayer.h controller.h \
   Sensing.h Output.h
 Knowledge.o: Knowledge.cpp Knowledge.h List.h Neighborhood.h
+LeftAction.o: LeftAction.cpp LeftAction.h Action.h
 Logger.o: Logger.cpp Logger.h Configuration.h EndLine.h List.h Iterator.h \
   systemTypes.h State.h systemParms.h utility.h Vector.h Failure.h \
   definition.h

@@ -1,0 +1,19 @@
+CC=g++
+
+CXXFLAGS=-O3 -Wall -Wuninitialized -Wunused -pedantic -fpermissive
+
+LDFLAGS= -L/usr/lib/x86_64-linux-gnu 
+
+CPPFLAGS='-I/usr/include' 
+
+#####LDFLAGS=-lgd -lcxcore -lhighgui
+
+OBJECTS = ActionManager.o Action.o LeftAction.o testAction.o State.o EndLine.o systemTypes.o utility.o  
+
+testAction: $(OBJECTS)
+	$(CC) $(CXXFLAGS) -o testAction $(OBJECTS) $(LDFLAGS)
+
+#dep.mk: *.cpp *.h
+#	$(CC) -MM *.cpp > dep.mk
+
+include testActionDep.mk
