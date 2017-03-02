@@ -1,16 +1,15 @@
-#include "LeftAction.h"
-#include "actionParms.h"
+#include "TravelAction.h"
 #include "utility.h"
 
 #include <cmath>
 		   
 
-LeftAction::LeftAction(const List<State>& mState) : Action(mState) {}
-LeftAction::~LeftAction() {}
+TravelAction::TravelAction(const List<State>& mState) : Action(mState) {}
+TravelAction::~TravelAction() {}
 
-bool LeftAction::triggerCondition()
+bool TravelAction::triggerCondition()
 {
-  /* LeftAction is triggered if the vehicle turns left with a curvature radius within specific limits */
+  /* TravelAction is triggered if the vehicle travels straight within a certain tolerance in the curvature radius */
   
   /* calculate curvature radius using last three points*/
 
@@ -35,7 +34,8 @@ bool LeftAction::triggerCondition()
 		    currentState->x, currentState->y,
 		    centerX, centerY, radius);
 
-      if (radius <  R_MAX_TURN && radius > R_MIN_TURN && (currentState->y - 0.5) < 0.1 && currentState->theta > 0)
+
+      if (fabs(radius) > 6 && fabs(currentState->y - (floor(currentState->y) + 0.5)) < 0.1)
 	return true; 
       
     }
@@ -45,10 +45,10 @@ bool LeftAction::triggerCondition()
   return false;
 }
 
-bool LeftAction::endCondition()
+bool TravelAction::endCondition()
 {
-  /* LeftAction is ended when the vehicle reaches the center of the target lane within
-   a specified tolerance */
+  /* TravelAction is ended when the vehicle reaches the center of the target lane within
+   a specified toleranc*/
   
   /* calculate curvature radius using last three points*/
 
@@ -72,7 +72,7 @@ bool LeftAction::endCondition()
 		    currentState->x, currentState->y,
 		    centerX, centerY, radius);
 
-      if (fabs(radius) > 10 && fabs(currentState->y - 1.5) < 0.1)
+      if (fabs(radius) < 6 || fabs(currentState->y - (floor(currentState->y) + 0.5)) > 0.1)
 	return true; 
       
     }
@@ -82,7 +82,7 @@ bool LeftAction::endCondition()
   return false;
 }
 
-bool LeftAction::abortCondition()
+bool TravelAction::abortCondition()
 {
   
   

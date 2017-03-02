@@ -1,11 +1,11 @@
 /* 
    AUTHOR = Federico Massa, Adriano Fagiolini
    EMAIL = fedemassa91@gmail.com
-   DESCRIPTION = This class describes the left lane change action
+   DESCRIPTION = This class describes the travel action
  */
 
-#ifndef LEFT_ACTION_H
-#define LEFT_ACTION_H
+#ifndef TRAVEL_ACTION_H
+#define TRAVEL_ACTION_H
 
 #include "Action.h"
 #include "List.h"
@@ -13,16 +13,16 @@
 
 #include <string>
 
-class LeftAction : public Action
+class TravelAction : public Action
 {
  public:
-  LeftAction(const List<State>&);
-  ~LeftAction();
+  TravelAction(const List<State>&);
+  ~TravelAction();
   bool triggerCondition();
   bool endCondition();
   bool abortCondition();
 
-  std::string name() {return "LEFT";}
+  std::string name() {return "TRAVEL";}
 };
 
 

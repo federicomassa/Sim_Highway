@@ -3,11 +3,13 @@
 
 #include "ReputationManager.h"
 #include "MonitorLayer.h"
+#include <fstream>
 
 class Knowledge;
 
 class Vehicle
 {
+  std::ofstream simulLeftTest;
     friend class Image;
     Automaton automaton;
     PhysicalLayer pLayer;

@@ -8,20 +8,26 @@
 #ifndef ACTION_H
 #define ACTION_H
 
+#include "State.h"
+#include "List.h"
 #include <string>
+
 
 extern int now;
 
-enum ActionStatus {TRIGGERED, ENDED, ABORTED, IDLE};
+enum ActionStatus {TRIGGERED, ENDED, ABORTED, INACTIVE};
 
 class Action
 {
  public:
-  Action();
+  Action(const List<State>&);
   int triggerTime;
   int endTime;
 
   ActionStatus status;
+
+  /* reference to ActionManager's monitor state history */
+  const List<State>& monitorStates;
   
   /* Trigger condition specifies the conditions that start the action */
   virtual bool triggerCondition() = 0;
@@ -34,7 +40,7 @@ class Action
   virtual std::string name() = 0;
 
   /* contains a string describing the details of the recognized action, same as print() */
-  std::string info;
+  std::string info();
   
   void print();
 };

@@ -2,19 +2,19 @@
 #include <iostream>
 #include <sstream>
 
-Action::Action()
+Action::Action(const List<State>& mStates) : monitorStates(mStates)
 {
   triggerTime = -1;
   endTime = -1;
 
-  status = IDLE;
+  status = INACTIVE;
 }
 
 void Action::listen()
 {
 
   /* Init condition */
-  if (status == IDLE)
+  if (status == INACTIVE)
     {
       if (triggerCondition())
 	{
@@ -39,24 +39,6 @@ void Action::listen()
 	}
 
 
-      /* ============= INFO ================ */
-      info = name() + '\t' + "from ";
-      
-      std::stringstream ss;
-      std::string time;
-      ss << triggerTime;
-      ss >> time;
-      ss.clear();
-
-      info += time;
-
-      ss << endTime;
-      ss >> time;
-      ss.clear();
-      
-      info += " to " + time + '\t' + toString(status);
-      /* =================================== */
-
       
     }
 
@@ -75,10 +57,32 @@ void Action::print()
   std::cout << name() << '\t' << "from " << triggerTime << " to " << endTime << '\t' << toString(status) << std::endl;
 }
 
+std::string Action::info()
+{
+  std::string info;
+  info = name() + '\t' + "from ";
+  
+  std::stringstream ss;
+  std::string time;
+  ss << triggerTime;
+  ss >> time;
+  ss.clear();
+  
+  info += time;
+  
+  ss << endTime;
+  ss >> time;
+  ss.clear();
+  
+  info += " to " + time + '\t' + toString(status);
+
+  return info;
+}
+
 std::string toString(const ActionStatus& status)
 {
-  if (status == IDLE)
-    return "IDLE";
+  if (status == INACTIVE)
+    return "INACTIVE";
   else if (status == TRIGGERED)
     return "TRIGGERED";
   else if (status == ENDED)

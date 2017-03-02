@@ -8,7 +8,7 @@ CPPFLAGS='-I/usr/include'
 
 #####LDFLAGS=-lgd -lcxcore -lhighgui
 
-OBJECTS = ActionManager.o Action.o LeftAction.o testAction.o State.o EndLine.o systemTypes.o utility.o  
+OBJECTS = ActionManager.o Action.o Failure.o LeftAction.o RightAction.o TravelAction.o testAction.o State.o EndLine.o systemTypes.o utility.o Configuration.o
 
 testAction: $(OBJECTS)
 	$(CC) $(CXXFLAGS) -o testAction $(OBJECTS) $(LDFLAGS)

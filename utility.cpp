@@ -152,3 +152,70 @@ double ceilPrecision(const double& n, const int& precision)
   else
     return x;
 }
+
+const double largeNumber = 1E10;
+const double smallNumber = 1E-10;
+/* calculate parameters of a circle passing through 3 given points. The radius has a sign depending on the curvature. 
+ If p1 is the oldest point of the trajectory and p3 the most recent, if the vehicle is turning left the radius is positive. */
+void circle3points(const double& x1, const double& y1,
+		   const double& x2, const double& y2,
+		   const double& x3, const double& y3,
+		   double& centerX, double& centerY, double& radius)
+{
+  //check collinearity
+  double m1, m2;
+  double sign = 0;
+  
+  if (fabs(x2 - x1) > smallNumber && fabs(x3 - x2) > smallNumber)
+    {
+      m1 = (y3 - y2)/(x3 - x2);
+      m2 = (y2 - y1)/(x2 - x1);
+
+      if (m1 > m2)
+	sign = 1;
+      else
+	sign = -1;
+      
+    }
+  else if (fabs(y2 - y1) > smallNumber && fabs(y3 - y2) > smallNumber)
+    {
+      m1 = (x3 - x2)/(y3 - y2);
+      m2 = (x2 - x1)/(y2 - y1);
+
+      if (m1 > m2)
+	sign = -1;
+      else
+	sign = 1;
+      
+    }
+  else
+    {
+      std::cout << "ERROR circle3points: coincident points?" << std::endl;
+      exit(1);
+    }
+
+  if (fabs(m1 - m2) < smallNumber)
+    {
+      centerX = (x1 + x2 + x3)/3.0;
+      centerY = (y1 + y2 + y3)/3.0;
+      radius = largeNumber;
+      return;
+    }
+
+  
+  /* equation of a circle passing through 3 points */
+  double a1 = 2*(x2 - x1);
+  double b1 = 2*(y2 - y1);
+  double c1 = pow(x1, 2) - pow(x2, 2) + pow(y1, 2) - pow(y2, 2);
+  
+  double a2 = 2*(x3 - x1);
+  double b2 = 2*(y3 - y1);
+  double c2 = pow(x1, 2) - pow(x3, 2) + pow(y1, 2) - pow(y3, 2);
+  
+  centerX = -(b1*c2 - b2*c1)/(b1*a2 - b2*a1);
+  centerY = -(a1*c2 - a2*c1)/(a1*b2 - a2*b1);
+  radius = sqrt(pow(x1 - centerX, 2) + pow(y1 - centerY,2));
+
+  radius *= sign;
+  
+}

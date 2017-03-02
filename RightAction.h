@@ -4,8 +4,8 @@
    DESCRIPTION = This class describes the left lane change action
  */
 
-#ifndef LEFT_ACTION_H
-#define LEFT_ACTION_H
+#ifndef RIGHT_ACTION_H
+#define RIGHT_ACTION_H
 
 #include "Action.h"
 #include "List.h"
@@ -13,16 +13,16 @@
 
 #include <string>
 
-class LeftAction : public Action
+class RightAction : public Action
 {
  public:
-  LeftAction(const List<State>&);
-  ~LeftAction();
+  RightAction(const List<State>&);
+  ~RightAction();
   bool triggerCondition();
   bool endCondition();
   bool abortCondition();
 
-  std::string name() {return "LEFT";}
+  std::string name() {return "RIGHT";}
 };
 
 

@@ -2,11 +2,15 @@
 #include "Knowledge.h"
 #include <iostream>
 #include <utility>
+#include <fstream>
+
+
 
 void Vehicle::init(const State& s, const Parms& p)
 {
     automaton.init(s);
     pLayer.init(s, p);
+    simulLeftTest.open("simulatorLeft.dat");
 }
 
 void Vehicle::setRM()
@@ -32,6 +36,15 @@ void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
   /* physical layer evolution */
   
   pLayer.computeNextQ(automaton.getManeuver(), /* For platoon controller */qList);
+
+  if (idx == 0)
+    {
+      State currentQ = getQ();
+      std::string qStr;
+      qStr = toStringWithPrecision(currentQ.x, 5) + ' ' + toStringWithPrecision(currentQ.y, 5) + ' ' + toStringWithPrecision(currentQ.theta, 5) + ' ' + toStringWithPrecision(currentQ.v, 5) + '\n';
+      simulLeftTest << qStr;
+    }
+  
 }
 
 void Vehicle::evolveMonitor(const Area& obs)

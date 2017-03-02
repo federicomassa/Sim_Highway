@@ -11,10 +11,12 @@
 #include "List.h"
 #include "State.h"
 #include "Action.h"
+#include "Configuration.h"
 
-#include <iostream>
+#include <fstream>
 
 extern int now;
+extern const Configuration CONF;
 
 class ActionManager {
  private:
@@ -27,17 +29,32 @@ class ActionManager {
   
  public:
   ActionManager();
+
+  /* clear memory */
   ~ActionManager();
+
+  /* create listeners. */
   void init();
+
+  /* Monitor vehicle's actions. */
   void run();
+
+  /* For testing purposes. Take coordinates from file */
+  void parseTestFile(std::ifstream&);
+  
+  /* allocate new object into listeners list. T must inherit from Action class. */
   template<class T> void addListener();
+
+  /* delete objects inside listeners list and purge it. */
   void clearListeners();
+
+  /* print vehicle's actions starting from the most recent. */
   void printHistory();
 };
 
 template<class T>
 void ActionManager::addListener() {
-  listeners.insHead(new T);
+  listeners.insHead(new T(monitorStates));
 }
 
 

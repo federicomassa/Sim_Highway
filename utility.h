@@ -44,4 +44,9 @@ inline int size(int i) { return sizeof(i); }
 
 inline int size(double d) { return sizeof(d); }
 
+void circle3points(const double&, const double&,
+		   const double&, const double&,
+		   const double&, const double&,
+		   double&, double&, double&);
+
 #endif
