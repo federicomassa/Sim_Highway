@@ -1,0 +1,21 @@
+!!!! === Progettare sempre sul lungo termine prima di scrivere troppo === !!!!
+
+Apprendimnto: sequenze di azioni ripetute possono portare alla creazione di una nuova azione?
+
+Per il problema della proiezione in avanti della fermata: se uno decide di frenare all'ultimo non è un problema
+di regole sociali ma una bassa qualità di guida, che al limite influisce sulla reputazione. In generale il comportamento
+è sbagliato solo se si infrange la distanza di sicurezza, calcolata in modo leggermente migliore di prima, considerando non solo la tua velocità ma anche la sua? O prendere caso peggiore in cui lui si può fermare da un istante all'altro? Di fatto nessuno guida così ma utilizza la sua velocità.
+
+Mi preoccupa la questione del legame tra social rules e actions. Mi sembra limitante che le social rules parlino di actions specifiche.
+Preferirei piuttosto che le social rules parlassero di caratteristiche delle action. Ad esempio, LeftAction potrebbe avere le caratteristiche LeftLaneChange, StableVelocity... Le social rules potrebbero appunto parlare di tutte le action che prevedono una LeftLaneChange, dicendo che questo non si può fare nel caso in cui la corsia sinistra sia occupata eccetera...
+Nel caso dell'autostrada non credo ce ne sia tanto bisogno, però se vogliamo un sistema di monitoring che sia elastico rispetto alle regole sociali può essere una buona strada. In particolare per quanto riguarda la complicazione delle actions. Ad un certo punto potrei avere una specifica action che prevede una oscillazione (tipo platoon). Questo potrebbe essere riconosciuto dall'actionManager sia come TravelAction che come PlatoonAction. Se inseriamo anche un discorso di qualità in questo caso potrebbe essere una TravelAction con bassa qualità o una PlatoonAction nella media. Entrambe le azioni sono registrate alla feature "Andatura", Platoon è anche registrata a "Segui qualcuno"(?) e possono entrare in competizione. In questo caso vince Platoon. Come gestire la competizione? Quando due azioni possono entrare in competizione? In base alle features direi. Questo è un problema di identificazione delle action, non del monitor. Per quanto riguarda le regole sociali, non parlano di specifico tipo di andatura, parlano di andatura e basta. La reputazione è prima di tutto basata sul rispetto delle regole sociali. In un secondo momento potrebbero dipendere anche dalla qualità di guida.
+
+     ^
+     '
+     '
+     '
+
+Aggiudicato. Ogni azione si registra ad una serie di stringhe rappresentanti le features. Le regole sociali parlano solo di features. In questo modo ho piena libertà sul come definire le azioni.
+
+
+

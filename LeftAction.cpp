@@ -16,9 +16,7 @@ bool LeftAction::triggerCondition()
 
   
   if (monitorStates.count() >= 3)
-    {
-      /* arbitrarily large number to represent infinity */
-      
+    { 
       double radius;
 
       const State* currentState;
@@ -51,11 +49,8 @@ bool LeftAction::endCondition()
    a specified tolerance */
   
   /* calculate curvature radius using last three points*/
-
   if (monitorStates.count() >= 3)
-    {
-      /* arbitrarily large number to represent infinity */
-      
+    { 
       double radius;
 
       const State* currentState;

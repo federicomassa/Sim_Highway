@@ -12,12 +12,8 @@ bool TravelAction::triggerCondition()
   /* TravelAction is triggered if the vehicle travels straight within a certain tolerance in the curvature radius */
   
   /* calculate curvature radius using last three points*/
-
-  
   if (monitorStates.count() >= 3)
-    {
-      /* arbitrarily large number to represent infinity */
-      
+    { 
       double radius;
 
       const State* currentState;
@@ -47,15 +43,13 @@ bool TravelAction::triggerCondition()
 
 bool TravelAction::endCondition()
 {
-  /* TravelAction is ended when the vehicle reaches the center of the target lane within
-   a specified toleranc*/
+  /* TravelAction is ended when the curvature radius is too small or if the vehicle 
+   is too distant from the center of the lane */
   
   /* calculate curvature radius using last three points*/
-
   if (monitorStates.count() >= 3)
     {
-      /* arbitrarily large number to represent infinity */
-      
+     
       double radius;
 
       const State* currentState;
