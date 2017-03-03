@@ -8,6 +8,11 @@
 LeftAction::LeftAction(const List<State>& mState) : Action(mState) {}
 LeftAction::~LeftAction() {}
 
+void LeftAction::initBehaviours()
+{
+  addBehaviour("LeftLaneChange");
+}
+
 bool LeftAction::triggerCondition()
 {
   /* LeftAction is triggered if the vehicle turns left with a curvature radius within specific limits */

@@ -7,6 +7,11 @@
 TravelAction::TravelAction(const List<State>& mState) : Action(mState) {}
 TravelAction::~TravelAction() {}
 
+void TravelAction::initBehaviours()
+{
+  addBehaviour("Cruise");
+}
+
 bool TravelAction::triggerCondition()
 {
   /* TravelAction is triggered if the vehicle travels straight within a certain tolerance in the curvature radius */

@@ -22,6 +22,7 @@ class LeftAction : public Action
   bool endCondition();
   bool abortCondition();
 
+  void initBehaviours();
   std::string name() {return "LEFT";}
 };
 

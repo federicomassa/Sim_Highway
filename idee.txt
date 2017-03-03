@@ -18,4 +18,5 @@ Nel caso dell'autostrada non credo ce ne sia tanto bisogno, però se vogliamo un
 Aggiudicato. Ogni azione si registra ad una serie di stringhe rappresentanti le features. Le regole sociali parlano solo di features. In questo modo ho piena libertà sul come definire le azioni.
 
 
+Attualmente le action hanno bisogno almeno di un trigger e un end condition. Per renderlo più elastico io vorrei che le azioni potessero essere triggerate dopo che sono realmente iniziate, magari perché devo monitorarle per un po' prima di capire che sono davvero quella azione (tipo platoon, all'inizio sembra un travel). Per fare questo una soluzione potrebbe essere predisporre un timeOffset per ogni azione. Se quella azione lo specifica, il triggerTime sarà now - offSet.
 

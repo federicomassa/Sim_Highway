@@ -22,6 +22,8 @@ class RightAction : public Action
   bool endCondition();
   bool abortCondition();
 
+  void initBehaviours();
+  
   std::string name() {return "RIGHT";}
 };
 

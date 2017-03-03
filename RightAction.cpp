@@ -9,6 +9,11 @@
 RightAction::RightAction(const List<State>& mState) : Action(mState) {}
 RightAction::~RightAction() {}
 
+void RightAction::initBehaviours()
+{
+  addBehaviour("RightLaneChange");
+}
+
 bool RightAction::triggerCondition()
 {
   /* RightAction is triggered if the vehicle turns right with a curvature radius within specific limits */

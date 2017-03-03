@@ -19,6 +19,10 @@ enum ActionStatus {TRIGGERED, ENDED, ABORTED, INACTIVE};
 
 class Action
 {
+  /* Each action is registered to a series of behaviours of which they must to obey the rules.
+     Ex. both the action "travel" and "overtake" are registered to the behaviour "cruise", of which
+     they should respect the rules. */
+  List<std::string> behaviourList;
  public:
   Action(const List<State>&);
   int triggerTime;
@@ -33,12 +37,14 @@ class Action
   virtual bool triggerCondition() = 0;
   /* End condition specifies the conditions that end the action */
   virtual bool endCondition() = 0;
-  /* Abort condition specifies the conditions that stops the listener of this action */
+  /* Abort condition specifies the conditions that stop the listener of this action */
   virtual bool abortCondition() = 0;
   virtual ~Action() {};
   virtual void listen();
   virtual std::string name() = 0;
 
+  virtual void initBehaviours() = 0;
+  void addBehaviour(const std::string& beh) {behaviourList.insHead(beh);}
   /* contains a string describing the details of the recognized action, same as print() */
   std::string info();
   
