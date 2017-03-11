@@ -2,12 +2,28 @@
 #include <iostream>
 #include <sstream>
 
-Action::Action(const List<State>& mStates) : monitorStates(mStates)
+Action::Action()
 {
   triggerTime = -1;
   endTime = -1;
 
   status = INACTIVE;
+}
+
+void Action::init(const Vector<State, 10>& mStates)
+{
+  monitorStates = &mStates;
+  initBehaviours();
+}
+
+Action::Action(const Action& a)
+{
+  triggerTime = a.triggerTime;
+  endTime = a.endTime;
+  monitorStates = a.monitorStates;
+  status = a.status;
+
+  behaviourList = a.behaviourList;
 }
 
 void Action::listen()

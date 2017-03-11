@@ -29,12 +29,20 @@ public:
     /* evaluate the event */
     void evaluate(const State& qSubj, const IntVars& vars,
                   const List<State>& qList, bool omniscient);
-    /* re-evaluate the event after some subEvents changed their value */
+
+    /* Evaluate events using the observable area */
+    void evaluateWithArea(const State& qSubj, const IntVars& vars,
+			  const List<State>& qList, bool omniscient, const Area& obs);
+    
+    /* re-evaluate the event after some subEvents changed their value */    
     void reEvaluate();
     /* return Object's idx */
     int getID() const { return idx; }
     /* return Object's value */
     ExtValue getValue() const { return value; }
+
+    /* Delete subevents objects */
+    void deleteSubEvents();
 };
 
 std::ostream& operator<<(std::ostream&, const Event*);

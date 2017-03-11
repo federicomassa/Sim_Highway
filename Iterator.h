@@ -12,6 +12,7 @@
 #ifndef ITERATOR_H
 #define ITERATOR_H
 
+#include <iostream>
 /* pre-declaration */
 template<typename T> class List;
 
@@ -37,7 +38,7 @@ public:
      * in order to initialize member p correctly.
      * @param pi List<T> object.
      */
-    Iterator(const List<T>& pi) { p = pi.head; }
+    Iterator(const List<T>& pi) {p = pi.head;}
     /*!
      * \brief Destructor.
      */

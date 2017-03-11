@@ -9,7 +9,7 @@
 #define ACTION_H
 
 #include "State.h"
-#include "List.h"
+#include "Vector.h"
 #include <string>
 
 
@@ -23,15 +23,21 @@ class Action
      Ex. both the action "travel" and "overtake" are registered to the behaviour "cruise", of which
      they should respect the rules. */
   List<std::string> behaviourList;
+  
+ protected:
+  void addBehaviour(const std::string& beh) {behaviourList.insHead(beh);}
+  /* reference to ActionManager's monitor state history */
+  const Vector<State, 10>* monitorStates;
+  
  public:
-  Action(const List<State>&);
+  Action();
+  Action(const Action&);
+
+  void init(const Vector<State, 10>&);
+
   int triggerTime;
   int endTime;
-
   ActionStatus status;
-
-  /* reference to ActionManager's monitor state history */
-  const List<State>& monitorStates;
   
   /* Trigger condition specifies the conditions that start the action */
   virtual bool triggerCondition() = 0;
@@ -41,10 +47,11 @@ class Action
   virtual bool abortCondition() = 0;
   virtual ~Action() {};
   virtual void listen();
-  virtual std::string name() = 0;
+  virtual std::string name() const = 0;
 
   virtual void initBehaviours() = 0;
-  void addBehaviour(const std::string& beh) {behaviourList.insHead(beh);}
+  const List<std::string>& getBehaviours() const {return behaviourList;}
+  
   /* contains a string describing the details of the recognized action, same as print() */
   std::string info();
   

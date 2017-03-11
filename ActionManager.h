@@ -19,16 +19,35 @@ extern int now;
 extern const Configuration CONF;
 
 class ActionManager {
+
+  friend class RuleMonitor;
  private:
   /* Keeps track of the states of the monitored vehicle across the prefixed time span FIXME where? */
-  List<State> monitorStates;
+  const Vector<State, 10>& monitorStates;
+  const Vector<List<State>, 10>& neighStates;
   /* List of actions that are being monitored. Populated during initialization. */
   List<Action*> listeners;
   /* Keeps track of the actions done by the monitored vehicle. */
-  List<std::string> history;
+  List<Action*> history;
+
+  /* Record an ended or aborted action */
+  void recordAction(Action*);
+
+  /* Reset Action */
+  void resetAction(Action*);
+  
+  /* delete objects inside listeners list and purge it. */
+  void clearListeners();
+
+  /* delete objects inside history list and purge it. */
+  void clearHistory();
+
+  /* Returns a pointer to a copy of the input Action* (it has to be deleted) */
+  static Action* copyAction(Action*);
+  static Action* copyAction(const Action*);
   
  public:
-  ActionManager();
+  ActionManager(const Vector<State, 10>&, const Vector<List<State>, 10>&);
 
   /* clear memory */
   ~ActionManager();
@@ -43,20 +62,14 @@ class ActionManager {
   void parseTestFile(std::ifstream&);
   
   /* allocate new object into listeners list. T must inherit from Action class. */
-  template<class T> void addListener();
+  void addListener(Action*);
 
-  /* delete objects inside listeners list and purge it. */
-  void clearListeners();
-
+  /* accessor to history */
+  const List<Action*>* getHistory() const {return &history;}
+  
   /* print vehicle's actions starting from the most recent. */
   void printHistory();
 };
-
-template<class T>
-void ActionManager::addListener() {
-  listeners.insHead(new T(monitorStates));
-}
-
 
 
 

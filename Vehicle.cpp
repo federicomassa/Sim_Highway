@@ -5,7 +5,6 @@
 #include <fstream>
 
 
-
 void Vehicle::init(const State& s, const Parms& p)
 {
     automaton.init(s);

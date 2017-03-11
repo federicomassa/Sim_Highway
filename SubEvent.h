@@ -17,6 +17,7 @@ extern Logger LOG;
 /* time step */
 extern int now;
 
+
 class SubEvent
 {
     friend class Monitor;
@@ -31,6 +32,16 @@ class SubEvent
 public:
     /* constructor */
     SubEvent() { idx = -1; }
+    SubEvent(const SubEvent& se)
+      {
+	idx = se.idx;
+	func = se.func;
+	areaFunc = se.areaFunc;
+	mode = se.mode;
+	value = se.value;
+	evalTime = se.evalTime;
+	name = se.name;
+      }
     /* destructor */
     ~SubEvent() { }
     /* initialization */
@@ -45,7 +56,17 @@ public:
     /* return Object's idx */
     int getID() const { return idx; }
     /* return Object's value */
-    ExtValue getValue() const { return value; }
+    ExtValue& getValue() { return value; }
+
+    /* get mode */
+    EvalMode getMode() const {return mode;}
+    
+    /* areaFunc availability */
+    bool hasArea() const {return (areaFunc != NULL);}
+    
+    /* evaluate area func */
+    void evaluateArea(const State& q, Area& a) const
+    {areaFunc(q, a);}
 };
 
 std::ostream& operator<<(std::ostream&, const SubEvent*);

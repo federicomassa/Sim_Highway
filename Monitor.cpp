@@ -210,7 +210,7 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
         if(CONF.debug)
 	  {
             LOG.s << se << EndLine(EndLine::INC);
-            LOG.s << "Evaluation time: " << se.evalTime;
+            LOG.s << "Evalua tion time: " << se.evalTime;
             LOG.s << EndLine() << "Value: " << se.value;
 	  }
         if(se.value.nonOmniscientValue == U && se.evalTime == now)

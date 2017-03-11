@@ -60,6 +60,54 @@ void Event::evaluate(const State& qSubj, const IntVars& vars,
       }
 }
 
+void Event::evaluateWithArea(const State& qSubj, const IntVars& vars,
+			     const List<State>& qList, bool omniscient, const Area& obs)
+{
+  /* First normal evaluation */
+  evaluate(qSubj, vars, qList, omniscient);
+
+  /* true if some subevents have changed value next to the area evaluation */
+  bool valueChanged = false;
+  
+  Iterator<SubEvent*> seIt(subEventList);
+  SubEvent* se;
+
+  /* Now let's see if our observable area is sufficient to draw some conclusions... */
+  while (seIt(se))
+    {
+      /* If we are already certain there is no reason to do this*/
+      if (se->getValue().nonOmniscientValue == U)
+	{
+	  /* if it has an associated area */
+	  if(se->hasArea())
+	    {
+	      /* compute sub-event indicator area */
+	      Area indicator;
+	      se->evaluateArea(qSubj, indicator);
+	      /* subtract observable area */
+	      indicator -= obs;
+	      if(indicator.isEmpty())
+		{
+		  if(se->getMode() == OR)
+		    /* there isn't any agent where there should be */
+		    se->getValue().nonOmniscientValue = F;
+		  else
+		    /* there isn't any agent where there shouldn't be */
+		    se->getValue().nonOmniscientValue = T;
+		  valueChanged = true;
+		  if(CONF.debug)
+		    LOG.s << EndLine() << "Value changed: " << se->getValue();
+		}
+	    }
+	} 
+    }
+
+  if (valueChanged)
+    reEvaluate();
+  
+}
+
+
 void Event::reEvaluate()
 {
     /* error handling */
@@ -103,6 +151,20 @@ void Event::reEvaluate()
         LOG.s << idx;
         LOG.s << " END:" << value << EndLine();
     }
+}
+
+void Event::deleteSubEvents()
+{
+  Iterator<SubEvent*> seIt(subEventList);
+  SubEvent* tmpSE;
+
+  while (seIt(tmpSE))
+    {
+      if (tmpSE)
+	delete tmpSE;
+    }
+
+  subEventList.purge();
 }
 
 ostream& operator<<(ostream& os, const Event& e)

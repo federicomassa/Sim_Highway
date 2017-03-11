@@ -77,6 +77,7 @@ class Vector
         elements[x] = elements[y];
         elements[y] = tmpT;
     }
+    
     /*!
      * \brief Quick sort function.
      */
@@ -121,6 +122,20 @@ public:
      * Note that operator < and operator > MUST be defined for type T.
      */
     void sort() { quickSort(0, N - 1); }
+
+
+    /*!
+     * \brief Insert function. 
+     */
+    void insHead(const T& el)
+    {
+      for (int i = 0; i < N -1; i++)
+	elements[N-i-1] = elements[N-i-2];
+
+      elements[0] = el;
+    }
+
+    
     /*!
      * \brief Redefinition of operator =.
      */

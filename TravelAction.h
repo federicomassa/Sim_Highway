@@ -15,15 +15,18 @@
 
 class TravelAction : public Action
 {
+
  public:
-  TravelAction(const List<State>&);
+  TravelAction();
+ TravelAction(const Action& a) : Action(a) {}
   ~TravelAction();
   bool triggerCondition();
   bool endCondition();
   bool abortCondition();
 
   void initBehaviours();
-  std::string name() {return "TRAVEL";}
+  std::string name() const {return actionName;}
+  static const std::string actionName;
 };
 
 

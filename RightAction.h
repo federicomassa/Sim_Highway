@@ -16,7 +16,8 @@
 class RightAction : public Action
 {
  public:
-  RightAction(const List<State>&);
+  RightAction();
+ RightAction(const Action& a) : Action(a) {}
   ~RightAction();
   bool triggerCondition();
   bool endCondition();
@@ -24,7 +25,9 @@ class RightAction : public Action
 
   void initBehaviours();
   
-  std::string name() {return "RIGHT";}
+  std::string name() const {return actionName;}
+  static const std::string actionName;
+
 };
 
 

@@ -21,6 +21,12 @@ public:
         omniscientValue = oV;
         nonOmniscientValue = nOV;
     }
+    ExtValue(const ExtValue& ev)
+      {
+	omniscientValue = ev.omniscientValue;
+	nonOmniscientValue = ev.nonOmniscientValue;
+      }
+    
     /* destructor */
     ~ExtValue() { }
     /* ``extend'' the value depending on evaluation mode (cfr. doc) */
@@ -37,6 +43,7 @@ ExtValue operator&&(const ExtValue&, const ExtValue&);
 ExtValue operator||(const ExtValue&, const ExtValue&);
 ExtValue operator!(const ExtValue&);
 std::ostream& operator<<(std::ostream&, const ExtValue&);
+std::ostream& operator<<(std::ostream&, const ExtBool&);
 
 ExtBool operator!(const ExtBool&);
 ExtBool operator&&(const ExtBool&, const ExtBool&);

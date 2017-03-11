@@ -13,7 +13,9 @@ class TestRules : public SocialRules
 {
  public:
   TestRules() {}
+  ~TestRules();
   void build();
+  void addLeftRules();
 };
 
 #endif

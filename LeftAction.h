@@ -16,14 +16,16 @@
 class LeftAction : public Action
 {
  public:
-  LeftAction(const List<State>&);
+  LeftAction();
+ LeftAction(const Action& a) : Action(a) {}
   ~LeftAction();
   bool triggerCondition();
   bool endCondition();
   bool abortCondition();
 
   void initBehaviours();
-  std::string name() {return "LEFT";}
+  std::string name() const {return actionName;}
+  static const std::string actionName;
 };
 
 

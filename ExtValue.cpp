@@ -131,6 +131,27 @@ ostream& operator<<(ostream& os, const ExtValue& value)
     return os;
 }
 
+ostream& operator<<(ostream& os, const ExtBool& value)
+{
+    os << "(";
+    switch(value)
+    {
+        case T:
+            os << "true";
+            break;
+        case F:
+            os << "false";
+            break;
+        case U:
+            os << "uncertain";
+            break;
+    }
+    os << ")";
+    
+    return os;
+}
+
+
 ExtBool operator!(const ExtBool& b)
 {
   switch(b)
