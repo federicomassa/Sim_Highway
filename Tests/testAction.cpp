@@ -96,7 +96,7 @@ int main(int argc, char** argv)
       aMan.run();
       rMon.run(obs);
       now++;
-      std::cout << now << std::endl;
+      std::cout << "Time: " << now << std::endl;
       aMan.printHistory();
       std::cout << "~~~~~~~~~~~~" << std::endl;
     }

@@ -13,6 +13,7 @@ RightAction::~RightAction() {}
 void RightAction::initRuleCategories()
 {
   addRuleCategory("RightLaneChange");
+  addRuleCategory("Safety");
 }
 
 bool RightAction::triggerCondition()

@@ -12,6 +12,7 @@ LeftAction::~LeftAction() {}
 void LeftAction::initRuleCategories()
 {
   addRuleCategory("LeftLaneChange");
+  addRuleCategory("Safety");
 }
 
 bool LeftAction::triggerCondition()

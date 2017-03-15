@@ -12,6 +12,7 @@ LeftOvertakeAction::~LeftOvertakeAction() {}
 void LeftOvertakeAction::initRuleCategories()
 {
   addRuleCategory("LeftOvertake");
+  addRuleCategory("Safety");
 }
 
 bool LeftOvertakeAction::triggerCondition()

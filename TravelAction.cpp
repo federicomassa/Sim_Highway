@@ -11,6 +11,7 @@ TravelAction::~TravelAction() {}
 void TravelAction::initRuleCategories()
 {
   addRuleCategory("Cruise");
+  addRuleCategory("Safety");
 }
 
 bool TravelAction::triggerCondition()

@@ -67,6 +67,16 @@ bool ruleFunctions::forwardBlocking(const State& s1, const IntVars& v1, const St
     return false;
 }
 
+bool ruleFunctions::forwardDangerous(const State& s1, const IntVars& v1, const State& s2)
+{
+    if((s2.x - s1.x) > 0 && (s2.x - s1.x) < D_FORWARD &&
+        s2.y > floor(s1.y) && s2.y < (floor(s1.y) + 1))
+            return true;
+
+    return false;
+}
+
+
 bool ruleFunctions::leftBlocking(const State& s1, const IntVars& v1, const State& s2)
 {
     if((s1.x - s2.x) < D_BACK && (s2.x - s1.x) < D_FORWARD &&
@@ -108,6 +118,20 @@ void ruleFunctions::forwardArea(const State& s, Area& ind)
     bounds[1][1] = floor(s.y) + 1;
     ind.addRect(bounds);
 }
+
+void ruleFunctions::forwardDangerousArea(const State& s, Area& ind)
+{
+    if (!ind.isEmpty())
+        ind.purge();
+    
+    Matrix_2x2 bounds;
+    bounds[0][0] = s.x;
+    bounds[0][1] = s.x + D_FORWARD; //safety distance
+    bounds[1][0] = floor(s.y);
+    bounds[1][1] = floor(s.y) + 1;
+    ind.addRect(bounds);
+}
+
 
 void ruleFunctions::leftArea(const State& s, Area& ind)
 {

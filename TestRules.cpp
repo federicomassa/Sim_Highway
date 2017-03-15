@@ -7,9 +7,35 @@ using namespace ruleFunctions;
 
 void TestRules::build()
 {
+  addSafetyRules();
   addLeftRules();
   addRightRules();
   addCruiseRules();
+}
+
+void TestRules::addSafetyRules()
+{
+  List<SubEvent*> seList;
+  List<Event> eList;
+  
+  /* ================= Nobody ahead rule ==================== */
+  
+  Event eSafety;
+  SubEvent* sSafety = new SubEvent;
+  
+  sSafety->init(forwardDangerous, forwardDangerousArea, OR, "Someone is in front of me at a dangerous distance", 0);
+  seList.insHead(sSafety);
+
+  /* Transfer subevent ownership to SocialRules */
+  eSafety.init(seList, 0);
+  eList.insHead(eSafety);
+
+  addRule("Safety", eList, "You are not keeping the safety distance from the vehicle in front of you", CONTINUOUS);
+
+  /* clear for re-use */
+  seList.purge();
+  eList.purge();
+
 }
 
 void TestRules::addLeftRules()
