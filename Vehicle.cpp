@@ -10,6 +10,7 @@ void Vehicle::init(const State& s, const Parms& p)
     automaton.init(s);
     pLayer.init(s, p);
     simulLeftTest.open("simulatorLeft.dat");
+    simulOtherTest.open("simulatorOther.dat");
 }
 
 void Vehicle::setRM()
@@ -43,7 +44,15 @@ void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
       qStr = toStringWithPrecision(currentQ.x, 5) + ' ' + toStringWithPrecision(currentQ.y, 5) + ' ' + toStringWithPrecision(currentQ.theta, 5) + ' ' + toStringWithPrecision(currentQ.v, 5) + '\n';
       simulLeftTest << qStr;
     }
-  
+
+  if (idx == 1)
+    {
+      State currentQ = getQ();
+      std::string qStr;
+      qStr = toStringWithPrecision(currentQ.x, 5) + ' ' + toStringWithPrecision(currentQ.y, 5) + ' ' + toStringWithPrecision(currentQ.theta, 5) + ' ' + toStringWithPrecision(currentQ.v, 5) + '\n';
+      simulOtherTest << qStr;
+    }
+
 }
 
 void Vehicle::evolveMonitor(const Area& obs)

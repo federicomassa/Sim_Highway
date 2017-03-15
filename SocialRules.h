@@ -20,7 +20,6 @@ class SocialRules;
 
 /* Type that describes when the rule has to be evaluated:
  ex: at trigger time or at each instant */
-
 enum CheckMode{TRIGGER, CONTINUOUS};
 
 class Rule {
@@ -28,8 +27,8 @@ class Rule {
 
  private:
   
-  /* This is the list of events that describes the forbidden situations for this behaviour.
-     In the case of the behaviour "LeftLaneChange", an event could be like "left lane is occupied by someone else and you are not on 
+  /* This is the list of events that describes the forbidden situations for this rule category.
+     In the case of the category "LeftLaneChange", an event could be like "left lane is occupied by someone else and you are not on 
      the maximum lane" */
   List<Event> eList;
   int lastCheckTime;
@@ -37,18 +36,18 @@ class Rule {
 
   void updateProcessStatus(const int&, const int&);
 
-  /* This is the name of the behaviour that we want to set a rule on.
+  /* This is the name of the category that we want to set a rule on.
      This is very important as each rule set a list of situations in which
-     this behaviour should not happen. An example of behaviour could be "LeftLaneChange".
-     Each action, as recognized by the ActionManager, is possibly registered to several behaviours. */
-  std::string behaviour;
+     this behaviour should not happen. An example of category could be "LeftLaneChange".
+     Each action, as recognized by the ActionManager, is possibly registered to several categories. */
+  std::string category;
   std::string name;
   CheckMode mode;
   
   
-  void init(const std::string& beh, const List<Event>& eL, const std::string& n, const CheckMode& m)
+  void init(const std::string& cat, const List<Event>& eL, const std::string& n, const CheckMode& m)
   {
-    behaviour = beh;
+    category = cat;
     eList = eL;
     name = n;
     mode = m;
@@ -63,7 +62,7 @@ class Rule {
 
   const List<Event>& getEventList() {return eList;}
   
-  void check(const Vector<State, 10>& monitorStates, const Vector<List<State>, 10>& neighStates, const Area& obs, const int& triggerTime,
+  void check(const Vector<State, 10>& monitorStates, const Vector<List<Sensing>, 10>& neighStates, const Area& obs, const int& triggerTime,
 	     const int& endTime)
   {
     Iterator<Event> eIt(eList);
@@ -91,7 +90,7 @@ class Rule {
   
   bool operator==(const Rule& r)
   {
-    return (behaviour == r.behaviour &&
+    return (category == r.category &&
 	    eList == r.eList);
 	    
   }
@@ -108,10 +107,10 @@ class SocialRules
   
   /* Add rule to the list */
   void addRule(const Rule& r) {rList.insHead(r);}
-  void addRule(const std::string& beh, const List<Event>& eL, const std::string& name, const CheckMode& mode = TRIGGER)
+  void addRule(const std::string& cat, const List<Event>& eL, const std::string& name, const CheckMode& mode = TRIGGER)
   {
     Rule r;
-    r.init(beh, eL, name, mode);
+    r.init(cat, eL, name, mode);
     addRule(r);
   }
 
@@ -133,29 +132,6 @@ class SocialRules
    and will be freed by the destructor */
   virtual void build() = 0;
 
-  /* Check rule corresponding to the desired behaviour */
-  /*  void checkRule(const std::string& behaviour, const Vector<State, 10>& monitorStates, const Vector<List<State>, 10>& neighStates, const Area& obs, const int& triggerTime, const int& endTime, bool& actionProcessed)
-  {
-    Iterator<Rule> iRule(rList);
-    Rule r;
-  */
-    /* processed remains true if every rule has been completely evaluated (AND operation). 
-     There are rules that only need to be evaluated at trigger time, others should be evaluated throughout the
-    whole action. */
-  /*    actionProcessed = true;
-    
-	while (iRule(r))
-      {
-	if (r.behaviour == behaviour)
-	  {
-	    const bool ruleProcessed = r.isProcessed(triggerTime, endTime);
-	    r.check(monitorStates, neighStates, obs);
-	    actionProcessed = actionProcessed && ruleProcessed;
-	    }
-	  }
-    
-  }
-  */
   List<Rule> createRulesList(const List<std::string>&);
   
 };

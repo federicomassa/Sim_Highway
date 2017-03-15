@@ -4,6 +4,7 @@
 #include "../Area.h"
 #include "../TestRules.h"
 #include "../State.h"
+#include "../Sensing.h"
 #include "../Vector.h"
 #include "../List.h"
 #include <iostream>
@@ -16,35 +17,47 @@ int now = 0;
 Logger LOG("testAction.log");
 
 Vector<State, 10> monitorStates;
-Vector<List<State>, 10> neighStates;
+Vector<List<Sensing>, 10> neighStates;
 
-void parseTestFile(std::ifstream& input)
+void parseTestFile(std::ifstream& input1, std::ifstream& input2)
 {
-  std::string line;
+  std::string line1;
+  std::string line2;
 
-  if (!input.eof())
+  if (!input1.eof() || !input2.eof())
     {
       double x, y, theta, v;
+      double x2, y2, theta2, v2;
       
-      getline(input, line, ' ');
-      x = atof(line.c_str());
+      getline(input1, line1, ' ');
+      getline(input2, line2, ' ');
+      x = atof(line1.c_str());
+      x2 = atof(line2.c_str());
 
-      getline(input, line, ' ');
-      y = atof(line.c_str());
+      getline(input1, line1, ' ');
+      getline(input2, line2, ' ');
+      y = atof(line1.c_str());
+      y2 = atof(line2.c_str());
 
-      getline(input, line, ' ');
-      theta = atof(line.c_str());
+      getline(input1, line1, ' ');
+      getline(input2, line2, ' ');
+      theta = atof(line1.c_str());
+      theta2 = atof(line2.c_str());
 
-      getline(input, line, '\n');
-      v = atof(line.c_str());
+      getline(input1, line1, '\n');
+      getline(input2, line2, '\n');
+      v = atof(line1.c_str());
+      v2 = atof(line2.c_str());
       
       State q(x, y, theta, v, 0);
-
+      State q2(x2, y2, theta2, v2, 0);
+      Sensing s(1, q2, q2.v, UNKNOWN);
       /*      std::cout << q << std::endl;*/
       
       monitorStates.insHead(q);
-      List<State> neigh;
-      neighStates.insHead(neigh); /* Empty for testing. Only monitor in the env */
+      List<Sensing> neigh;
+      neigh.insHead(s);
+      neighStates.insHead(neigh);
     }
 } 
 
@@ -58,10 +71,11 @@ int main(int argc, char** argv)
   rMon.setRules(new TestRules);
 
   std::ifstream in("simulatorLeft.dat");
+  std::ifstream in2("simulatorOther.dat");
 
-  parseTestFile(in);
-  parseTestFile(in);
-  parseTestFile(in);
+  parseTestFile(in, in2);
+  parseTestFile(in, in2);
+  parseTestFile(in, in2);
   now = now + 3;
   
   while (!in.eof())
@@ -72,13 +86,13 @@ int main(int argc, char** argv)
       Vector<Vector<double,2>, 2> bounds;
       bounds[0][0] = -100.0;
       bounds[0][1] = 100.0;
-      bounds[1][0] = 1.0;
+      bounds[1][0] = 0.0;
       bounds[1][1] = 2.0;
       obs.addRect(bounds);
 
 
       
-      parseTestFile(in);
+      parseTestFile(in, in2);
       aMan.run();
       rMon.run(obs);
       now++;

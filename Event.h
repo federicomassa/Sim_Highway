@@ -3,6 +3,7 @@
 #define EVENT_H
 
 #include "SubEvent.h"
+#include "Sensing.h"
 
 class Event
 {
@@ -32,7 +33,7 @@ public:
 
     /* Evaluate events using the observable area */
     void evaluateWithArea(const State& qSubj, const IntVars& vars,
-			  const List<State>& qList, bool omniscient, const Area& obs);
+			  const List<Sensing>& sList, bool omniscient, const Area& obs);
     
     /* re-evaluate the event after some subEvents changed their value */    
     void reEvaluate();

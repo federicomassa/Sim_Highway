@@ -10,10 +10,11 @@ Action::Action()
   status = INACTIVE;
 }
 
-void Action::init(const Vector<State, 10>& mStates)
+void Action::init(const Vector<State, 10>& mStates, const Vector<List<Sensing>, 10>& nStates)
 {
   monitorStates = &mStates;
-  initBehaviours();
+  neighStates = &nStates;
+  initRuleCategories();
 }
 
 Action::Action(const Action& a)
@@ -23,7 +24,7 @@ Action::Action(const Action& a)
   monitorStates = a.monitorStates;
   status = a.status;
 
-  behaviourList = a.behaviourList;
+  ruleCategoryList = a.ruleCategoryList;
 }
 
 void Action::listen()

@@ -10,9 +10,9 @@ const std::string RightAction::actionName = "RIGHT";
 RightAction::RightAction() {}
 RightAction::~RightAction() {}
 
-void RightAction::initBehaviours()
+void RightAction::initRuleCategories()
 {
-  addBehaviour("RightLaneChange");
+  addRuleCategory("RightLaneChange");
 }
 
 bool RightAction::triggerCondition()

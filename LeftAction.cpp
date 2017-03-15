@@ -9,9 +9,9 @@ const std::string LeftAction::actionName = "LEFT";
 LeftAction::LeftAction() {}
 LeftAction::~LeftAction() {}
 
-void LeftAction::initBehaviours()
+void LeftAction::initRuleCategories()
 {
-  addBehaviour("LeftLaneChange");
+  addRuleCategory("LeftLaneChange");
 }
 
 bool LeftAction::triggerCondition()

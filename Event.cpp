@@ -63,9 +63,16 @@ void Event::evaluate(const State& qSubj, const IntVars& vars,
 }
 
 void Event::evaluateWithArea(const State& qSubj, const IntVars& vars,
-			     const List<State>& qList, bool omniscient, const Area& obs)
+			     const List<Sensing>& sList, bool omniscient, const Area& obs)
 {
   /* First normal evaluation */
+  List<State> qList;
+  Iterator<Sensing> sensIt(sList);
+  Sensing s;
+
+  while (sensIt(s))
+    qList.insHead(s.q);
+  
   evaluate(qSubj, vars, qList, omniscient);
 
   /* true if some subevents have changed value next to the area evaluation */

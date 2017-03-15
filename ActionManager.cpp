@@ -4,7 +4,7 @@
 #include <string>
 #include <cstdlib>
 
-ActionManager::ActionManager(const Vector<State, 10>& mStates, const Vector<List<State>, 10>& nStates) : monitorStates(mStates),
+ActionManager::ActionManager(const Vector<State, 10>& mStates, const Vector<List<Sensing>, 10>& nStates) : monitorStates(mStates),
 													 neighStates(nStates)
 {}
 
@@ -21,6 +21,7 @@ void ActionManager::init()
   addListener(new LeftAction);
   addListener(new RightAction);
   addListener(new TravelAction);
+  addListener(new LeftOvertakeAction);
 }
 
 void ActionManager::run()
@@ -56,7 +57,7 @@ void ActionManager::resetAction(Action* a)
 
 void ActionManager::addListener(Action* a)
 {
-  a->init(monitorStates);
+  a->init(monitorStates, neighStates);
   listeners.insHead(a);
 }
 
@@ -70,6 +71,8 @@ Action* ActionManager::copyAction(Action* a)
     copy = new RightAction(*a);
   else if (a->name() == TravelAction::actionName)
     copy = new TravelAction(*a);
+  else if (a->name() == LeftOvertakeAction::actionName)
+    copy = new LeftOvertakeAction(*a);
   else
     error("ActionManager::copyAction", "Forgot to add new action to record list? Action name: " + a->name());
   
@@ -87,6 +90,8 @@ Action* ActionManager::copyAction(const Action* a)
     copy = new RightAction(*a);
   else if (a->name() == TravelAction::actionName)
     copy = new TravelAction(*a);
+  else if (a->name() == LeftOvertakeAction::actionName)
+    copy = new LeftOvertakeAction(*a);
   else
     error("ActionManager::copyAction", "Forgot to add new action to record list? Action name: " + a->name());
   

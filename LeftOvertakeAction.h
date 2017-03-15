@@ -1,11 +1,11 @@
 /* 
    AUTHOR = Federico Massa, Adriano Fagiolini
    EMAIL = fedemassa91@gmail.com
-   DESCRIPTION = This class describes the left lane change action
+   DESCRIPTION = This class describes the travel action
  */
 
-#ifndef LEFT_ACTION_H
-#define LEFT_ACTION_H
+#ifndef LEFT_OVERTAKE_ACTION_H
+#define LEFT_OVERTAKE_ACTION_H
 
 #include "Action.h"
 #include "List.h"
@@ -13,12 +13,14 @@
 
 #include <string>
 
-class LeftAction : public Action
+class LeftOvertakeAction : public Action
 {
+ private:
+  int targetID;
  public:
-  LeftAction();
- LeftAction(const Action& a) : Action(a) {}
-  ~LeftAction();
+  LeftOvertakeAction();
+ LeftOvertakeAction(const Action& a) : Action(a) {}
+  ~LeftOvertakeAction();
   bool triggerCondition();
   bool endCondition();
   bool abortCondition();

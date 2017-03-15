@@ -72,7 +72,6 @@ void RuleMonitor::processActions()
   for (int i = 0; i < processedActions.count(); i++)
     {
       processedActions.getElem(p, i);
-      std::cout << p->first->triggerTime << '\t' << p->first->endTime << std::endl;
       
       /* if we are past the end time of that action do not check it anymore */
       if (now > p->first->endTime && p->first->endTime != -1)
@@ -94,7 +93,7 @@ void RuleMonitor::registerNewAction(const Action* a)
     error("RuleMonitor::registerNewAction", "Function called with a null pointer argument");
 
   /* Rules will be processed by processAction method. */
-  List<Rule> actionRules = rules->createRulesList(a->getBehaviours());
+  List<Rule> actionRules = rules->createRulesList(a->getRuleCategories());
   processedActions.insHead(std::make_pair(ActionManager::copyAction(a), actionRules));
 
 }

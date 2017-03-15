@@ -25,15 +25,15 @@ void Rule::updateProcessStatus(const int& triggerTime, const int& endTime)
 
 bool Rule::isProcessed() const {return processed;}
 
-List<Rule> SocialRules::createRulesList(const List<std::string>& behaviourList)
+List<Rule> SocialRules::createRulesList(const List<std::string>& ruleCategoryList)
 {
-  Iterator<std::string> bIt(behaviourList);
-  std::string beh;
+  Iterator<std::string> cIt(ruleCategoryList);
+  std::string cat;
 
   List<Rule> actionRules;
   
   /* for each behaviour */
-  while (bIt(beh))
+  while (cIt(cat))
     {
       Iterator<Rule> rIt(rList);
       Rule r;
@@ -41,7 +41,7 @@ List<Rule> SocialRules::createRulesList(const List<std::string>& behaviourList)
       /* for each rule composing the social rules */
       while (rIt(r))
 	{
-	  if (r.behaviour == beh)
+	  if (r.category == cat)
 	    actionRules.insHead(r);
 	}
     }

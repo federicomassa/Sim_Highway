@@ -23,7 +23,7 @@ class RightAction : public Action
   bool endCondition();
   bool abortCondition();
 
-  void initBehaviours();
+  void initRuleCategories();
   
   std::string name() const {return actionName;}
   static const std::string actionName;

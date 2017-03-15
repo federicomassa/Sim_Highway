@@ -8,9 +8,9 @@ const std::string TravelAction::actionName = "TRAVEL";
 TravelAction::TravelAction() {}
 TravelAction::~TravelAction() {}
 
-void TravelAction::initBehaviours()
+void TravelAction::initRuleCategories()
 {
-  addBehaviour("Cruise");
+  addRuleCategory("Cruise");
 }
 
 bool TravelAction::triggerCondition()

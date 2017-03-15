@@ -9,6 +9,7 @@
 #define ACTION_H
 
 #include "State.h"
+#include "Sensing.h"
 #include "Vector.h"
 #include <string>
 
@@ -19,20 +20,21 @@ enum ActionStatus {TRIGGERED, ENDED, ABORTED, INACTIVE};
 
 class Action
 {
-  /* Each action is registered to a series of behaviours of which they must to obey the rules.
-     Ex. both the action "travel" and "overtake" are registered to the behaviour "cruise", of which
+  /* Each action is registered to a series of ruleCategories of which they must to obey the rules.
+     Ex. both the action "travel" and "overtake" are registered to the rule category "cruise", of which
      they should respect the rules. */
-  List<std::string> behaviourList;
+  List<std::string> ruleCategoryList;
   
  protected:
-  void addBehaviour(const std::string& beh) {behaviourList.insHead(beh);}
+  void addRuleCategory(const std::string& cat) {ruleCategoryList.insHead(cat);}
   /* reference to ActionManager's monitor state history */
   const Vector<State, 10>* monitorStates;
+  const Vector<List<Sensing>, 10>* neighStates;
  public:
   Action();
   Action(const Action&);
 
-  void init(const Vector<State, 10>&);
+  void init(const Vector<State, 10>&, const Vector<List<Sensing>, 10>&);
 
   int triggerTime;
   int endTime;
@@ -49,8 +51,8 @@ class Action
   virtual void listen();
   virtual std::string name() const = 0;
 
-  virtual void initBehaviours() = 0;
-  const List<std::string>& getBehaviours() const {return behaviourList;}
+  virtual void initRuleCategories() = 0;
+  const List<std::string>& getRuleCategories() const {return ruleCategoryList;}
   
   /* contains a string describing the details of the recognized action, same as print() */
   std::string info();

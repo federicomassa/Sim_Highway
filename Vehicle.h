@@ -10,6 +10,7 @@ class Knowledge;
 class Vehicle
 {
   std::ofstream simulLeftTest;
+  std::ofstream simulOtherTest;
     friend class Image;
     Automaton automaton;
     PhysicalLayer pLayer;

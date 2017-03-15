@@ -24,7 +24,7 @@ class ActionManager {
  private:
   /* Keeps track of the states of the monitored vehicle across the prefixed time span FIXME where? */
   const Vector<State, 10>& monitorStates;
-  const Vector<List<State>, 10>& neighStates;
+  const Vector<List<Sensing>, 10>& neighStates;
   /* List of actions that are being monitored. Populated during initialization. */
   List<Action*> listeners;
   /* Keeps track of the actions done by the monitored vehicle. */
@@ -47,7 +47,7 @@ class ActionManager {
   static Action* copyAction(const Action*);
   
  public:
-  ActionManager(const Vector<State, 10>&, const Vector<List<State>, 10>&);
+  ActionManager(const Vector<State, 10>&, const Vector<List<Sensing>, 10>&);
 
   /* clear memory */
   ~ActionManager();
