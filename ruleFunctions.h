@@ -34,7 +34,8 @@ namespace ruleFunctions
   
   bool forwardBlocking(const State&, const IntVars&, const State&);
   bool leftBlocking(const State&, const IntVars&, const State&);
-  
+  bool rightBlocking(const State&, const IntVars&, const State&);
+  bool minLane(const State&, const IntVars&, const State&);  
   
   /// ---------------------------------------------------------------------------
   /// Indicator functions
@@ -42,6 +43,7 @@ namespace ruleFunctions
   
   void forwardArea(const State&, Area&);
   void leftArea(const State&, Area&);
+  void rightArea(const State&, Area&);
 }
   
 #endif

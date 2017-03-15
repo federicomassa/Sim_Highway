@@ -83,8 +83,10 @@ void SubEvent::evaluate(const State& qSubj, const IntVars& vars,
         }
         else
         {
+
+	  /* FIXME: if nobody else around monitor, OR subevents are automatically false, NOR are true */
             if(CONF.debug)
-                LOG.s << EndLine() << "No other states: onmiscentValue = false";
+                LOG.s << EndLine() << "No other states: omniscentValue = false";
             value.omniscientValue = false;
         }
     }

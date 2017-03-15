@@ -28,7 +28,6 @@ class Action
   void addBehaviour(const std::string& beh) {behaviourList.insHead(beh);}
   /* reference to ActionManager's monitor state history */
   const Vector<State, 10>* monitorStates;
-  
  public:
   Action();
   Action(const Action&);
@@ -45,6 +44,7 @@ class Action
   virtual bool endCondition() = 0;
   /* Abort condition specifies the conditions that stop the listener of this action */
   virtual bool abortCondition() = 0;
+
   virtual ~Action() {};
   virtual void listen();
   virtual std::string name() const = 0;

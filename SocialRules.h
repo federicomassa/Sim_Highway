@@ -12,38 +12,59 @@
 #include "Area.h"
 #include "EndLine.h"
 #include "Event.h"
-#include "RuleMonitor.h"
 #include <string>
+
+extern int now;
 
 class SocialRules;
 
+/* Type that describes when the rule has to be evaluated:
+ ex: at trigger time or at each instant */
+
+enum CheckMode{TRIGGER, CONTINUOUS};
+
 class Rule {
   friend class SocialRules;
+
  private:
   
   /* This is the list of events that describes the forbidden situations for this behaviour.
-     In the case of the behaviour "LeftLaneChange", an event could be like "left lane is occupied by someone else" */
+     In the case of the behaviour "LeftLaneChange", an event could be like "left lane is occupied by someone else and you are not on 
+     the maximum lane" */
   List<Event> eList;
-  
- public:
-  Rule() {}
+  int lastCheckTime;
+  bool processed;
+
+  void updateProcessStatus(const int&, const int&);
 
   /* This is the name of the behaviour that we want to set a rule on.
      This is very important as each rule set a list of situations in which
-     this behaviour should not appear. An example of behaviour could be "LeftLaneChange".
-     Each action, as recognized by the ActionManager, is registered to a number of behaviours. */
+     this behaviour should not happen. An example of behaviour could be "LeftLaneChange".
+     Each action, as recognized by the ActionManager, is possibly registered to several behaviours. */
   std::string behaviour;
   std::string name;
-  const List<Event>& getEventList() {return eList;}
+  CheckMode mode;
   
-  void init(const std::string& beh, const List<Event>& eL, const std::string& n)
+  
+  void init(const std::string& beh, const List<Event>& eL, const std::string& n, const CheckMode& m)
   {
     behaviour = beh;
     eList = eL;
     name = n;
+    mode = m;
   }
+ public:
 
-  /*virtual */void check(const Vector<State, 10>& monitorStates, const Vector<List<State>, 10>& neighStates, const Area& obs)
+  Rule()
+    {
+      lastCheckTime = -1;
+      processed = false;
+    }
+
+  const List<Event>& getEventList() {return eList;}
+  
+  void check(const Vector<State, 10>& monitorStates, const Vector<List<State>, 10>& neighStates, const Area& obs, const int& triggerTime,
+	     const int& endTime)
   {
     Iterator<Event> eIt(eList);
     Event e;
@@ -60,9 +81,13 @@ class Rule {
 	std::cout << "Result: " << e.getValue().nonOmniscientValue << EndLine(EndLine::DEC);
       }
 
-    
+    lastCheckTime = now;
+
+    updateProcessStatus(triggerTime, endTime);
     
   }
+
+  bool isProcessed() const;
   
   bool operator==(const Rule& r)
   {
@@ -83,10 +108,10 @@ class SocialRules
   
   /* Add rule to the list */
   void addRule(const Rule& r) {rList.insHead(r);}
-  void addRule(const std::string& beh, const List<Event>& eL, const std::string& name)
+  void addRule(const std::string& beh, const List<Event>& eL, const std::string& name, const CheckMode& mode = TRIGGER)
   {
     Rule r;
-    r.init(beh, eL, name);
+    r.init(beh, eL, name, mode);
     addRule(r);
   }
 
@@ -109,21 +134,29 @@ class SocialRules
   virtual void build() = 0;
 
   /* Check rule corresponding to the desired behaviour */
-  void checkRule(const std::string& behaviour, const Vector<State, 10>& monitorStates, const Vector<List<State>, 10>& neighStates, const Area& obs)
+  /*  void checkRule(const std::string& behaviour, const Vector<State, 10>& monitorStates, const Vector<List<State>, 10>& neighStates, const Area& obs, const int& triggerTime, const int& endTime, bool& actionProcessed)
   {
     Iterator<Rule> iRule(rList);
     Rule r;
+  */
+    /* processed remains true if every rule has been completely evaluated (AND operation). 
+     There are rules that only need to be evaluated at trigger time, others should be evaluated throughout the
+    whole action. */
+  /*    actionProcessed = true;
     
-    while (iRule(r))
+	while (iRule(r))
       {
 	if (r.behaviour == behaviour)
 	  {
+	    const bool ruleProcessed = r.isProcessed(triggerTime, endTime);
 	    r.check(monitorStates, neighStates, obs);
+	    actionProcessed = actionProcessed && ruleProcessed;
+	    }
 	  }
-      }
     
   }
-
+  */
+  List<Rule> createRulesList(const List<std::string>&);
   
 };
 

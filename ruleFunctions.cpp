@@ -76,6 +76,23 @@ bool ruleFunctions::leftBlocking(const State& s1, const IntVars& v1, const State
     return false;
 }
 
+bool ruleFunctions::rightBlocking(const State& s1, const IntVars& v1, const State& s2)
+{
+    if((s1.x - s2.x) < D_BACK && (s2.x - s1.x) < D_FORWARD &&
+       s2.y > (floor(s1.y) - 1) && s2.y < floor(s1.y))
+            return true;
+        
+    return false;
+}
+
+bool ruleFunctions::minLane(const State& s1, const IntVars& v1, const State& s2)
+{
+    if(floor(s1.y) == (double)MIN_LANE)
+        return true;
+    
+    return false;
+}
+
 
 /* Area functions */
 
@@ -106,5 +123,22 @@ void ruleFunctions::leftArea(const State& s, Area& ind)
     bounds[0][1] = s.x + D_FORWARD;
     bounds[1][0] = floor(s.y) + 1;
     bounds[1][1] = floor(s.y) + 2;
+    ind.addRect(bounds);
+}
+
+void ruleFunctions::rightArea(const State& s, Area& ind)
+{
+    if (!ind.isEmpty())
+        ind.purge();
+
+    if (floor(s.y) == MIN_LANE)
+      return;
+    
+    Matrix_2x2 bounds;
+    
+    bounds[0][0] = s.x - D_BACK;
+    bounds[0][1] = s.x + D_FORWARD;
+    bounds[1][0] = floor(s.y) - 1;
+    bounds[1][1] = floor(s.y);
     ind.addRect(bounds);
 }

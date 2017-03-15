@@ -34,6 +34,8 @@ void Event::evaluate(const State& qSubj, const IntVars& vars,
         tmpSE->evaluate(qSubj, vars, qList);
         if(CONF.debug)
             LOG.s << "Updating Event value " << value << " << ";
+
+	/* event value is the AND of the subevent values */
         value = value && tmpSE->getValue();
         if(CONF.debug)
             LOG.s << value;

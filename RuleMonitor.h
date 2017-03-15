@@ -11,9 +11,9 @@
 #include "List.h"
 #include "State.h"
 #include "Area.h"
+#include "SocialRules.h"
 #include "ActionManager.h"
-
-class SocialRules;
+#include <utility>
 
 class RuleMonitor
 {
@@ -21,9 +21,12 @@ class RuleMonitor
   const ActionManager& aMan;
   Area observableArea;
   SocialRules* rules;
-  List<Action*> processedActions;
+  
+  /* every record is an action and its associated rules */
+  List<std::pair<Action*, List<Rule> > > processedActions;
 
-  void processAction(const Action*);
+  void processActions();
+  void registerNewAction(const Action*);
  public:
   RuleMonitor(const ActionManager&);
  
@@ -31,7 +34,13 @@ class RuleMonitor
   ~RuleMonitor();
   
   /* take ownership */
-  void setRules(SocialRules* sr) {rules = sr; buildRules();}
+  void setRules(SocialRules* sr) {
+    if (sr == NULL)
+      error("RuleMonitor::setRules", "Null pointer provided");
+    
+    rules = sr;
+    buildRules();
+  }
 
   /* build rules */
   void buildRules();

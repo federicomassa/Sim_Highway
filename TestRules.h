@@ -16,6 +16,8 @@ class TestRules : public SocialRules
   ~TestRules();
   void build();
   void addLeftRules();
+  void addRightRules();
+  void addCruiseRules();
 };
 
 #endif

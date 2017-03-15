@@ -1,5 +1,4 @@
 #include "RuleMonitor.h"
-#include "SocialRules.h"
 #include "Actions.h"
 #include <iostream>
 
@@ -10,11 +9,11 @@ RuleMonitor::~RuleMonitor()
   if (rules)
     delete rules;
 
-  Iterator<Action*> iProcessed(processedActions);
-  Action* proc;
+  Iterator<std::pair<Action*, List<Rule> > > iProcessed(processedActions);
+  std::pair<Action*, List<Rule> > proc;
 
   while (iProcessed(proc))
-    delete proc;
+    delete proc.first;
 }
 
 void RuleMonitor::buildRules()
@@ -35,44 +34,67 @@ void RuleMonitor::run(const Area& obs) {
   
   while (actionIter(tmpA))
     {
-      /* First check if the action has already been processed. 
-       For now actions are all evaluated at trigger time */
-      Iterator<Action*> processedIter(processedActions);
-      Action* processed;
+      /* First see if the rule monitor has already registered this action */
+      std::pair<Action*, List<Rule> >* processed;
+      Action* foundAction = 0;
 
-      bool alreadyProcessed = false;      
-      while (processedIter(processed))
+      for (int i = 0; i < processedActions.count(); i++)
 	{
-	  if (processed->triggerTime == tmpA->triggerTime &&
-	      processed->name() == tmpA->name())
-	    alreadyProcessed = true;
-	    
+	  processedActions.getElem(processed, i);
+	  /* look for a match in ActionManager history and in RuleMonitor records */
+	  if (processed->first->name() == tmpA->name() &&
+	      processed->first->triggerTime == tmpA->triggerTime)
+	    {
+	      foundAction = tmpA;
+	      /* update end time */
+	      processed->first->endTime = tmpA->endTime;
+	      break;
+	    }
 	}
 
-      /* if already processed, exit because older actions should have already been processed */
-      if (alreadyProcessed)
-	return;
-
-      /* process every action behaviour */
-      else
-      	processAction(tmpA);
-      
-	
+      /* if a match was not found */
+      if (!foundAction)
+	registerNewAction(tmpA);	  
+      	
     }
+
+  /* Now process actions taken by the register (processedActions list) */
+  processActions();
   
 }
 
-void RuleMonitor::processAction(const Action* a)
+void RuleMonitor::processActions()
 {
   
-  Iterator<std::string> iBehaviour(a->getBehaviours());
-  std::string beh;
+  std::pair<Action*, List<Rule> >* p;
 
-  while (iBehaviour(beh))
+  /* for each action recorded */
+  for (int i = 0; i < processedActions.count(); i++)
     {
-      rules->checkRule(beh, aMan.monitorStates, aMan.neighStates, observableArea);
-      processedActions.insHead(ActionManager::copyAction(a));
-    }
+      processedActions.getElem(p, i);
+      std::cout << p->first->triggerTime << '\t' << p->first->endTime << std::endl;
+      
+      /* if we are past the end time of that action do not check it anymore */
+      if (now > p->first->endTime && p->first->endTime != -1)
+	continue;
 
-  
+      Rule* r;
+      for (int j = 0; j < p->second.count(); j++)
+	{
+	  p->second.getElem(r, j);
+	  if (!r->isProcessed())
+	    r->check(aMan.monitorStates, aMan.neighStates, observableArea, p->first->triggerTime, p->first->endTime);
+	}
+    }
+}
+
+void RuleMonitor::registerNewAction(const Action* a)
+{
+  if (a == 0)
+    error("RuleMonitor::registerNewAction", "Function called with a null pointer argument");
+
+  /* Rules will be processed by processAction method. */
+  List<Rule> actionRules = rules->createRulesList(a->getBehaviours());
+  processedActions.insHead(std::make_pair(ActionManager::copyAction(a), actionRules));
+
 }
