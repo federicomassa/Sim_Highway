@@ -5,5 +5,6 @@
 #include "RightAction.h"
 #include "TravelAction.h"
 #include "LeftOvertakeAction.h"
+#include "RightOvertakeAction.h"
 
 #endif

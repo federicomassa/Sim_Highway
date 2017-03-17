@@ -91,6 +91,7 @@ class Rule {
   bool operator==(const Rule& r)
   {
     return (category == r.category &&
+	    name == r.name &&
 	    eList == r.eList);
 	    
   }

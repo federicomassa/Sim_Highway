@@ -103,6 +103,11 @@ bool ruleFunctions::minLane(const State& s1, const IntVars& v1, const State& s2)
     return false;
 }
 
+bool ruleFunctions::trueFunction(const State& s1, const IntVars& v1, const State& s2)
+{
+    return true;
+}
+
 
 /* Area functions */
 

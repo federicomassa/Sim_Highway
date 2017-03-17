@@ -22,6 +22,7 @@ void ActionManager::init()
   addListener(new RightAction);
   addListener(new TravelAction);
   addListener(new LeftOvertakeAction);
+  addListener(new RightOvertakeAction);
 }
 
 void ActionManager::run()
@@ -73,6 +74,9 @@ Action* ActionManager::copyAction(Action* a)
     copy = new TravelAction(*a);
   else if (a->name() == LeftOvertakeAction::actionName)
     copy = new LeftOvertakeAction(*a);
+  else if (a->name() == RightOvertakeAction::actionName)
+    copy = new RightOvertakeAction(*a);
+
   else
     error("ActionManager::copyAction", "Forgot to add new action to record list? Action name: " + a->name());
   
@@ -92,6 +96,9 @@ Action* ActionManager::copyAction(const Action* a)
     copy = new TravelAction(*a);
   else if (a->name() == LeftOvertakeAction::actionName)
     copy = new LeftOvertakeAction(*a);
+  else if (a->name() == RightOvertakeAction::actionName)
+    copy = new RightOvertakeAction(*a);
+ 
   else
     error("ActionManager::copyAction", "Forgot to add new action to record list? Action name: " + a->name());
   

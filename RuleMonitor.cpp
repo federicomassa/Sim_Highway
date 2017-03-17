@@ -68,6 +68,11 @@ void RuleMonitor::processActions()
   
   std::pair<Action*, List<Rule> >* p;
 
+  /* list containing rules processed during this run. 
+   It helps to avoid checking several time the same rule
+  (different actions might share a rule) */
+  List<Rule*> processedRules;
+  
   /* for each action recorded */
   for (int i = 0; i < processedActions.count(); i++)
     {
@@ -81,8 +86,26 @@ void RuleMonitor::processActions()
       for (int j = 0; j < p->second.count(); j++)
 	{
 	  p->second.getElem(r, j);
-	  if (!r->isProcessed())
-	    r->check(aMan.monitorStates, aMan.neighStates, observableArea, p->first->triggerTime, p->first->endTime);
+
+	  /* check if rule has already been processed */
+	  Iterator<Rule*> processedRulesIt(processedRules);
+	  Rule* procR;
+	  bool ruleFound = false;
+	  
+	  while (processedRulesIt(procR))
+	    {
+	      if (*procR == *r)
+		{
+		  ruleFound = true;
+		  break;
+		}
+	    }
+	  
+	  if (!r->isProcessed() && !ruleFound)
+	    {
+	      r->check(aMan.monitorStates, aMan.neighStates, observableArea, p->first->triggerTime, p->first->endTime);
+	      processedRules.insHead(r);
+	    }
 	}
     }
 }

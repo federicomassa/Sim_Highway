@@ -36,7 +36,8 @@ namespace ruleFunctions
   bool forwardDangerous(const State&, const IntVars&, const State&);
   bool leftBlocking(const State&, const IntVars&, const State&);
   bool rightBlocking(const State&, const IntVars&, const State&);
-  bool minLane(const State&, const IntVars&, const State&);  
+  bool minLane(const State&, const IntVars&, const State&);
+  bool trueFunction(const State&, const IntVars&, const State&);  
   
   /// ---------------------------------------------------------------------------
   /// Indicator functions

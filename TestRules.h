@@ -18,6 +18,7 @@ class TestRules : public SocialRules
   void addSafetyRules();
   void addLeftRules();
   void addRightRules();
+  void addRightOvertakeRules();
   void addCruiseRules();
 };
 

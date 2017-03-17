@@ -10,6 +10,7 @@ void TestRules::build()
   addSafetyRules();
   addLeftRules();
   addRightRules();
+  addRightOvertakeRules();
   addCruiseRules();
 }
 
@@ -107,6 +108,33 @@ void TestRules::addRightRules()
   seList.purge();
   eList.purge();
   
+  
+}
+
+void TestRules::addRightOvertakeRules()
+{
+  /* in these rules a right overtake is always wrong, so write a subevent that always return true */
+  List<SubEvent*> seList;
+  List<Event> eList;
+  
+  /* =============== Always true rule ================ */
+
+  Event eTrue;
+  SubEvent* sTrue = new SubEvent;
+  
+  sTrue->init(trueFunction, NULL, SINGLE, "True subevent", 3);
+  seList.insHead(sTrue);
+
+  /* Transfer subevent ownership to SocialRules */
+  eTrue.init(seList, 0);
+  eList.insHead(eTrue);
+
+  addRule("RightOvertake", eList, "Cannot overtake a vehicle from the right");
+
+  /* clear for re-use */
+  seList.purge();
+  eList.purge();
+
   
 }
 
