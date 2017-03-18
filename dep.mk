@@ -1,6 +1,7 @@
-Action.o: Action.cpp Action.h
-ActionManager.o: ActionManager.cpp ActionManager.h Action.h List.h EndLine.h Iterator.h \
-	State.h systemParms.h systemTypes.h utility.h Vector.h
+Action.o: Action.cpp Action.h State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h EndLine.h List.h Iterator.h
+ActionManager.o: ActionManager.cpp ActionManager.h Action.h Actions.h LeftAction.h RightAction.h TravelAction.h LeftOvertakeAction.h \
+	RightOvertakeAction.h List.h EndLine.h Iterator.h \
+	State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h Configuration.h Logger.h Failure.h definition.h
 Area.o: Area.cpp Area.h Logger.h Configuration.h EndLine.h List.h \
   Iterator.h systemTypes.h State.h systemParms.h utility.h Vector.h \
   Failure.h definition.h Rectangle.h
@@ -40,7 +41,10 @@ Image.o: Image.cpp Image.h definition.h Environment.h Vehicle.h \
   Event.h SubEvent.h ExtValue.h EvalMode.h PhysicalLayer.h controller.h \
   Sensing.h Output.h
 Knowledge.o: Knowledge.cpp Knowledge.h List.h Neighborhood.h
-LeftAction.o: LeftAction.cpp LeftAction.h Action.h
+LeftAction.o: LeftAction.cpp LeftAction.h Action.h State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h EndLine.h List.h Iterator.h \
+	actionParms.h definition.h
+LeftOvertakeAction.o: LeftOvertakeAction.cpp LeftOvertakeAction.h Action.h State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h EndLine.h List.h Iterator.h \
+	actionParms.h definition.h
 Logger.o: Logger.cpp Logger.h Configuration.h EndLine.h List.h Iterator.h \
   systemTypes.h State.h systemParms.h utility.h Vector.h Failure.h \
   definition.h
@@ -49,13 +53,14 @@ Monitor.o: Monitor.cpp Monitor.h Automaton.h rules.h Area.h Logger.h \
   systemParms.h utility.h Vector.h Failure.h definition.h Rectangle.h \
   Transition.h Event.h SubEvent.h ExtValue.h EvalMode.h Neighborhood.h \
   Hypothesis.h Reputation.h PhysicalLayer.h controller.h Sensing.h Tensor5.h \
-  Predictor.h Grid.h
+  Predictor.h Grid.h ActionManager.h Action.h RuleMonitor.h TestRules.h
 MonitorLayer.o: MonitorLayer.cpp MonitorLayer.h Monitor.h Automaton.h \
   rules.h Area.h Logger.h Configuration.h EndLine.h List.h Iterator.h \
   systemTypes.h State.h systemParms.h utility.h Vector.h Failure.h \
   definition.h Rectangle.h Transition.h Event.h SubEvent.h ExtValue.h \
   EvalMode.h Neighborhood.h Hypothesis.h Reputation.h PhysicalLayer.h \
-  controller.h Sensing.h Environment.h Knowledge.h
+  controller.h Sensing.h Environment.h Knowledge.h ActionManager.h \
+  Action.h RuleMonitor.h
 Neighborhood.o: Neighborhood.cpp Neighborhood.h List.h EndLine.h \
   Iterator.h Hypothesis.h Area.h Logger.h Configuration.h systemTypes.h \
   State.h systemParms.h utility.h Vector.h Failure.h definition.h \
@@ -81,9 +86,20 @@ ReputationManager.o: ReputationManager.cpp ReputationManager.h Channel.h \
 	systemParms.h \
   Vector.h Configuration.h systemTypes.h Failure.h Logger.h definition.h \
   Neighborhood.h Hypothesis.h Area.h Rectangle.h Reputation.h Knowledge.h
+RightAction.o: RightAction.cpp RightAction.h Action.h State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h EndLine.h List.h Iterator.h \
+	actionParms.h definition.h
+RightOvertakeAction.o: RightOvertakeAction.cpp RightOvertakeAction.h Action.h State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h EndLine.h List.h Iterator.h \
+	actionParms.h definition.h
+RuleMonitor.o: RuleMonitor.cpp RuleMonitor.h List.h EndLine.h Iterator.h State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h \
+ActionManager.h Action.h Actions.h LeftAction.h RightAction.h TravelAction.h LeftOvertakeAction.h RightOvertakeAction.h \
+Configuration.h SocialRules.h Area.h Rectangle.h Logger.h
 #Scenario.o: Scenario.cpp Scenario.h #Path.h
 Sensing.o: Sensing.cpp Sensing.h EndLine.h systemTypes.h State.h \
   systemParms.h utility.h Vector.h Failure.h List.h Iterator.h
+SocialRules.o: SocialRules.cpp SocialRules.h List.h State.h Sensing.h Event.h RuleMonitor.h SubEvent.h EndLine.h Iterator.h systemParms.h systemTypes.h \
+utility.h Vector.h ActionManager.h Action.h Actions.h LeftAction.h \
+RightAction.h TravelAction.h LeftOvertakeAction.h RightOvertakeAction.h \
+Configuration.h Area.h Rectangle.h Logger.h
 State.o: State.cpp State.h systemParms.h systemTypes.h utility.h Vector.h EndLine.h
 SubEvent.o: SubEvent.cpp SubEvent.h Area.h Logger.h Configuration.h \
   EndLine.h List.h Iterator.h systemTypes.h State.h systemParms.h \
@@ -93,6 +109,8 @@ Transition.o: Transition.cpp Transition.h Event.h SubEvent.h Area.h \
   Logger.h Configuration.h EndLine.h List.h Iterator.h systemTypes.h \
   State.h systemParms.h utility.h Vector.h Failure.h definition.h \
   Rectangle.h ExtValue.h EvalMode.h
+TravelAction.o: TravelAction.cpp TravelAction.h Action.h State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h EndLine.h List.h Iterator.h	\
+	actionParms.h definition.h
 Trust.o: Trust.cpp Trust.h
 Vehicle.o: Vehicle.cpp Vehicle.h ReputationManager.h Channel.h List.h \
   EndLine.h Iterator.h Message.h utility.h State.h systemParms.h Vector.h \

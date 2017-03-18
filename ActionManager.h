@@ -12,11 +12,14 @@
 #include "State.h"
 #include "Action.h"
 #include "Configuration.h"
+#include "Logger.h"
 
 #include <fstream>
 
 extern int now;
 extern const Configuration CONF;
+extern Logger LOG;
+extern Logger ResultLog;
 
 class ActionManager {
 
@@ -47,6 +50,7 @@ class ActionManager {
   static Action* copyAction(const Action*);
   
  public:
+  /* Constructor */
   ActionManager(const Vector<State, 10>&, const Vector<List<Sensing>, 10>&);
 
   /* clear memory */

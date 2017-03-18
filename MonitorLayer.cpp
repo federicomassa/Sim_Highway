@@ -22,9 +22,9 @@ MonitorLayer::~MonitorLayer()
         delete mon;
 }
 
-Monitor* MonitorLayer::addMonitor(int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<State>& qList)
+Monitor* MonitorLayer::addMonitor(int t)
 {
-  Monitor* mon = new Monitor(agentID, t, tQ, tP, tSigma, qList);
+  Monitor* mon = new Monitor(agentID, t);
   monitorList.insHead(mon);
   return mon;
 }
@@ -69,11 +69,14 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
   List<Parms> totalPList;
   Iterator<Sensing> i(sList);
   Sensing s;
+
+  agentStates.insHead(agentQ);
+  agentNeighStates.insHead(sList);
   
   while (i(s))
     {
       totalQList.insHead(s.q);
-      totalPList.insHead(s.q.v);
+      totalPList.insHead(s.q.v);      
     }
   
   env.initVehicles(totalQList, totalPList);
@@ -111,15 +114,17 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
       // building state list, as seen by monitored vehicle
       Iterator<Sensing> is(sList);
       Sensing tmpS;
-      List<State> qList;
+      List<Sensing> targetSList;
       
       Area monitorObs;
       env.observableArea(monitorIndex, monitorObs);
       
       while(is(tmpS))
 	{
+	  /* do not add itself to the list */
 	  if (tmpS == s)
 	    continue;
+	   
 	  
 	  /* search corresponding index in vehicles list in environment */
 	  int tmpIndex = -1;
@@ -133,15 +138,16 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
 	    }
 	  
 	  if (env.getVehicles()[tmpIndex].inArea(monitorObs))
-	    qList.insHead(tmpS.q);
+	    targetSList.insHead(tmpS);
 	}
       // insert monitor agent state in the list
-      qList.insHead(agentQ);
+      Sensing agentS(agentID, agentQ, agentQ.v, UNKNOWN);
+      targetSList.insHead(agentS);
       
       Monitor* m = lookFor(s.agentID);
       if(m == NULL)
         {
-	  m = addMonitor(s.agentID, s.q, s.p, s.sigma, qList);
+	  m = addMonitor(s.agentID);
 	}
       
       
@@ -156,34 +162,15 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
       
       /* Prediction --- FIXME Testing for now */
       /* Call after detectManeuver to update targetQ */
-      
-      
+
+      // =================================== //
+      /* Here starts the actual monitor*/
       
       monitorLog.s << "Vehicle " << agentID << " observing vehicle " << m->getTargetID() << " BEGIN..." << EndLine(EndLine::INC);
-      
-      m->increaseCounter();
-      std::cout << "Time..." << m->getTimeCount() << std::endl;
-      if (m->getTimeCount() >= 0)
-	monitorLog.s << "Busy for " << m->getCountdown() << " steps..." << EndLine();
-      else
-	monitorLog.s << "Idle for " << m->getCountdown() << " steps..." << EndLine();
-      
-      if (m->isReadyToPredict())
-	{
-	  m->setRealInitialManeuver(s.sigma);
-	  m->predictStates(sList, agentQ, agentManeuver);
-	}
-      else if (m->isReadyToDetect())
-	{
-	  monitorLog.s << "Detecting maneuver..." << EndLine();
-	  m->setRealFinalManeuver(s.sigma);
-	  m->detectManeuver(agentQ, s.q);
-	}
-      
-      if (m->isReadyForHypotheses())
-	{
-	  m->predictManeuvers(qList, obs);
-	}
+
+      /* run the monitor passing the last points recorded. The monitor will form its own neighbors */
+      if (agentID == 0 && s.agentID == 1)
+	m->run(s.q, targetSList, obs);
       
       monitorLog.s << EndLine(EndLine::DEC);
       monitorLog.s << "Vehicle " << agentID << " observing vehicle " << m->getTargetID() << " END..." << EndLine();
@@ -213,7 +200,9 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
 
 void MonitorLayer::getHypothesis(List<Hypothesis>& hList) const
 {
+  
     /* error handling */
+  /*
     if(hList.count() > 0)
         error("MonitorLayer", "Hypothesis list MUST be empty");
     
@@ -224,7 +213,7 @@ void MonitorLayer::getHypothesis(List<Hypothesis>& hList) const
         Hypothesis hyp;
         if(m->getFirstHypothesis(hyp))
             hList.insHead(hyp);
-    }
+	    }*/
 }
 
 void MonitorLayer::buildNeighborhoodList(List<Neighborhood>& nList) const
@@ -238,10 +227,10 @@ void MonitorLayer::buildNeighborhoodList(List<Neighborhood>& nList) const
     while(i(m))
     {
         Neighborhood n;
-        if(m->buildNeighborhood(n))
+	/*        if(m->buildNeighborhood(n))
 	  {
             nList.insHead(n);
-	  }
+	    }*/
     }
 
 
@@ -259,13 +248,13 @@ void MonitorLayer::buildKnowledge(Knowledge& k) const
   while(i(m))
     {
       Neighborhood n;
-      if(m->buildNeighborhood(n))
+      /*      if(m->buildNeighborhood(n))
 	{
 	  nList.insHead(n);
-	}
+	  }*/
       
-      std::pair<int, int> p = std::make_pair(m->targetID, m->getTimeCount());
-      monitoredVehicles.insHead(p);
+      /*      std::pair<int, int> p = std::make_pair(m->targetID, m->getTimeCount());
+	      monitoredVehicles.insHead(p);*/
     }
 
 

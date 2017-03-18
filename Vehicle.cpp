@@ -9,15 +9,15 @@ void Vehicle::init(const State& s, const Parms& p)
 {
     automaton.init(s);
     pLayer.init(s, p);
-    simulLeftTest.open("simulatorLeft.dat");
-    simulOtherTest.open("simulatorOther.dat");
+    /*    simulLeftTest.open("simulatorLeft.dat");
+	  simulOtherTest.open("simulatorOther.dat");*/
 }
 
 void Vehicle::setRM()
 {
-    Knowledge k;
-    mLayer.buildKnowledge(k); /* take current neighborhood list */
-    repMan.setCurrentParams(pLayer.getQ(), k);
+  //    Knowledge k;
+    //    mLayer.buildKnowledge(k); /* take current neighborhood list */
+    //    repMan.setCurrentParams(pLayer.getQ(), k);
 }
 
 void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
@@ -37,7 +37,7 @@ void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
   
   pLayer.computeNextQ(automaton.getManeuver(), /* For platoon controller */qList);
 
-  if (idx == 0)
+  /*  if (idx == 0)
     {
       State currentQ = getQ();
       std::string qStr;
@@ -51,7 +51,7 @@ void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
       std::string qStr;
       qStr = toStringWithPrecision(currentQ.x, 5) + ' ' + toStringWithPrecision(currentQ.y, 5) + ' ' + toStringWithPrecision(currentQ.theta, 5) + ' ' + toStringWithPrecision(currentQ.v, 5) + '\n';
       simulOtherTest << qStr;
-    }
+      }*/
 
 }
 
@@ -67,8 +67,8 @@ void Vehicle::evolveMonitor(const Area& obs)
 
 void Vehicle::getHypothesis(List<Hypothesis>& hList)
 {
-    if(mLayer.isActive())
-        mLayer.getHypothesis(hList);
+  /*    if(mLayer.isActive())
+        mLayer.getHypothesis(hList);*/
 }
 
 
@@ -77,7 +77,7 @@ void Vehicle::shareWaitingList()
   Iterator<Monitor*> mI(mLayer.getMonitorList());
   Monitor* m;
 
-  Iterator<std::pair<int, int> > pairI(getRM().getKnowledge().monitoredVehicles);
+  /*  Iterator<std::pair<int, int> > pairI(getRM().getKnowledge().monitoredVehicles);
   std::pair<int, int> p;
   
   while (mI(m))
@@ -92,5 +92,5 @@ void Vehicle::shareWaitingList()
 	  break;
 	};
     };
-  
+  */
 }

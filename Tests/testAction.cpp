@@ -15,6 +15,7 @@
 const Configuration CONF("Input/Simulator.conf");
 int now = 0;
 Logger LOG("testAction.log");
+Logger ResultLog("result.log");
 
 Vector<State, 10> monitorStates;
 Vector<List<Sensing>, 10> neighStates;
@@ -96,9 +97,7 @@ int main(int argc, char** argv)
       aMan.run();
       rMon.run(obs);
       now++;
-      std::cout << "Time: " << now << std::endl;
       aMan.printHistory();
-      std::cout << "~~~~~~~~~~~~" << std::endl;
     }
   
 

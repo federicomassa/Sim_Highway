@@ -28,11 +28,14 @@ bool TravelAction::triggerCondition()
       const State previousState = (*monitorStates)[2];
             
       double centerX, centerY;
-      circle3points(previousState.x, previousState.y,
-		    lastState.x, lastState.y,
-		    currentState.x, currentState.y,
-		    centerX, centerY, radius);
-
+      try {
+	circle3points(previousState.x, previousState.y,
+		      lastState.x, lastState.y,
+		      currentState.x, currentState.y,
+		      centerX, centerY, radius);
+      }
+      catch(int& n){
+	return false;}
 
       if (fabs(radius) > 6 && fabs(currentState.y - (floor(currentState.y) + 0.5)) < 0.1)
 	return true; 

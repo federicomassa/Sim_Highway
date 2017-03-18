@@ -12,17 +12,22 @@
 #include <cstdlib>
 #include <cmath>
 
+
 using namespace std;
 
 /**
  * this function gives information about a specific error and it terminates
  * the program
  */
-void error(const string className, const string msg)
+void error(const string className, const string msg, bool exc)
 {
-    cerr << endl << "ERROR - " << className << " : " << msg << endl;
+  if (exc)
+    throw 1;
+  
+    cerr << endl << "ERROR - " << className << " : " << msg << endl;    
     exit(1);
 }
+
 
 /**
  * this function is called by set_new_handler()
@@ -190,7 +195,7 @@ void circle3points(const double& x1, const double& y1,
     }
   else
     {
-      std::cout << "ERROR circle3points: coincident points?" << std::endl;
+      error("circle3points" ,"coincident points?", true);
       exit(1);
     }
 

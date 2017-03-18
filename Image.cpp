@@ -308,8 +308,8 @@ void Image::addMonitoredVehicles(int index, const Environment& env)
         /* error handling */
         if(mon == NULL)
             error("Image::addMonitoredVehicles", "monitor not found");
-        const Maneuver m = mon->targetManeuver;
-        drawVehicle(r.qTarget, m, r.targetID, false, r.level);
+	/*        const Maneuver m = mon->targetManeuver;
+		  drawVehicle(r.qTarget, m, r.targetID, false, r.level);*/
     }
 }
 
@@ -543,11 +543,11 @@ void Image::saveConsensusImages(const Environment& env,
         List<Neighborhood> nList;
 	
 	/* take nList from reputation manager */
-        env.v[i].getNeighborhoodList(nList);
+        /*env.v[i].getNeighborhoodList(nList);*/
 	
 	/* take monitor list from monitorLayer */
-	List<Monitor*> mList = env.v[i].getMonitorLayer()->getMonitorList();
-	
+	/*	List<Monitor*> mList = env.v[i].getMonitorLayer()->getMonitorList();*/
+	/*	
         Iterator<Neighborhood> ni(nList);
         Neighborhood tmpN;
         while(ni(tmpN))
@@ -573,8 +573,8 @@ void Image::saveConsensusImages(const Environment& env,
                           + toString(tmpN.targetID, 2) + "-CS"
                           + toString(cStep, 2);
 	    
-            save('C', suffix);
-        }
+			  save('C', suffix);
+			  }*/
     }
 }
 

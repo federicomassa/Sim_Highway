@@ -35,11 +35,15 @@ bool RightAction::triggerCondition()
       
       
       double centerX, centerY;
-      circle3points(previousState.x, previousState.y,
-		    lastState.x, lastState.y,
-		    currentState.x, currentState.y,
-		    centerX, centerY, radius);
-
+      try {
+	circle3points(previousState.x, previousState.y,
+		      lastState.x, lastState.y,
+		      currentState.x, currentState.y,
+		      centerX, centerY, radius);
+      }
+      catch (int& n){
+	return false;}
+      
       if (radius > -R_MAX_TURN && radius < -R_MIN_TURN && (currentState.y - 1.5) < 0.1 && currentState.theta < 0)
 	return true; 
       

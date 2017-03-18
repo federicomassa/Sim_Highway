@@ -20,7 +20,7 @@
  * this function gives information about a specific error and it terminates
  * the program
  */
-void error(const std::string className, const std::string msg);
+void error(const std::string className, const std::string msg, bool exc = false);
 
 /**
  * this function is called by set_new_handler()

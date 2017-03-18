@@ -17,7 +17,9 @@
 #include "PhysicalLayer.h"
 #include "Sensing.h"
 #include "systemTypes.h"
-#include "Tensor5.h"
+#include "ActionManager.h"
+#include "RuleMonitor.h"
+
 
 extern Logger monitorLog;
 
@@ -51,171 +53,33 @@ class Monitor
      * \brief The ID of the monitored agent.
      */
     int targetID;
-    /*!
-     * \brief The continuous state of the monitored agent.
-     */
-    State targetQ;
 
-    
-    /*!
-     * \brief Last observed state of the monitored agent.
-     */
-    State targetLastQ;
-    /*!
-     * \brief Measured neighbors of target agent.
-     */
-    List<State> neighbors;
-    /*!
-     * \brief Last measured neighbors of target agent.
-     */
-    List<State> lastNeighbors;
-    /*!
-     * \brief Monitored agent parameters -- we suppose to be able to measure
-     *        them.
-     */
-    Parms targetParms;
-    /*!
-     * \brief Estimated maneuver of the monitored agent.
-     */
-    Maneuver targetManeuver;
-    Maneuver targetLastManeuver;
+    /* Memory of the target and neighbors trajetory */
+    Vector<State, 10> monitorStates;
+    Vector<List<Sensing>, 10> neighStates;
 
-    /* Store real maneuver at the beginning and at the end of the prediction time span */
-    Maneuver realInitialManeuver;
-    Maneuver realFinalManeuver;
-    /*!
-     * \brief Predicted states of the monitored agent.
-     */
-    Vector<State, N_MANEUVER> possibleStates;
-    /*!
-     * \brief Predicted maneuvers of the monitored agent.
-     */
-    Vector<bool, N_MANEUVER> possibleManeuvers;
-
-    /* Time steps since beginning of prediction */
-    int timeStepsCount;
+    /* ActionManager and RuleMonitor */
+    ActionManager aMan;
+    RuleMonitor rMon;
     
-    /* Predicted states with different maneuvers and hypotheses on hidden vehicle */
-    Vector<List<Tensor5<Sensing> >, N_MANEUVER> monitorPrediction;
-
-    /* Errors on prediction */
-    Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER> errors;
-    
-    
-    /*!
-     * \brief Possible hypothesis associated to the predicted maneuvers and
-     *        states.
-     */
-    List<Hypothesis> hypothesisList;
-    /*!
-     * \brief Hypothesis associated to the predicted maneuvers and states.
-     */
-    Vector<List<Hypothesis>, N_MANEUVER> possibleHypLists;
-    Vector<List<Hypothesis>, N_MANEUVER> lastHypLists;
-    /*!
-     * \brief A prototype of vehicle's automaton.
-     */
-    Automaton automaton;
-    /*!
-     * \brief A prototype of vehicle's physical layer.
-     */
-    PhysicalLayer pLayer;
-    /*!
-     * \brief Indicate if it's possible to build some knowledge about target
-     *        agent.
-     */
-    bool targetLocked;
-    bool hypReady;
 public:
     /*!
      * \brief Constructor.
      */
-    Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<State>&);
+    Monitor(int a, int t);
     /*!
      * \brief Destructor.
      */
     ~Monitor() { }
 
-    /* agent Q when this monitor started last prediction */
-    State lastPredictionAgentQ;
-    State predictionAgentQ;
+    /* Run monitor */
+    void run(const State&, const List<Sensing>&, const Area&);
 
-    
-    /*!
-     * \brief Predict possible states for monitored agent.
-     */
-    void predictStates(const List<Sensing>&, const State&, const Maneuver&);
-    /*!
-     * \brief Detect events for target agent and predict possible maneuvers for
-     *        monitored agent.
-     */
-    void preDetectManeuver(const State& q, const Maneuver& sigma);
-    void predictManeuvers(const List<State>& qList, const Area& obs);
-    
-    void increaseCounter() {
-      if (timeStepsCount < CONF.nTimeSteps)
-	timeStepsCount++;
-      else
-	timeStepsCount = 0;
-    }
-
-    int getCountdown()
-    {
-      /* +1 because after detection it does not predict right away, but waits for 1 step */
-      if (timeStepsCount >= 0)
-	return (CONF.nTimeSteps - timeStepsCount + 1);
-      else
-	return (-timeStepsCount);
-    }
-
-    int getTimeCount() {return timeStepsCount;}
-
-    void setTimeCount(const int& cnt)
-    {
-      timeStepsCount = cnt;
-    }
-
-    /*!
-     * \brief Detect monitored agent current maneuver.
-     */
-    void detectManeuver(const State&, const State&);
-    /*!
-     * \brief Return targetLocked value.
-     */
-    bool isLocked() const { return targetLocked; }
-    /*!
-     * \brief Return targetID.
-     */
-    /* Return true if nTimeSteps have passed since last prediction */
-    bool isReadyToPredict() {return (timeStepsCount == 0);}
-    bool isReadyToDetect() {return (timeStepsCount == CONF.nTimeSteps);}
-    bool isReadyForHypotheses() {return hypReady;}
     int getTargetID() const { return targetID; }
     /*!
      * \brief Return agentID.
      */
     int getAgentID() const { return agentID; }
-    /*!
-     * \brief Get first monitor hypothesis.
-     */
-    bool getFirstHypothesis(Hypothesis& hyp) const;
-    /*!
-     * \brief Build target estimated neighborhood.
-     */
-    bool buildNeighborhood(Neighborhood& n) const;
-
-    /* Accessors */
-    void getMonitorPrediction(Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {v = monitorPrediction;}
-    void setMonitorPrediction(const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {monitorPrediction = v;}
-
-    void getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err) {err = errors;}
-    void setErrors(const Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err) {errors = err;}
-    
-    void getTargetQ(State& q) {q = targetQ;}
-
-    /* set real maneuver, useful for comparisons */
-    void setRealInitialManeuver(const Maneuver& sigma) {realInitialManeuver = sigma;}
-    void setRealFinalManeuver(const Maneuver& sigma) {realFinalManeuver = sigma;}
 };
 
 #endif

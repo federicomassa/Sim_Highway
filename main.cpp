@@ -15,6 +15,9 @@ Logger LOG;
 /* global monitor log */
 Logger monitorLog(OUTPUT_DIR + std::string("/Monitor.log"));
 
+/* Monitor results log */
+Logger ResultLog(OUTPUT_DIR + std::string("/Results.log"));
+
 /* time step */
 int now = 0;
 

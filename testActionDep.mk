@@ -4,7 +4,7 @@ Area.o: Area.cpp Area.h Logger.h Configuration.h EndLine.h List.h \
   Failure.h definition.h Rectangle.h
 ActionManager.o: ActionManager.cpp ActionManager.h Action.h Actions.h LeftAction.h RightAction.h TravelAction.h LeftOvertakeAction.h \
 	RightOvertakeAction.h List.h EndLine.h Iterator.h \
-	State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h Configuration.h
+	State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h Configuration.h Logger.h Failure.h definition.h
 Configuration.o: Configuration.cpp Configuration.h EndLine.h List.h \
   Iterator.h systemTypes.h State.h systemParms.h utility.h Vector.h \
   Failure.h #Path.h

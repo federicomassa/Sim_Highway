@@ -157,7 +157,7 @@ void ActionManager::printHistory()
   
   while (iHistory(a))
     {
-      std::cout << a->info() << std::endl;
+      ResultLog.s << a->info() << EndLine();
     }
 
   /*  double cX, cY, R;

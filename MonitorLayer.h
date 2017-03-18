@@ -13,6 +13,7 @@
 #define MONITORLAYER_H
 
 #include "Monitor.h"
+
 #include "systemTypes.h"
 #include <string>
 
@@ -34,6 +35,12 @@ class MonitorLayer
      * \brief The ID of the agent containig this module.
      */
     int agentID;
+
+    /* Agent memory of past vehicles' trajectories. The dimension of the vector
+     is the number of points recorded. */
+    Vector<State, 10> agentStates;
+    Vector<List<Sensing>, 10> agentNeighStates;
+        
     /*!
      * \brief Monitor list.
      */
@@ -41,7 +48,7 @@ class MonitorLayer
     /*!
      * \brief Add a monitor for an agent.
      */
-    Monitor* addMonitor(int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<State>& qList);
+    Monitor* addMonitor(int t);
     /*!
      * \brief Remove a monitor.
      */
@@ -61,6 +68,12 @@ public:
      * \brief Destructor.
      */
     ~MonitorLayer();
+
+    /*!
+     * \brief Initialize ActionManager and RuleMonitor.
+     */
+    void init();
+
     /*!
      * \brief Set Agent ID.
      */

@@ -15,6 +15,7 @@
 #include <string>
 
 extern int now;
+extern Logger ResultLog;
 
 class SocialRules;
 
@@ -75,9 +76,10 @@ class Rule {
 	/* Debug */
 	/*	e.evaluate(monitorStates[0], 0.0, neighStates[0], false);
 		std::cout << "Value before area: " << e.getValue() << std::endl;*/
-	std::cout << "Evaluating rule: " << name << EndLine(EndLine::INC);
+	ResultLog.s << "Time: " << now << EndLine();
+	ResultLog.s << "Evaluating rule: " << name << EndLine(EndLine::INC);
 	e.evaluateWithArea(monitorStates[0], 0.0, neighStates[0], false, obs);
-	std::cout << "Result: " << e.getValue().nonOmniscientValue << EndLine(EndLine::DEC);
+	ResultLog.s << "Result: " << e.getValue().nonOmniscientValue << EndLine(EndLine::DEC);
       }
 
     lastCheckTime = now;
