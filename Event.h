@@ -44,6 +44,8 @@ public:
 
     /* Delete subevents objects */
     void deleteSubEvents();
+
+    const List<SubEvent*>& getSubEventList() const {return subEventList;}
 };
 
 std::ostream& operator<<(std::ostream&, const Event*);

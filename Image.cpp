@@ -1,5 +1,9 @@
 #include "Image.h"
 #include "systemTypes.h"
+#include "Environment.h"
+
+#include <cstring>
+#include <cmath>
 
 using namespace std;
 
@@ -13,6 +17,7 @@ void Image::cp(const Image& im)
         gdImageCopy(frame, im.frame, 0, 0, 0, 0,
                     im.frame->sx, im.frame->sy);
     }
+    
     cameraX = im.cameraX;
     cTime = im.cTime;
     fileName = im.fileName;
@@ -58,6 +63,8 @@ void Image::open()
     gdImageFilledRectangle(frame, 0, FRAME_H - 8, FRAME_W, FRAME_H - 5, grey);
 
     offset = - 25 - (int)round(cameraX * SCALE) % 25;
+
+    /* draw lanes */
     for(int i = 0; (offset + i * 25) < FRAME_W; i++)
         for(int j = 1; j <= MAX_LANE; j++)
             gdImageFilledRectangle(frame, offset + i * 25,
@@ -261,6 +268,89 @@ void Image::drawVehicle(const State& q, const Maneuver m, int index,
     gdImageDestroy(vImg);
 }
 
+void Image::drawVehicleWithLabel(const Vehicle& v, const char* label)
+{
+    /* error handling */
+    if (frame == NULL)
+        error("Image::addVehicle", "frame is NULL");
+    
+    gdImagePtr aux, vImg;
+    string idStr;
+    int brect[8];
+    FILE *fp = NULL;
+
+    string tmpS;
+    switch(v.getManeuver())
+    {
+        case FAST:
+            tmpS = INPUT(vehicle.png);
+            break;
+        case SLOW:
+            tmpS = INPUT(vehicle_slow.png);
+            break;
+        case LEFT:
+            tmpS = INPUT(vehicle_left.png);
+            break;
+        case RIGHT:
+            tmpS = INPUT(vehicle_right.png);
+            break;
+        case PLATOON:
+  	    tmpS = INPUT(vehicle_platoon.png);
+	    break;
+        default:
+            error("Image::addVehicle", "maneuver UNKNOWN passed");
+    }
+    fp = fopen(tmpS.c_str(), "rb");
+    /* error handling */
+    if (fp == NULL)
+        error("Image::addVehicle", "cannot open png file: " + tmpS);
+    vImg = gdImageCreateFromPng(fp);
+    fclose(fp);
+    
+    int text_size;
+    if(vImg->sx > vImg->sy)
+      text_size = (int)round((double)vImg->sy * VEHICLE_TXT_SIZE);
+    else
+      text_size = (int)floor((double)vImg->sx * VEHICLE_TXT_SIZE);
+
+    
+    idStr = std::string(label);
+    
+    const int text_color = gdImageColorResolve(vImg, 0, 0, 0);    
+
+    gdImageStringFT(NULL, brect, text_color, FONT_NAME,
+		    text_size, 0, 0, 0, (char*)idStr.c_str());
+    
+    gdImageStringFT(vImg, brect, text_color, FONT_NAME, text_size, 0,
+		    (int)round((double)vImg->sx / 2.0 - (double)brect[2] / 2.0),
+		    (int)round((double)vImg->sy / 2.0 - (double)brect[7] / 2.0),
+		    (char*)idStr.c_str());
+
+
+    
+    
+    const double scale_x = (double)VEHICLE_IMG_W / (double)vImg->sx;
+    const double scale_y = (double)VEHICLE_IMG_H / (double)vImg->sy;
+    
+    fp = fopen(INPUT(transparent.png), "rb");
+    /* error handling */
+    if (fp == NULL)
+      error("Image::addVehicle", "cannot open png file: transparent.png");
+    aux = gdImageCreateFromPng(fp);
+    fclose(fp);
+    const int dest_w = (int)round(aux->sx * scale_x);
+    const int dest_h = (int)round(aux->sy * scale_y);
+    gdImageCopyRotated(aux, vImg, aux->sx / 2.0, aux->sy / 2.0, 0, 0,
+                       vImg->sx, vImg->sy, (int)round(v.getQ().theta / PI * 180));
+    gdImageCopyResampled(frame, aux,
+                         (int)round((v.getQ().x - cameraX) * SCALE - (double)dest_w / 2.0),
+                         (int)round(Y_OFFSET - v.getQ().y * SCALE - (double)dest_h / 2.0),
+                         0, 0, dest_w, dest_h, aux->sx, aux->sy);
+    gdImageDestroy(aux);
+    gdImageDestroy(vImg);
+}
+
+
 void Image::addVehicle(const Vehicle& v, bool isSubject)
 {
     const State q = v.getQ();
@@ -273,6 +363,19 @@ void Image::addAllVehicles(const Environment& env)
 {
     for(int i = 0; i < env.nV; i++)
         addVehicle(env.v[i]);
+}
+
+void Image::addAllVehicles(const Environment& env, const int& observerID, const int& monitorID)
+{
+  for (int i = 0; i < env.nV; i++)
+    {
+      if (env.v[i].getID() == observerID)
+	drawVehicleWithLabel(env.v[i], "O");
+      else if (env.v[i].getID() == monitorID)
+	drawVehicleWithLabel(env.v[i], "M");
+      else
+	addVehicle(env.v[i]);
+    }
 }
 
 void Image::addVisibleVehicles(int index, const Environment& env)
@@ -576,5 +679,132 @@ void Image::saveConsensusImages(const Environment& env,
 			  save('C', suffix);
 			  }*/
     }
+}
+
+/* 
+   startX, startY: coordinates of the beginning of the arc 
+   endY: y of where the arc ends,
+   radius: radius of the arc,
+   orientation: if positive it goes towards positive thetas
+   color: color of the arc, defined with gdImageColorAllocate
+*/
+void Image::drawArc(const double& startX, const double& startY,
+		    const double& endY, const double& radius,
+		    const int& orientation, const int& color)
+{
+  if (endY < startY && orientation > 0)
+    error("Image::drawArc", "End y has to be greater than start y with this orientation");
+  else if (endY > startY && orientation < 0)
+    error("Image::drawArc", "End y has to be smaller than start y with this orientation");
+  
+  /* first calculate angles */
+  double startAngle = 0, endAngle = 0;
+
+  if (orientation > 0)
+    {
+      startAngle = PI/2 - acos(1 - (endY - startY)/radius);
+      endAngle = PI/2;
+    }
+  else if (orientation < 0)
+    {
+      startAngle = 3*PI/2;
+      endAngle = 3*PI/2 + acos(1 - (startY - endY)/radius);
+    }
+  else
+    error("Image::drawArc", "Orientation cannot be zero");
+  
+  /* center of the arc. NB in these coordinates y = 0 is in the upper edge */
+  double cX = startX - cameraX;
+  double cY = double(frame->sy)/2/SCALE + (MAX_LANE + 1)*LANE_HEIGHT/2.0 - startY - radius*orientation/fabs(orientation);
+  
+  gdImageFilledArc(frame, cX*SCALE, cY*SCALE, 2*radius*SCALE, 2*radius*SCALE, startAngle*180/PI, endAngle*180/PI, color, gdNoFill);
+
+}
+ 
+void Image::drawTrajectory(const List<State>& trajectory)
+{
+  Iterator<State> it(trajectory);
+  State q;
+  State lastQ;
+
+  bool isFirst = true;
+  
+  while (it(q))
+  {
+    if (isFirst)
+      {
+	isFirst = false;
+	lastQ = q;
+	continue;
+      }
+    
+    gdImageFilledRectangle(frame, (lastQ.x - cameraX)*SCALE,
+			   double(frame->sy)/2 + (MAX_LANE + 1)*LANE_HEIGHT/2.0*SCALE - lastQ.y*SCALE,
+			   (q.x - cameraX)*SCALE,
+			   double(frame->sy)/2 + (MAX_LANE + 1)*LANE_HEIGHT/2.0*SCALE - q.y*SCALE,
+			   0);
+
+    lastQ = q;
+  }
+}
+
+void Image::drawArea(const double& x1, const double& y1,
+		     const double& x2, const double& y2,
+		     const int& color)
+{
+  if (x1 > x2 || y1 < y2)
+    error("Image::drawArea", "Point 1 is top left, Point 2 is bottom right");
+
+  gdImageFilledRectangle(frame, (x1 - cameraX)*SCALE,
+			 double(frame->sy)/2 + (MAX_LANE + 1)*LANE_HEIGHT/2.0*SCALE - y1*SCALE,
+			 (x2 - cameraX)*SCALE,
+			 double(frame->sy)/2 + (MAX_LANE + 1)*LANE_HEIGHT/2.0*SCALE - y2*SCALE,
+			 color); 
+}
+
+void Image::drawArea(const Area& area,
+		     const int& color)
+{
+
+  List<Rectangle> rList;
+  area.getRectList(rList);
+  
+  Iterator<Rectangle> iR(rList);
+  Rectangle r;
+
+  while (iR(r))
+    {
+      Vector<Vector<double, 2>, 2> b;
+      r.getBounds(b);
+      
+      gdImageFilledRectangle(frame, (b[0][0] - cameraX)*SCALE,
+			     double(frame->sy)/2 + (MAX_LANE + 1)*LANE_HEIGHT/2.0*SCALE - b[1][1]*SCALE,
+			     (b[0][1] - cameraX)*SCALE,
+			     double(frame->sy)/2 + (MAX_LANE + 1)*LANE_HEIGHT/2.0*SCALE - b[1][0]*SCALE,
+			     color); 
+    }
+}
+
+
+void Image::drawString(const char* string, const int& color, const int& offset)
+{
+  /* error handling */
+  if (frame == NULL)
+    error("Image::drawString", "frame is NULL");
+  
+  int black, brect[8];
+  
+  black = gdImageColorResolve(frame, 0, 0, 0);
+  const int x1 = FRAME_W/100*3;
+  const int x2 = FRAME_W/100*25;
+  const int y1 = 15 + 20*offset;
+  const int y2 = 31 + 20*offset;  
+  
+  gdImageRectangle(frame, x1, y1, x2, y2, black);
+  gdImageStringFT(NULL, brect, color, FONT_NAME,
+		  10, 0, x1, y1, (char*)string);
+  gdImageStringFT(frame, brect, color, FONT_NAME, 10, 0,
+		  x1 + (int)round((double)(x2-x1 + 1 - brect[2] + brect[0]) / 2.0),
+		  y1 + 12, (char*)string);
 }
 

@@ -517,3 +517,14 @@ void Environment::outputVehiclesStates() const
         out.insert((int)m);
     }
 }
+
+Vehicle* Environment::getVehicleFromID(const int& id) const
+{
+  for (int i = 0; i < nV; i++)
+    {
+      if (v[i].getID() == id)
+	return &v[i];
+    }
+
+  return NULL;
+}

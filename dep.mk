@@ -1,7 +1,15 @@
 Action.o: Action.cpp Action.h State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h EndLine.h List.h Iterator.h
 ActionManager.o: ActionManager.cpp ActionManager.h Action.h Actions.h LeftAction.h RightAction.h TravelAction.h LeftOvertakeAction.h \
 	RightOvertakeAction.h List.h EndLine.h Iterator.h \
-	State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h Configuration.h Logger.h Failure.h definition.h
+	State.h Sensing.h systemParms.h systemTypes.h utility.h Vector.h Configuration.h Logger.h Failure.h definition.h \
+	Environment.h 
+ActionVideoCreator.o: ActionVideoCreator.cpp ActionVideoCreator.h VideoCreator.h Image.h State.h \
+	Failure.h List.h utility.h EndLine.h Iterator.h Reputation.h systemParms.h systemTypes.h definition.h Vector.h \
+	Environment.h Vehicle.h Knowledge.h Output.h ReputationManager.h MonitorLayer.h Neighborhood.h Channel.h \
+	Configuration.h Logger.h Monitor.h Hypothesis.h Message.h Automaton.h PhysicalLayer.h \
+	Sensing.h ActionManager.h RuleMonitor.h Area.h rules.h controller.h Action.h \
+	SocialRules.h Rectangle.h Transition.h Event.h SubEvent.h ExtValue.h EvalMode.h actionParms.h \
+	Actions.h LeftAction.h RightAction.h TravelAction.h
 Area.o: Area.cpp Area.h Logger.h Configuration.h EndLine.h List.h \
   Iterator.h systemTypes.h State.h systemParms.h utility.h Vector.h \
   Failure.h definition.h Rectangle.h
@@ -61,6 +69,13 @@ MonitorLayer.o: MonitorLayer.cpp MonitorLayer.h Monitor.h Automaton.h \
   EvalMode.h Neighborhood.h Hypothesis.h Reputation.h PhysicalLayer.h \
   controller.h Sensing.h Environment.h Knowledge.h ActionManager.h \
   Action.h RuleMonitor.h
+MonitorVideoCreator.o: MonitorVideoCreator.cpp MonitorVideoCreator.h VideoCreator.h \
+	utility.h Image.h Environment.h definition.h systemTypes.h Reputation.h Vehicle.h \
+	Knowledge.h Output.h Failure.h State.h ReputationManager.h MonitorLayer.h Neighborhood.h \
+	List.h systemParms.h Vector.h Channel.h Configuration.h Logger.h Monitor.h Hypothesis.h \
+	EndLine.h Iterator.h Message.h Automaton.h PhysicalLayer.h Sensing.h ActionManager.h \
+	RuleMonitor.h Area.h Rectangle.h rules.h controller.h Action.h SocialRules.h Transition.h \
+	Event.h SubEvent.h LeftAction.h
 Neighborhood.o: Neighborhood.cpp Neighborhood.h List.h EndLine.h \
   Iterator.h Hypothesis.h Area.h Logger.h Configuration.h systemTypes.h \
   State.h systemParms.h utility.h Vector.h Failure.h definition.h \
@@ -118,6 +133,7 @@ Vehicle.o: Vehicle.cpp Vehicle.h ReputationManager.h Channel.h List.h \
   Neighborhood.h Hypothesis.h Area.h Rectangle.h Reputation.h \
   MonitorLayer.h Monitor.h Automaton.h rules.h Transition.h Event.h \
   SubEvent.h ExtValue.h EvalMode.h PhysicalLayer.h controller.h Sensing.h Knowledge.h
+VideoCreator.o: VideoCreator.cpp VideoCreator.h 
 controller.o: controller.cpp controller.h EndLine.h Logger.h \
   Configuration.h List.h Iterator.h systemTypes.h State.h systemParms.h \
   utility.h Vector.h Failure.h definition.h
@@ -127,7 +143,8 @@ main.o: main.cpp Image.h definition.h Environment.h Vehicle.h \
   Failure.h Logger.h Neighborhood.h Hypothesis.h Area.h Rectangle.h \
   Reputation.h MonitorLayer.h Monitor.h Automaton.h rules.h Transition.h \
   Event.h SubEvent.h ExtValue.h EvalMode.h PhysicalLayer.h controller.h \
-  Sensing.h Output.h ProgressBar.h #Scenario.h
+  Sensing.h Output.h ProgressBar.h VideoCreator.h ActionVideoCreator.h \
+  MonitorVideoCreator.h
 rules.o: rules.cpp rules.h Area.h Logger.h Configuration.h EndLine.h \
   List.h Iterator.h systemTypes.h State.h systemParms.h utility.h \
   Vector.h Failure.h definition.h Rectangle.h Transition.h Event.h \

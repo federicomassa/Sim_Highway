@@ -40,7 +40,7 @@ bool Arc::drawArc(const int& endAngle)
   int black = gdImageColorResolve(frame, 0, 0, 0);
   int red = gdImageColorResolve(frame, 255, 0, 0);
   
-  gdImageFilledArc(frame, frameWidth/2, frameHeight/2, 800, 800, 0, endAngle, red, gdPie);
+  gdImageFilledArc(frame, frameWidth/2, frameHeight/2, frameWidth, frameHeight, 0, endAngle, red, gdPie);
   
   return true;
 }

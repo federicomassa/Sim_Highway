@@ -3,11 +3,20 @@
 #define IMAGE_H
 
 #include <gd.h>
+#include <string>
 
 #include "definition.h"
-#include "Environment.h"
+#include "systemTypes.h"
+#include "Reputation.h"
 
 extern int now;
+
+class Environment;
+class Vehicle;
+class State;
+class Hypothesis;
+class Area;
+class Neighborhood;
 
 class Image
 {
@@ -25,6 +34,7 @@ class Image
     void addVehicle(const Vehicle&, bool isSubject = false);
     void drawVehicle(const State& q, const Maneuver m = FAST, int index = -1,
                      bool isSubject = false, RepLevel rLev = UNSET);
+    void drawVehicleWithLabel(const Vehicle&, const char*);
     void addHypothesis(const Hypothesis& hyp, const bool& invert = false);
     void cp(const Image& im);
 public:
@@ -45,6 +55,8 @@ public:
         return save(sprefix, suffix);
     }
     std::string save(const std::string prefix, const std::string suffix = "");
+    /* get frame */
+    gdImagePtr getFrame() {return frame;}
     /* get creation time */
     int getCTime() const { return cTime; }
     /* write frame number in upper right corner */
@@ -53,6 +65,9 @@ public:
     void writeTransition(const Maneuver&, const Maneuver&, const bool& invert = false);
     /* draw all vehicles */
     void addAllVehicles(const Environment&);
+    /* draw all vehicles highlighting observer and monitor */
+    void addAllVehicles(const Environment&, const int&, const int&);
+
     /* draw all visible vehicles from i-th vehicle */
     void addVisibleVehicles(int, const Environment&);
     /* draw all monitored vehicles */
@@ -72,6 +87,13 @@ public:
                           const State& q, Maneuver m, int index);
     void saveConsensusImages(const Environment& env, const State lastStates[],
                              int cStep = 0);
+    void drawArc(const double&, const double&,
+		 const double&, const double&,
+		 const int&, const int&);
+    void drawTrajectory(const List<State>&);
+    void drawArea(const double&, const double&, const double&, const double&, const int&);
+    void drawArea(const Area&, const int&);
+    void drawString(const char*, const int&, const int& offset = 0);
 };
 
 #endif

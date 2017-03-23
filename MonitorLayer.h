@@ -20,6 +20,7 @@
 extern Logger monitorLog;
 
 class Knowledge;
+class Environment;
 
 /*!
  * This class represents the monitor layer of the agent.
@@ -40,7 +41,10 @@ class MonitorLayer
      is the number of points recorded. */
     Vector<State, 10> agentStates;
     Vector<List<Sensing>, 10> agentNeighStates;
-        
+
+    /* subjective environment */
+    Environment* currentEnv;
+    
     /*!
      * \brief Monitor list.
      */
@@ -63,7 +67,7 @@ public:
     /*!
      * \brief Default constructor.
      */
-    MonitorLayer() { agentID = -1; active = false;}
+    MonitorLayer() { agentID = -1; active = false; currentEnv = 0;}
     /*!
      * \brief Destructor.
      */
@@ -100,6 +104,12 @@ public:
     void buildNeighborhoodList(List<Neighborhood>& nList) const;
     void buildKnowledge(Knowledge& k) const;
     List<Monitor*>& getMonitorList() {return monitorList;}
+
+    /* get monitor with ID */
+    const Monitor* getMonitor(const int& id) const;
+
+    /* get subjective environment */
+    const Environment* getEnvironment() const {return currentEnv;}
 };
 
 #endif

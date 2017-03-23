@@ -74,7 +74,7 @@ public:
     {
         repMan.getAgentsReputation(repList);
     }
-    MonitorLayer* getMonitorLayer() {return &mLayer;}
+    const MonitorLayer* getMonitorLayer() const {return &mLayer;}
     /* Send wait request from reputation manager to monitor layer to
      sync prediction */
     void shareWaitingList();

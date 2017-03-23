@@ -74,10 +74,10 @@ void Vehicle::getHypothesis(List<Hypothesis>& hList)
 
 void Vehicle::shareWaitingList()
 {
-  Iterator<Monitor*> mI(mLayer.getMonitorList());
+  /*Iterator<Monitor*> mI(mLayer.getMonitorList());
   Monitor* m;
 
-  /*  Iterator<std::pair<int, int> > pairI(getRM().getKnowledge().monitoredVehicles);
+    Iterator<std::pair<int, int> > pairI(getRM().getKnowledge().monitoredVehicles);
   std::pair<int, int> p;
   
   while (mI(m))

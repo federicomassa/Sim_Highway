@@ -224,3 +224,18 @@ void ActionManager::parseTestFile(std::ifstream& input)
     }
   */
 }
+
+List<const Action*> ActionManager::getActiveActions() const
+{
+  List<const Action*> activeList;
+  Iterator<Action*> historyIt(history);
+  Action* tmpA;
+
+  while (historyIt(tmpA))
+    {
+      if (tmpA->status == TRIGGERED)
+	activeList.insHead(tmpA);
+    }
+  
+  return activeList;
+}

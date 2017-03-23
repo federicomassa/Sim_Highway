@@ -1,5 +1,6 @@
 #include "TravelAction.h"
 #include "utility.h"
+#include "actionParms.h"
 
 #include <cmath>
 
@@ -37,7 +38,7 @@ bool TravelAction::triggerCondition()
       catch(int& n){
 	return false;}
 
-      if (fabs(radius) > 6 && fabs(currentState.y - (floor(currentState.y) + 0.5)) < 0.1)
+      if (fabs(radius) > R_MIN_TRAVEL && fabs(currentState.y - (floor(currentState.y) + 0.5)) < 0.1)
 	return true; 
       
     }
@@ -71,7 +72,7 @@ bool TravelAction::endCondition()
 
       //      std::cout << "TravelAction::endCondition, radius = " << radius << std::endl;
       
-      if (fabs(radius) < 6 || fabs(currentState.y - (floor(currentState.y) + 0.5)) > 0.1)
+      if (fabs(radius) < R_MIN_TRAVEL || fabs(currentState.y - (floor(currentState.y) + 0.5)) > 0.1)
 	return true; 
       
     }

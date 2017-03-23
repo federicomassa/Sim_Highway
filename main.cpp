@@ -2,8 +2,13 @@
 #include <unistd.h>
 #include <ctime>
 
+#include "ActionVideoCreator.h"
+#include "MonitorVideoCreator.h"
 #include "Image.h"
 #include "ProgressBar.h"
+#include "Configuration.h"
+#include "Logger.h"
+#include "Environment.h"
 
 using namespace std;
 /* initialize Simulator's configuration file */
@@ -84,6 +89,9 @@ int main (int argc, char* argv[])
     
     /* initialize video output */
     CvVideoWriter* video;
+    ActionVideoCreator actionVideo(0, 1);
+    MonitorVideoCreator monitorVideo(0, 1);
+    
     if(CONF.makeVideo)
     {
         remove(OUTPUT(output.avi));
@@ -96,6 +104,24 @@ int main (int argc, char* argv[])
                                     CV_FOURCC('P','I','M','1'),
                                     FPS, frameSize, 1);
     }
+
+    if (CONF.makeActionVideo)
+      {
+	CvSize frameSize = cvSize(FRAME_W, FRAME_H);
+	actionVideo.init(OUTPUT(actionVideo.avi),
+			 CV_FOURCC('P', 'I', 'M', '1'),
+			 FPS, frameSize, 1);
+	actionVideo.setEnvironment(&env);
+      }
+
+    if (CONF.makeMonitorVideo)
+      {
+	CvSize frameSize = cvSize(FRAME_W, FRAME_H);
+	monitorVideo.init(OUTPUT(monitorVideo.avi),
+			 CV_FOURCC('P', 'I', 'M', '1'),
+			 FPS, frameSize, 1);
+	monitorVideo.setGlobalEnvironment(&env);
+      }
 
     Image curFrame, prevFrame;
     
@@ -115,7 +141,7 @@ int main (int argc, char* argv[])
                               CONF.showImages;
     
     for(now = 0; now < CONF.nSteps; now++)
-    {
+    {      
         /* mark log file */
         if(now > 0 && CONF.debug)
 	  {
@@ -137,6 +163,16 @@ int main (int argc, char* argv[])
             curFrame.addAllVehicles(env);
             curFrame.writeFrameNumber();
         }
+
+	if (CONF.makeActionVideo)
+	  actionVideo.run();
+
+	if (CONF.makeMonitorVideo)
+	  {
+	    monitorVideo.setEnvironment(env.getVehicleFromID(0)->getMonitorLayer()->getEnvironment());
+	    monitorVideo.run();
+	  }
+	
         /* building subjective visions images */
         if(CONF.saveSubjectiveVisions)
             for(int i = 0; i < nV; i++)
@@ -250,20 +286,20 @@ int main (int argc, char* argv[])
             prevFrame.addVisibleVehicles(subj, env);
         }
         if(CONF.makeVideo || CONF.showImages)
-            cvImg = cvLoadImage(fileName.c_str());
+	  cvImg = cvLoadImage(fileName.c_str());
         if(createFrames && !CONF.saveVideoImages)
-            remove(fileName.c_str());
+	  remove(fileName.c_str());
         if(CONF.showImages)
-            /* show current frame in a window */
-            cvShowImage("Simulator", cvImg);
+	  /* show current frame in a window */
+	  cvShowImage("Simulator", cvImg);
         if(CONF.makeVideo)
-            /* add current frame to the video */
-            cvWriteFrame(video, cvImg);
+	  /* add current frame to the video */
+	  cvWriteFrame(video, cvImg);
         if(CONF.makeVideo || CONF.showImages)
-            cvReleaseImage(&cvImg);
+	  cvReleaseImage(&cvImg);
         /* wait for the window to automatically resize */
         if(CONF.showImages)
-            cvWaitKey(20); /* sleep 20 msec */
+	  cvWaitKey(20); /* sleep 20 msec */
     }
 
     /* update progress bar */
@@ -278,7 +314,7 @@ int main (int argc, char* argv[])
         cvReleaseVideoWriter(&video);
     /* close output window */
     if(CONF.showImages)
-        cvDestroyWindow("Simulator");
+      cvDestroyWindow("Simulator");
     
     cout << endl << endl << "Done." << endl;
 

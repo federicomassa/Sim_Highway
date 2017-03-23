@@ -48,6 +48,8 @@ public:
     int nTimeSteps;
     /* other parameters */
     bool makeVideo;
+    bool makeActionVideo;
+    bool makeMonitorVideo;
     bool saveVideoImages;
     bool saveConsensusImages;
     bool savePredictionImages;

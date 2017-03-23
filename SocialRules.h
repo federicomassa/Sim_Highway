@@ -99,7 +99,8 @@ class Rule {
   }
 
   bool operator!=(const Rule& r) {return !((*this) == r);}
-  
+
+  const std::string& getCategory() const {return category;}
 };
 
 class SocialRules

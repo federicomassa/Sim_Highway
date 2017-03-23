@@ -20,6 +20,8 @@ Configuration::Configuration(const string& fileName)
     communicate = false;
     commInterval = 1;
     makeVideo = false;
+    makeActionVideo = false;
+    makeMonitorVideo = false;
     saveSubjectiveVisions = false;
     saveVideoImages = false;
     saveConsensusImages = false;
@@ -77,30 +79,43 @@ void Configuration::parseConf(const string& fileName)
             makeVideo = (str == "ON");
             continue;
         }
+	if(tmpS == "make_action_video")
+	  {
+            token >> str;
+            makeActionVideo = (str == "ON");
+            continue;
+	  }
+	if(tmpS == "make_monitor_video")
+	  {
+            token >> str;
+            makeMonitorVideo = (str == "ON");
+            continue;
+	  }
+
         if(tmpS == "save_subjective_visions")
-        {
+	  {
             token >> str;
             saveSubjectiveVisions = (str == "ON");
             continue;
-        }
+	  }
         if(tmpS == "save_video_images")
-        {
+	  {
             token >> str;
             saveVideoImages = (str == "ON");
             continue;
-        }
+	  }
         if(tmpS == "save_consensus_images")
-        {
+	  {
             token >> str;
             saveConsensusImages = (str == "ON");
             continue;
-        }
+	  }
 	if(tmpS == "save_prediction_images")
-	{
-            token >> str;
+	  {
+	    token >> str;
             savePredictionImages = (str == "ON");
             continue;
-	}
+	  }
 
         if(tmpS == "save_txt_output")
         {

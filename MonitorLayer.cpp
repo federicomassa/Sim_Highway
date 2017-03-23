@@ -20,6 +20,9 @@ MonitorLayer::~MonitorLayer()
     Monitor* mon;
     while(i(mon))
         delete mon;
+
+    if (currentEnv)
+      delete currentEnv;
 }
 
 Monitor* MonitorLayer::addMonitor(int t)
@@ -39,6 +42,18 @@ Monitor* MonitorLayer::lookFor(int t)
 
     return NULL;
 }
+
+const Monitor* MonitorLayer::getMonitor(const int& id) const
+{
+    Iterator<Monitor*> i(monitorList);
+    Monitor* mon;
+    while(i(mon))
+        if(mon->getTargetID() == id)
+            return mon;
+
+    return NULL;
+}
+
 
 bool MonitorLayer::removeMonitor(int t)
 {
@@ -63,8 +78,11 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
   
   /* Create environment to calculate observable areas of monitored vehicles based on 
      agent's partial knowledge */
+
+  if (currentEnv)
+    delete currentEnv;
   
-  Environment env(sList.count(), CONF.cRadius, CONF.cProb);
+  currentEnv = new Environment(sList.count() + 1, CONF.cRadius, CONF.cProb);
   List<State> totalQList;
   List<Parms> totalPList;
   Iterator<Sensing> i(sList);
@@ -72,21 +90,30 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
 
   agentStates.insHead(agentQ);
   agentNeighStates.insHead(sList);
-  
+
+
   while (i(s))
     {
-      totalQList.insHead(s.q);
-      totalPList.insHead(s.q.v);      
+      totalQList.insTail(s.q);
+      totalPList.insTail(s.q.v);      
     }
+
+  /* add yourself to the environment, it will be the last on the list */
+  totalQList.insTail(agentQ);
+  totalPList.insTail(agentQ.v);
   
-  env.initVehicles(totalQList, totalPList);
+  currentEnv->initVehicles(totalQList, totalPList);
   
   const Sensing* sens;
-  for (int n = 0; n < env.getNVehicles(); n++)
+  for (int n = 0; n < currentEnv->getNVehicles() - 1; n++)
     {
+      /* Using the fact that the vehicles are ordered as sList, except agent vehicle which is at the bottom of the list */
       sList.getElem(sens, n);
-      env.getVehicles()[n].setID(sens->agentID);
+      currentEnv->getVehicles()[n].setID(sens->agentID);
     }
+
+  /* set my ID */
+  currentEnv->getVehicles()[currentEnv->getNVehicles() - 1].setID(agentID);
   
   /* Reset iterator */
   i.initialize(sList);
@@ -100,9 +127,9 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
       
       /* Look for correspondence between vehicles index in environment and in sList */
       int monitorIndex = -1;
-      for (int n = 0; n < env.getNVehicles(); n++)
+      for (int n = 0; n < currentEnv->getNVehicles(); n++)
 	{
-	  if (env.getVehicles()[n].getID() == s.agentID)
+	  if (currentEnv->getVehicles()[n].getID() == s.agentID)
 	    {
 	      monitorIndex = n;
 	      break;
@@ -117,7 +144,7 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
       List<Sensing> targetSList;
       
       Area monitorObs;
-      env.observableArea(monitorIndex, monitorObs);
+      currentEnv->observableArea(monitorIndex, monitorObs);
       
       while(is(tmpS))
 	{
@@ -128,16 +155,16 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
 	  
 	  /* search corresponding index in vehicles list in environment */
 	  int tmpIndex = -1;
-	  for (int n = 0; n < env.getNVehicles(); n++)
+	  for (int n = 0; n < currentEnv->getNVehicles(); n++)
 	    {
-	      if (env.getVehicles()[n].getID() == tmpS.agentID)
+	      if (currentEnv->getVehicles()[n].getID() == tmpS.agentID)
 		{
 		  tmpIndex = n;
 		  break;
 		}
 	    }
 	  
-	  if (env.getVehicles()[tmpIndex].inArea(monitorObs))
+	  if (currentEnv->getVehicles()[tmpIndex].inArea(monitorObs))
 	    targetSList.insHead(tmpS);
 	}
       // insert monitor agent state in the list
@@ -195,7 +222,7 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
       LOG.s << EndLine(EndLine::DEC);
       LOG.s << "Monitor Layer " << agentID << " STOP.";
     }
-  
+
 }
 
 void MonitorLayer::getHypothesis(List<Hypothesis>& hList) const

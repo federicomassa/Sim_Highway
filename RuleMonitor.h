@@ -47,9 +47,13 @@ class RuleMonitor
 
   /* get pointer to the action manager */
   const ActionManager* getActionManager() {return &aMan;}
-  
+
   /* check vehicle behaviour based on actions detected by the action manager */
   void run(const Area&);
+
+  /* accessor to processed actions */
+  const List<std::pair<Action*, List<Rule> > >& getProcessedActions() const
+    {return processedActions;}
 };
 
 #endif

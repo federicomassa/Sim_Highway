@@ -29,9 +29,12 @@ public:
     /* get vehicle state q */
     State getQ(int index) const;
     /* get number of vehicles */
-    int getNVehicles() {return nV;}
+    int getNVehicles() const {return nV;}
+    /* get pointer to vehicle with given ID */
+    Vehicle* getVehicleFromID(const int&) const;
     /* get vehicle vector v */
     Vehicle* getVehicles() {return v;}
+    const Vehicle* getVehicles() const {return v;}
     /* get vehicle maneuver m */
     Maneuver getManeuver(int index) const;
     /* returns i-th agent's observable area */

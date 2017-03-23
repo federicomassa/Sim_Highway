@@ -80,6 +80,14 @@ public:
      * \brief Return agentID.
      */
     int getAgentID() const { return agentID; }
+
+    /* accessor to action manager */
+    const ActionManager* getActionManager() const {return &aMan;}
+
+    /* accessor to rule monitor */
+    const RuleMonitor* getRuleMonitor() const {return &rMon;}
+
+    
 };
 
 #endif

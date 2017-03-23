@@ -76,7 +76,7 @@ bool LeftAction::endCondition()
       catch (int& n){
 	return false;}
       
-      if (fabs(radius) > 10 && fabs(currentState.y - 1.5) < 0.1)
+      if (fabs(radius) > R_END_TURN && fabs(currentState.y - 1.5) < Y_TOLERANCE)
 	return true; 
       
     }

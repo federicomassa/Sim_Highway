@@ -77,7 +77,7 @@ bool RightAction::endCondition()
 		    currentState.x, currentState.y,
 		    centerX, centerY, radius);
 
-      if (fabs(radius) > 10 && fabs(currentState.y - 0.5) < 0.1)
+      if (fabs(radius) > R_END_TURN && fabs(currentState.y - 0.5) < Y_TOLERANCE)
 	return true; 
       
     }

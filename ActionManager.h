@@ -65,7 +65,7 @@ class ActionManager {
   /* For testing purposes. Take coordinates from file */
   void parseTestFile(std::ifstream&);
   
-  /* allocate new object into listeners list. T must inherit from Action class. */
+  /* allocate new object into listeners list. */
   void addListener(Action*);
 
   /* accessor to history */
@@ -73,6 +73,9 @@ class ActionManager {
   
   /* print vehicle's actions starting from the most recent. */
   void printHistory();
+
+  /* get active actions */
+  List<const Action*> getActiveActions() const;
 };
 
 
