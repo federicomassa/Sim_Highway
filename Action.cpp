@@ -10,7 +10,7 @@ Action::Action()
   status = INACTIVE;
 }
 
-void Action::init(const Vector<State, 10>& mStates, const Vector<List<Sensing>, 10>& nStates)
+void Action::init(const Vector<Sensing, 10>& mStates, const Vector<List<Sensing>, 10>& nStates)
 {
   monitorStates = &mStates;
   neighStates = &nStates;

@@ -99,7 +99,10 @@ void MonitorVideoCreator::run()
 		      if (s->hasArea())
 			{
 			  Area sArea;
-			  s->evaluateArea(monitorV->getQ(), sArea);
+			  Sensing tmpS(monitorV->getID(), monitorV->getQ(),
+				       monitorV->getParms());
+			  
+			  s->evaluateArea(tmpS, sArea);
 			  sArea -= obs;
 			  
 			  if (s->getMode() == OR)

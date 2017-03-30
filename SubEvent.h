@@ -23,8 +23,8 @@ class SubEvent
     friend class Monitor;
     friend std::ostream& operator<<(std::ostream&, const SubEvent&);
     int idx;
-    bool (*func)(const State&, const IntVars&, const State&);
-    void (*areaFunc)(const State&, Area&);
+    bool (*func)(const Sensing&, const IntVars&, const Sensing&);
+    void (*areaFunc)(const Sensing&, Area&);
     EvalMode mode;
     ExtValue value;
     int evalTime;
@@ -45,14 +45,14 @@ public:
     /* destructor */
     ~SubEvent() { }
     /* initialization */
-    void init(bool (*f)(const State&, const IntVars&, const State&), 
-              void (*aF)(const State&, Area&), EvalMode m, const std::string n,
+    void init(bool (*f)(const Sensing&, const IntVars&, const Sensing&), 
+              void (*aF)(const Sensing&, Area&), EvalMode m, const std::string n,
               int i);
     /* reset SubEvent evaluation time */
     void reset() { evalTime = -1; }
     /* evaluate sub event */
-    void evaluate(const State&, const IntVars&,
-                  const List<State>&);
+    void evaluate(const Sensing&, const IntVars&,
+                  const List<Sensing>&);
     /* return Object's idx */
     int getID() const { return idx; }
     /* return Object's value */
@@ -65,8 +65,8 @@ public:
     bool hasArea() const {return (areaFunc != NULL);}
     
     /* evaluate area func */
-    void evaluateArea(const State& q, Area& a) const
-    {areaFunc(q, a);}
+    void evaluateArea(const Sensing& s, Area& a) const
+    {areaFunc(s, a);}
 };
 
 std::ostream& operator<<(std::ostream&, const SubEvent*);

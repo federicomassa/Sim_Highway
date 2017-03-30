@@ -7,34 +7,27 @@ using namespace std;
 
 Environment::Environment(int n, double r, double p) : repChannel(r, p), nV(n)
 {
-
-    v = new Vehicle[nV];
-
-    for(int i = 0; i < nV; i++)
+  v = new Vehicle[nV];
+  
+  for(int i = 0; i < nV; i++)
     {
-
-        v[i].setID(i);
-
-        v[i].initRM(&repChannel);
-
-	
+      v[i].setID(i);
+      v[i].initRM(&repChannel);
     }
+  
 }
 
-void Environment::initVehicles(const List<State>& qL, const List<Parms>& pL)
+void Environment::initVehicles(const List<pair<State, Parms> >& qpL)
 {
     /* error handling */
-    if(qL.count() != nV)
-        error("Environment", "invalid state list lenght");
-    if(pL.count() != nV)
-        error("Environment", "invalid parms list lenght");
+    if(qpL.count() != nV)
+        error("Environment", "invalid state-parms list lenght");
     
-    Iterator<State> si(qL);
-    State tmpQ;
-    Iterator<Parms> pi(pL);
-    Parms tmpP;
-    for(int i = 0; i < nV && si(tmpQ) && pi(tmpP); i++)
-        v[i].init(tmpQ, tmpP);
+    Iterator<pair<State, Parms> > iQP(qpL);
+    pair<State, Parms> tmpQP;
+
+    for(int i = 0; i < nV && iQP(tmpQP); i++)
+      v[i].init(tmpQP);
 }
 
 /**
@@ -324,7 +317,7 @@ void Environment::run()
 	  // vehicles seen by the subject are the ones within observable area
 	  if(j != i && v[j].inArea(obs))
             {
-	      Sensing tmpS(v[j].getID(), v[j].getQ(), v[j].getParms(), v[j].getManeuver());
+	      Sensing tmpS(v[j].getID(), v[j].getQ(), v[j].getParms());
 	      sList.insHead(tmpS);
             }
         }
@@ -343,35 +336,10 @@ void Environment::run()
       /* stimulate vehicle */
       v[i].preRun(sLists[i], obsAreas[i]);
     }
-
-  /* Now maneuvers have possibly changed -> update sList */
   
   for (int i = 0; i < nV; i++)
     {
-      List<Sensing>& currSList = v[i].getSList();
-      Sensing tmpS;
-
-      int nmax = currSList.count();
-      
-      for (int n = 0; n < nmax; n++)
-	{
-	  currSList.extrHead(tmpS);
-	  for (int j = 0; j < nV; j++)
-	    {
-	      if (j != i && tmpS.agentID == v[j].getID())
-		{
-		  /* Update with corresponding vehicle */
-		  tmpS.sigma = v[j].getManeuver();
-		  currSList.insTail(tmpS);
-		  break;
-		}
-	    }
-	}
-    }
-  
-  for (int i = 0; i < nV; i++)
-    {
-      /* After each vehicle has evolved, run monitor (needs updated maneuvers of all vehicles) */
+      /* After each vehicle has evolved, run monitor */
       v[i].evolveMonitor(obsAreas[i]);
     }
 

@@ -3,9 +3,9 @@
 
 #include <iostream>
 
-void PhysicalLayer::computeNextQ(Maneuver sigma, /* For platoon  */ List<State> qList, bool debug)
+void PhysicalLayer::computeNextQ(const Maneuver& sigma, const List<Sensing>& sList, bool debug)
 {
-  Control c = computeControl(sigma, q, /* For platoon */ qList, idx, debug);
+  Control c = computeControl(sigma, q, p, sList, idx, debug);
 
     if(CONF.debug)
         LOG.s << "Computing nextQ state..." << EndLine();

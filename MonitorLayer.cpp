@@ -67,7 +67,7 @@ bool MonitorLayer::removeMonitor(int t)
     return true;
 }
 
-void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Maneuver& agentManeuver,
+void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Parms& agentP, const Maneuver& agentManeuver,
                        const Area& obs)
 { 
   if(CONF.debug)
@@ -83,26 +83,26 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
     delete currentEnv;
   
   currentEnv = new Environment(sList.count() + 1, CONF.cRadius, CONF.cProb);
-  List<State> totalQList;
-  List<Parms> totalPList;
   Iterator<Sensing> i(sList);
   Sensing s;
 
   agentStates.insHead(agentQ);
   agentNeighStates.insHead(sList);
 
+  List<std::pair<State, Parms> > totalPList;
 
   while (i(s))
     {
-      totalQList.insTail(s.q);
-      totalPList.insTail(s.q.v);      
+      State q(s.x, s.y, s.theta, s.v);
+      /* some parameters are not measured but they are not relevant -> set default values */
+      Parms p(s.desiredV, FAST, s.vehicleType, "STANDARD", "STANDARD");
+      totalPList.insTail(std::make_pair(q,p));
     }
 
   /* add yourself to the environment, it will be the last on the list */
-  totalQList.insTail(agentQ);
-  totalPList.insTail(agentQ.v);
+  totalPList.insTail(std::make_pair(agentQ, agentP));
   
-  currentEnv->initVehicles(totalQList, totalPList);
+  currentEnv->initVehicles(totalPList);
   
   const Sensing* sens;
   for (int n = 0; n < currentEnv->getNVehicles() - 1; n++)
@@ -168,7 +168,7 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
 	    targetSList.insHead(tmpS);
 	}
       // insert monitor agent state in the list
-      Sensing agentS(agentID, agentQ, agentQ.v, UNKNOWN);
+      Sensing agentS(agentID, agentQ, agentP);
       targetSList.insHead(agentS);
       
       Monitor* m = lookFor(s.agentID);
@@ -197,7 +197,7 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
 
       /* run the monitor passing the last points recorded. The monitor will form its own neighbors */
       if (agentID == 0 && s.agentID == 1)
-	m->run(s.q, targetSList, obs);
+	m->run(s, targetSList, obs);
       
       monitorLog.s << EndLine(EndLine::DEC);
       monitorLog.s << "Vehicle " << agentID << " observing vehicle " << m->getTargetID() << " END..." << EndLine();

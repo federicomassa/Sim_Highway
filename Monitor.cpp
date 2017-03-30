@@ -10,8 +10,6 @@
  */
 
 #include "Monitor.h"
-#include "Predictor.h"
-#include "Grid.h"
 #include "Logger.h"
 #include "TestRules.h"
 
@@ -26,7 +24,7 @@ Monitor::Monitor(int a, int t) : aMan(monitorStates, neighStates), rMon(aMan)
     rMon.setRules(new TestRules);
 }
 
-void Monitor::run(const State& targetQ, const List<Sensing>& targetSList, const Area& monitorObs)
+void Monitor::run(const Sensing& targetQ, const List<Sensing>& targetSList, const Area& monitorObs)
 {
   /* update memory with new info */
   monitorStates.insHead(targetQ);

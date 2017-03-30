@@ -35,9 +35,6 @@ Event.o: Event.cpp Event.h SubEvent.h Area.h Logger.h Configuration.h \
   EvalMode.h
 ExtValue.o: ExtValue.cpp ExtValue.h EvalMode.h
 Failure.o: Failure.cpp Failure.h List.h EndLine.h Iterator.h utility.h
-Grid.o: Grid.cpp Grid.h utility.h definition.h State.h List.h Tensor5.h Sensing.h \
-  systemParms.h systemTypes.h Vector.h DynVector.h EndLine.h \
-  Sensing.h Iterator.h 
 Hypothesis.o: Hypothesis.cpp Hypothesis.h Area.h Logger.h Configuration.h \
   EndLine.h List.h Iterator.h systemTypes.h State.h systemParms.h \
   utility.h Vector.h Failure.h definition.h Rectangle.h
@@ -61,7 +58,7 @@ Monitor.o: Monitor.cpp Monitor.h Automaton.h rules.h Area.h Logger.h \
   systemParms.h utility.h Vector.h Failure.h definition.h Rectangle.h \
   Transition.h Event.h SubEvent.h ExtValue.h EvalMode.h Neighborhood.h \
   Hypothesis.h Reputation.h PhysicalLayer.h controller.h Sensing.h Tensor5.h \
-  Predictor.h Grid.h ActionManager.h Action.h RuleMonitor.h TestRules.h
+  ActionManager.h Action.h RuleMonitor.h TestRules.h
 MonitorLayer.o: MonitorLayer.cpp MonitorLayer.h Monitor.h Automaton.h \
   rules.h Area.h Logger.h Configuration.h EndLine.h List.h Iterator.h \
   systemTypes.h State.h systemParms.h utility.h Vector.h Failure.h \
@@ -85,12 +82,6 @@ Output.o: Output.cpp Output.h definition.h utility.h
 PhysicalLayer.o: PhysicalLayer.cpp PhysicalLayer.h controller.h EndLine.h \
   Logger.h Configuration.h List.h Iterator.h systemTypes.h State.h \
   systemParms.h utility.h Vector.h Failure.h definition.h #Path.h
-Predictor.o: Predictor.cpp Predictor.h Sensing.h List.h PhysicalLayer.h \
-  Environment.h EndLine.h systemTypes.h systemParms.h Iterator.h controller.h Logger.h \
-  systemTypes.h Vehicle.h Output.h Failure.h State.h Configuration.h definition.h \
-  ReputationManager.h MonitorLayer.h utility.h Vector.h Channel.h Neighborhood.h \
-  Monitor.h Message.h Hypothesis.h Reputation.h Automaton.h Area.h rules.h Rectangle.h \
-  Transition.h Event.h SubEvent.h ExtValue.h EvalMode.h DynVector.h Tensor5.h
 ProgressBar.o: ProgressBar.cpp ProgressBar.h
 Rectangle.o: Rectangle.cpp Rectangle.h definition.h EndLine.h List.h \
   Iterator.h utility.h Vector.h
@@ -119,7 +110,11 @@ State.o: State.cpp State.h systemParms.h systemTypes.h utility.h Vector.h EndLin
 SubEvent.o: SubEvent.cpp SubEvent.h Area.h Logger.h Configuration.h \
   EndLine.h List.h Iterator.h systemTypes.h State.h systemParms.h \
   utility.h Vector.h Failure.h definition.h Rectangle.h ExtValue.h \
-  EvalMode.h
+  EvalMode.h Sensing.h
+TestRules.o: TestRules.cpp TestRules.h SocialRules.h ruleFunctions.h List.h \
+	State.h Area.h EndLine.h Event.h systemParms.h systemTypes.h \
+	Vector.h Iterator.h utility.h Logger.h Rectangle.h SubEvent.h \
+	Sensing.h Failure.h Configuration.h definition.h ExtValue.h EvalMode.h
 Transition.o: Transition.cpp Transition.h Event.h SubEvent.h Area.h \
   Logger.h Configuration.h EndLine.h List.h Iterator.h systemTypes.h \
   State.h systemParms.h utility.h Vector.h Failure.h definition.h \
@@ -149,6 +144,10 @@ rules.o: rules.cpp rules.h Area.h Logger.h Configuration.h EndLine.h \
   List.h Iterator.h systemTypes.h State.h systemParms.h utility.h \
   Vector.h Failure.h definition.h Rectangle.h Transition.h Event.h \
   SubEvent.h ExtValue.h EvalMode.h
+ruleFunctions.o: ruleFunctions.cpp ruleFunctions.h Area.h Logger.h Configuration.h EndLine.h \
+  List.h Iterator.h systemTypes.h State.h systemParms.h utility.h \
+  Vector.h Failure.h definition.h Rectangle.h Transition.h Event.h \
+  SubEvent.h ExtValue.h EvalMode.h Sensing.h 
 systemTypes.o: systemTypes.cpp systemTypes.h systemParms.h \
   utility.h Vector.h EndLine.h Failure.h List.h Iterator.h
 utility.o: utility.cpp utility.h

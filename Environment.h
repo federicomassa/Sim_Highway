@@ -25,7 +25,7 @@ public:
     /* destructor */
     ~Environment() { delete[] v; }
     /* vehicles initialization */
-    void initVehicles(const List<State>&, const List<Parms>&);
+    void initVehicles(const List<std::pair<State, Parms> >&);
     /* get vehicle state q */
     State getQ(int index) const;
     /* get number of vehicles */

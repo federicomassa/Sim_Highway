@@ -28,11 +28,11 @@ public:
     /* reset value */
     void reset() { value.reset(true); }
     /* evaluate the event */
-    void evaluate(const State& qSubj, const IntVars& vars,
-                  const List<State>& qList, bool omniscient);
+    void evaluate(const Sensing& sSubj, const IntVars& vars,
+                  const List<Sensing>& sList, bool omniscient);
 
     /* Evaluate events using the observable area */
-    void evaluateWithArea(const State& qSubj, const IntVars& vars,
+    void evaluateWithArea(const Sensing& sSubj, const IntVars& vars,
 			  const List<Sensing>& sList, bool omniscient, const Area& obs);
     
     /* re-evaluate the event after some subEvents changed their value */    

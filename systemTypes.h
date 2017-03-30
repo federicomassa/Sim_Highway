@@ -1,18 +1,16 @@
 #ifndef SYSTEMTYPES_H
 #define SYSTEMTYPES_H
 
+#include <vector>
 #include "Failure.h"
 
-class State;
+class Sensing;
 
 /* vehicle's automaton internal vars */
 typedef double IntVars; /* target lane */
 
 /* reset function for internal vars */
-typedef IntVars (*ResetFunction)(const State&);
-
-/* vehicle parameters */
-typedef double Parms; /* max speed */
+typedef IntVars (*ResetFunction)(const Sensing&);
 
 /* vehicle automaton states */
 enum Maneuver { FAST, SLOW, LEFT, RIGHT, PLATOON, UNKNOWN };

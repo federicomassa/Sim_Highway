@@ -4,41 +4,36 @@ using namespace std;
 
 State::State(const string& str)
 {
-    stringstream token(str);
-
     //qV expressed as fraction of MAX_SPEED defined in systemParms.h
     // desiredV = desired velocity/MAX_SPEED, not necessarily the maximum allowed
     // 
-    double qX, qY, qTheta, qV, qDesiredV;
-    string qInitManeuver; 
-    
-    token >> qX;
-    token >> qY;
-    token >> qTheta;
-    token >> qV;
-
-    // Added by Federico Massa --- mainly for platoon
-    token >> qDesiredV;
-    token >> qInitManeuver;
-    
-    init(qX, qY, qTheta, qV, qDesiredV, qInitManeuver);
+  double qX, qY, qTheta, qV;
+  
+  vector<string> tokens = split(str, " ");
+  if (tokens.size() != 4)
+    error("State::State(const string&)", "States should be 4 per vehicle, see configuration file");
+  
+  else
+    {
+      qX = stod(tokens[0]);
+      qY = stod(tokens[1]);
+      qTheta = stod(tokens[2]);
+      qV = stod(tokens[3]);
+    }
+  
+  init(qX, qY, qTheta, qV);
 }
 
-void State::init(double qX, double qY, double qTheta, double qV, double qDesiredV, string qInitManeuver)
+void State::init(const double& qX, const double& qY, const double& qTheta, const double& qV)
 {
-    /* error handling */
-  if(qV > 1 || qV < 0 || qDesiredV > 1 || qDesiredV < 0)
+  /* error handling */
+  if(qV > 1 || qV < 0)
     error("State::init", "v MUST be between 0 and 1");
-    
+  
   x = qX;
   y = qY;
   theta = qTheta;
-  v = qV*MAX_SPEED;
-
-  // Mainly for platoon --- Added by Federico Massa
-  desiredV = qDesiredV*MAX_SPEED;
-  initManeuver = qInitManeuver;
-  
+  v = qV*MAX_SPEED;  
 }
 
 Vector<double, 2> State::toPoint() const
@@ -55,21 +50,78 @@ ostream& operator<<(ostream& os, const State& s)
     os << "State (x = " << fixed << setprecision(3) << s.x;
     os << ", y = " << s.y;
     os << ", theta = " << s.theta;
-    os << ", v = " << s.v;
-    os << ", desiredV = " << s.desiredV << ')';
+    os << ", v = " << s.v << ')';
     os.flush();
     
     return os;
 }
 
+ostream& operator<<(ostream& os, const Parms& s)
+{
+    os << "Parms (desiredV = " << fixed << setprecision(3) << s.desiredV;
+    os << ", initManeuver = " << s.initManeuver;
+    os << ", vehicleType = " << s.vehicleType;
+    os << ", pLayerType = " << s.pLayerType;
+    os << ", automatonType = " << s.automatonType << ')';
+    os.flush();
+    
+    return os;
+}
+
+
 bool operator==(const State& s1, const State& s2)
 {
     return s1.x == s2.x && s1.y == s2.y &&
-           s1.theta == s2.theta && s1.v == s2.v &&
-      s1.desiredV == s2.desiredV &&
-      s1.initManeuver == s2.initManeuver;
+      s1.theta == s2.theta && s1.v == s2.v;
 }
 
 bool operator!=(const State& s1, const State& s2){
     return !(s1 == s2);
+}
+
+std::pair<State, Parms> State::makeStatesAndParms(const std::string& str)
+{
+  //qV expressed as fraction of MAX_SPEED defined in systemParms.h
+  // desiredV = desired velocity/MAX_SPEED, not necessarily the maximum allowed
+  // 
+  double qX = -100, qY = -100, qTheta = -100, qV = -100, qDesiredV = -100;
+  Maneuver qInitMan = UNKNOWN;
+  string vType, pType, aType; 
+  
+  vector<string> tokens = split(str, " ");
+  if (tokens.size() < 4)
+    error("State::State(const string&)", "States should be at least 4 per vehicle, see configuration file");
+  
+  if (tokens.size() == 4)
+    {
+      qX = stod(tokens[0]);
+      qY = stod(tokens[1]);
+      qTheta = stod(tokens[2]);
+      qV = stod(tokens[3]);
+      qDesiredV = 1; /* max velocity by default */
+      qInitMan = FAST;
+      vType = "STANDARD";
+      pType = "STANDARD";
+      aType = "STANDARD";
+    }
+  else if (tokens.size() == 9)
+    {
+      qX = stod(tokens[0]);
+      qY = stod(tokens[1]);
+      qTheta = stod(tokens[2]);
+      qV = stod(tokens[3]);
+      qDesiredV = stod(tokens[4]);
+      qInitMan = strToManeuver(tokens[5]);
+      vType = tokens[6];
+      pType = tokens[7];
+      aType = tokens[8];
+    }
+  else
+    error("State::State(const string&)", "Too few arguments");
+
+  State q(qX, qY, qTheta, qV);
+  Parms p(qDesiredV, qInitMan, vType, pType, aType);
+
+  return std::make_pair(q, p);
+  
 }

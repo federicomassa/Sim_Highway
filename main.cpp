@@ -46,25 +46,14 @@ int main (int argc, char* argv[])
     mkdir(OUTPUT_DIR, S_IRWXU | S_IRGRP | S_IROTH);
 
     /* number of vehicles */
-    const int nV = CONF.qList.count();
+    const int nV = CONF.qpList.count();
 
     /* instantiate the environment */
 
     Environment env(nV, CONF.cRadius, CONF.cProb);
-
     
     /* vehicles initialization */
-    Iterator<State> qi(CONF.qList);
-    State tmpQ;
-    List<Parms> pList;
-    while(qi(tmpQ))
-    {
-        Parms p = tmpQ.v;
-        pList.insTail(p);
-    }
-
-    env.initVehicles(CONF.qList, pList);
-
+    env.initVehicles(CONF.qpList);
 
     /* monitors initialization */
     Iterator<int> i(CONF.activeMonitors);

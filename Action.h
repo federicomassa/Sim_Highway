@@ -28,13 +28,13 @@ class Action
  protected:
   void addRuleCategory(const std::string& cat) {ruleCategoryList.insHead(cat);}
   /* reference to ActionManager's monitor state history */
-  const Vector<State, 10>* monitorStates;
+  const Vector<Sensing, 10>* monitorStates;
   const Vector<List<Sensing>, 10>* neighStates;
  public:
   Action();
   Action(const Action&);
 
-  void init(const Vector<State, 10>&, const Vector<List<Sensing>, 10>&);
+  void init(const Vector<Sensing, 10>&, const Vector<List<Sensing>, 10>&);
 
   int triggerTime;
   int endTime;

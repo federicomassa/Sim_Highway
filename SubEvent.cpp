@@ -1,10 +1,11 @@
 
 #include "SubEvent.h"
+#include "Sensing.h"
 
 using namespace std;
 
-void SubEvent::init(bool (*f)(const State&, const IntVars&, const State&),
-          void (*aF)(const State&, Area&), EvalMode m, const string n,
+void SubEvent::init(bool (*f)(const Sensing&, const IntVars&, const Sensing&),
+          void (*aF)(const Sensing&, Area&), EvalMode m, const string n,
           int i)
 {
     func = f;
@@ -15,8 +16,8 @@ void SubEvent::init(bool (*f)(const State&, const IntVars&, const State&),
     reset();
 }
 
-void SubEvent::evaluate(const State& qSubj, const IntVars& vars,
-                        const List<State>& qList)
+void SubEvent::evaluate(const Sensing& sSubj, const IntVars& vars,
+                        const List<Sensing>& sList)
 {
     /* error handling */
     if(idx == -1)
@@ -48,7 +49,7 @@ void SubEvent::evaluate(const State& qSubj, const IntVars& vars,
         LOG.s << "Resetting value: " << value << EndLine();
         LOG.s << "now = " << now << EndLine();
         LOG.s << "Evaluation mode = " << mode << EndLine();
-        LOG.s << "Subject state = " << qSubj << EndLine();
+        LOG.s << "Subject state = " << sSubj << EndLine();
         LOG.s << "Internal vars = " << vars;
     }
     
@@ -56,27 +57,27 @@ void SubEvent::evaluate(const State& qSubj, const IntVars& vars,
     {
         if(CONF.debug)
             LOG.s << EndLine() << "Evaluating single function: returnValue << ";
-        State voidS;
-        value.omniscientValue = func(qSubj, vars, voidS);
+        Sensing voidS;
+        value.omniscientValue = func(sSubj, vars, voidS);
         if(CONF.debug)
             LOG.s << value.omniscientValue;
     }
     else
     {
         /* check if the list is empty */
-        if(!qList.isEmpty())
+        if(!sList.isEmpty())
         {
-            Iterator<State> qi(qList);
-            State tmpQ;
-            while(qi(tmpQ))
+            Iterator<Sensing> si(sList);
+            Sensing tmpS;
+            while(si(tmpS))
             {
                 if(CONF.debug)
                 {
                     LOG.s << EndLine() << "Evaluating function for state ";
-                    LOG.s << tmpQ << ": returnValue << ";
+                    LOG.s << tmpS << ": returnValue << ";
                 }
                 value.omniscientValue =
-                    value.omniscientValue || func(qSubj, vars, tmpQ);
+                    value.omniscientValue || func(sSubj, vars, tmpS);
                 if(CONF.debug)
                     LOG.s << value.omniscientValue;
             }

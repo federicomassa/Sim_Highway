@@ -9,6 +9,8 @@
 #include "systemTypes.h"
 #include "Vector.h"
 
+class Sensing;
+
 // Misc:
 #define PI 3.14159265358979323846
 #define MIN_LANE 0
@@ -32,21 +34,21 @@ namespace ruleFunctions
   /// SubEvents functions
   /// ---------------------------------------------------------------------------
   
-  bool forwardBlocking(const State&, const IntVars&, const State&);
-  bool forwardDangerous(const State&, const IntVars&, const State&);
-  bool leftBlocking(const State&, const IntVars&, const State&);
-  bool rightBlocking(const State&, const IntVars&, const State&);
-  bool minLane(const State&, const IntVars&, const State&);
-  bool trueFunction(const State&, const IntVars&, const State&);  
+  bool forwardBlocking(const Sensing&, const IntVars&, const Sensing&);
+  bool forwardDangerous(const Sensing&, const IntVars&, const Sensing&);
+  bool leftBlocking(const Sensing&, const IntVars&, const Sensing&);
+  bool rightBlocking(const Sensing&, const IntVars&, const Sensing&);
+  bool minLane(const Sensing&, const IntVars&, const Sensing&);
+  bool trueFunction(const Sensing&, const IntVars&, const Sensing&);  
   
   /// ---------------------------------------------------------------------------
   /// Indicator functions
   /// ---------------------------------------------------------------------------
   
-  void forwardArea(const State&, Area&);
-  void forwardDangerousArea(const State&, Area&);
-  void leftArea(const State&, Area&);
-  void rightArea(const State&, Area&);
+  void forwardArea(const Sensing&, Area&);
+  void forwardDangerousArea(const Sensing&, Area&);
+  void leftArea(const Sensing&, Area&);
+  void rightArea(const Sensing&, Area&);
 }
   
 #endif

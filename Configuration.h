@@ -3,7 +3,7 @@
 #define CONFIGURATION_H
 
 #include <fstream>
-
+#include <utility>
 
 #include "EndLine.h"
 #include "List.h"
@@ -21,7 +21,7 @@ public:
     /* simulation steps */
     int nSteps;
     /* vehicle list */
-    List<State> qList;
+    List<std::pair<State, Parms> > qpList;
     /* subject vehicle */
     int subjID;
     /* active monitors list */

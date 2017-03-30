@@ -34,8 +34,8 @@ bool RightOvertakeAction::triggerCondition()
       (*neighStates)[0].getElem(s, i);
       /* candidate must be in a previous lane and ahead of you (x-wise) */
 
-      if (s->q.x > (*monitorStates)[2].x &&
-	  floor(s->q.y) > floor((*monitorStates)[2].y))
+      if (s->x > (*monitorStates)[2].x &&
+	  floor(s->y) > floor((*monitorStates)[2].y))
 	candidates.insHead(*s);
     }
 
@@ -45,18 +45,18 @@ bool RightOvertakeAction::triggerCondition()
   for (int i = 0; i < candidates.count(); i++)
     {
       candidates.getElem(s, i);
-      if (pow(s->q.x - (*monitorStates)[2].x,2) + pow(s->q.y - (*monitorStates)[2].y,2) < distance)
+      if (pow(s->x - (*monitorStates)[2].x,2) + pow(s->y - (*monitorStates)[2].y,2) < distance)
 	{
-	  distance = pow(s->q.x - (*monitorStates)[2].x,2) + pow(s->q.y - (*monitorStates)[2].y,2);
+	  distance = pow(s->x - (*monitorStates)[2].x,2) + pow(s->y - (*monitorStates)[2].y,2);
 	  target = s;
 	}
     }
 
   /* if there is one suitable target */
-  State* currTargetState = 0, *lastTargetState = 0, *previousTargetState = 0;
+  Sensing* currTargetState = 0, *lastTargetState = 0, *previousTargetState = 0;
   if (target)
     {
-      previousTargetState = &target->q;
+      previousTargetState = target;
       targetID = target->agentID;
     }
   else
@@ -69,7 +69,7 @@ bool RightOvertakeAction::triggerCondition()
       if (s->agentID == targetID)
 	{
 	  /* target found */
-	  lastTargetState = &s->q;
+	  lastTargetState = s;
 	}
     }
 
@@ -79,7 +79,7 @@ bool RightOvertakeAction::triggerCondition()
       if (s->agentID == targetID)
 	{
 	  /* target found */
-	  currTargetState = &s->q;
+	  currTargetState = s;
 	}
     }
 
@@ -98,14 +98,14 @@ bool RightOvertakeAction::endCondition()
 {
   /* RightOvertakeAction is ended when the monitored has overtaken the target */
   Sensing* s = 0;
-  State* currTargetState = 0;
+  Sensing* currTargetState = 0;
   for (int i = 0; i < (*neighStates)[0].count(); i++)
     {
       (*neighStates)[0].getElem(s, i);
       if (s->agentID == targetID)
 	{
 	  /* target found */
-	  currTargetState = &s->q;
+	  currTargetState = s;
 	}
     }
 
@@ -124,7 +124,7 @@ bool RightOvertakeAction::endCondition()
 bool RightOvertakeAction::abortCondition()
 {
   /* This action is aborted if the vehicle disappears from sight before ending the action */
-  State* currTargetState = 0;
+  Sensing* currTargetState = 0;
   Sensing* s = 0;
   for (int i = 0; i < (*neighStates)[0].count(); i++)
     {
@@ -132,7 +132,7 @@ bool RightOvertakeAction::abortCondition()
       if (s->agentID == targetID)
 	{
 	  /* target found */
-	  currTargetState = &s->q;
+	  currTargetState = s;
 	}
     }
 

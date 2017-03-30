@@ -15,6 +15,7 @@
 #include <new>
 #include <string>
 #include <sstream>
+#include <vector>
 
 /**
  * this function gives information about a specific error and it terminates
@@ -48,5 +49,8 @@ void circle3points(const double&, const double&,
 		   const double&, const double&,
 		   const double&, const double&,
 		   double&, double&, double&);
+
+/* split string into elements separated by a delimiter */
+std::vector<std::string> split(const std::string&, const std::string&);
 
 #endif

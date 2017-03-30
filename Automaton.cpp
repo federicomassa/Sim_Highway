@@ -13,7 +13,7 @@ Automaton::Automaton()
     initRules(subEvents, events, transitions, resetFunctions);
 }
 
-void Automaton::init(const State& q)
+void Automaton::init(const std::pair<State, Parms>& qp)
 {
     /* error handling */
   /*    if(initialized)
@@ -23,24 +23,13 @@ void Automaton::init(const State& q)
     // sigma = SIGMA_0;
 
     // sigma is defined in the conf file, and is in the state
-    if (q.initManeuver.compare("FAST") == 0)
-      sigma = FAST;
-    else if (q.initManeuver.compare("SLOW") == 0)
-      sigma = SLOW;
-    else if (q.initManeuver.compare("LEFT") == 0)
-      sigma = LEFT;
-    else if (q.initManeuver.compare("RIGHT") == 0)
-      sigma = RIGHT;
-    else if (q.initManeuver.compare("PLATOON") == 0)
-      sigma = PLATOON;
-    else
-      error("Automaton", "Unknown initial maneuver, check configuration file");
-
-    xi = resetFunctions[sigma](q);
-    initialized = true;
+  sigma = qp.second.initManeuver;
+  Sensing s(agentID, qp.first, qp.second);
+  xi = resetFunctions[sigma](s);
+  initialized = true;
 }
 
-void Automaton::setManeuver(Maneuver m, const State& q)
+void Automaton::setManeuver(Maneuver m, const Sensing& s)
 {
     /* error handling */
     if(!initialized)
@@ -48,16 +37,16 @@ void Automaton::setManeuver(Maneuver m, const State& q)
 
     /* initialization */
     sigma = m;
-    xi = resetFunctions[sigma](q);
+    xi = resetFunctions[sigma](s);
     if(CONF.debug)
     {
-        LOG.s << "Setting Maneuver " << sigma << " with " << q << ':';
+        LOG.s << "Setting Maneuver " << sigma << " with " << s << ':';
         LOG.s << EndLine(EndLine::INC);
         LOG.s << "xi = " << xi << EndLine(EndLine::DEC);
     }
 }
 
-void Automaton::run(const State& qSubj, const List<State>& qList)
+void Automaton::run(const Sensing& sSubj, const List<Sensing>& sList)
 {
     /* error handling */
     if(!initialized)
@@ -72,14 +61,14 @@ void Automaton::run(const State& qSubj, const List<State>& qList)
         if(now % JAMMER_SWITCHING_INTERVAL == 0)
         {
             if(sigma == FAST)
-                setManeuver(SLOW, qSubj);
+                setManeuver(SLOW, sSubj);
             else
-                setManeuver(FAST, qSubj);
+                setManeuver(FAST, sSubj);
         }
         return;
     }
     
-    if(detectEvents(qSubj, qList, true))
+    if(detectEvents(sSubj, sList, true))
     {
         for(int i = 0; i < N_MANEUVER; i++)
         {
@@ -99,7 +88,7 @@ void Automaton::run(const State& qSubj, const List<State>& qList)
 		    break;
 		  
                     /* set new maneuver */
-                    setManeuver((Maneuver)i, qSubj);
+                    setManeuver((Maneuver)i, sSubj);
                 }
                 break;
             }
@@ -107,7 +96,7 @@ void Automaton::run(const State& qSubj, const List<State>& qList)
     }
 }
 
-bool Automaton::detectEvents(const State& qSubj, const List<State>& qList,
+bool Automaton::detectEvents(const Sensing& sSubj, const List<Sensing>& sList,
                              bool omniscient)
 {
   
@@ -122,7 +111,7 @@ bool Automaton::detectEvents(const State& qSubj, const List<State>& qList,
             LOG.s << "Calling evaluate of Transition ";
             LOG.s << sigma << " => " << (Maneuver)i << EndLine();
         }
-        transitions[sigma][i].evaluate(qSubj, xi, qList, omniscient);
+        transitions[sigma][i].evaluate(sSubj, xi, sList, omniscient);
         if(omniscient)
         {
             if(transitions[sigma][i].getValue().omniscientValue == true)

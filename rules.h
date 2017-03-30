@@ -38,45 +38,45 @@ double dBack();
 /// SubEvents functions
 /// ---------------------------------------------------------------------------
 
-bool forwardBlocking(const State&, const IntVars&, const State&);
-bool leftBlocking(const State&, const IntVars&, const State&);
-bool rightBlocking(const State&, const IntVars&, const State&);
-bool rightBackBlocking(const State&, const IntVars&, const State&);
-bool forwardPresent(const State&, const IntVars&, const State&);
-bool backPresent(const State&, const IntVars&, const State&);
-bool forwardCompatible(const State&, const IntVars&, const State&);
-bool rightForwardCompatible(const State&, const IntVars&, const State&);
-bool backCompatible(const State&, const IntVars&, const State&);
-bool LeftPlatoonCompatible(const State&, const IntVars&, const State&);
-bool RightPlatoonCompatible(const State&, const IntVars&, const State&);
-bool RightBlockingOvertakeable(const State&, const IntVars&, const State&);
-bool maxLane(const State&, const IntVars&, const State&);
-bool minLane(const State&, const IntVars&, const State&);
-bool targetLane(const State&, const IntVars&, const State&);
-bool linedUp(const State&, const IntVars&, const State&);
+bool forwardBlocking(const Sensing&, const IntVars&, const Sensing&);
+bool leftBlocking(const Sensing&, const IntVars&, const Sensing&);
+bool rightBlocking(const Sensing&, const IntVars&, const Sensing&);
+bool rightBackBlocking(const Sensing&, const IntVars&, const Sensing&);
+bool forwardPresent(const Sensing&, const IntVars&, const Sensing&);
+bool backPresent(const Sensing&, const IntVars&, const Sensing&);
+bool forwardCompatible(const Sensing&, const IntVars&, const Sensing&);
+bool rightForwardCompatible(const Sensing&, const IntVars&, const Sensing&);
+bool backCompatible(const Sensing&, const IntVars&, const Sensing&);
+bool LeftPlatoonCompatible(const Sensing&, const IntVars&, const Sensing&);
+bool RightPlatoonCompatible(const Sensing&, const IntVars&, const Sensing&);
+bool RightBlockingOvertakeable(const Sensing&, const IntVars&, const Sensing&);
+bool maxLane(const Sensing&, const IntVars&, const Sensing&);
+bool minLane(const Sensing&, const IntVars&, const Sensing&);
+bool targetLane(const Sensing&, const IntVars&, const Sensing&);
+bool linedUp(const Sensing&, const IntVars&, const Sensing&);
 
 /// ---------------------------------------------------------------------------
 /// ``Indicator'' functions
 /// ---------------------------------------------------------------------------
 
-void forwardArea(const State&, Area&);
-void leftArea(const State&, Area&);
-void rightArea(const State&, Area&);
+void forwardArea(const Sensing&, Area&);
+void leftArea(const Sensing&, Area&);
+void rightArea(const Sensing&, Area&);
 
 /// ---------------------------------------------------------------------------
 /// IntVar reset functions
 /// ---------------------------------------------------------------------------
 
-IntVars setTargetLane(const State&);
-IntVars incTargetLane(const State&);
-IntVars decTargetLane(const State&);
+IntVars setTargetLane(const Sensing&);
+IntVars incTargetLane(const Sensing&);
+IntVars decTargetLane(const Sensing&);
 
 /// ---------------------------------------------------------------------------
 /// Active area
 /// ---------------------------------------------------------------------------
 
 /* return the active area for an agent */
-void activeArea(const State&, Area&);
+void activeArea(const Sensing&, Area&);
 
 /// ---------------------------------------------------------------------------
 /// Rules init

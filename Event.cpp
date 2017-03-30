@@ -3,8 +3,8 @@
 
 using namespace std;
 
-void Event::evaluate(const State& qSubj, const IntVars& vars,
-                     const List<State>& qList, bool omniscient)
+void Event::evaluate(const Sensing& sSubj, const IntVars& vars,
+                     const List<Sensing>& sList, bool omniscient)
 {
     /* error handling */
     if(idx == -1)
@@ -31,7 +31,7 @@ void Event::evaluate(const State& qSubj, const IntVars& vars,
             LOG.s << EndLine() << "Calling evaluation of SubEvent ";
             LOG.s << tmpSE->getID() << "..." << EndLine();
         }
-        tmpSE->evaluate(qSubj, vars, qList);
+        tmpSE->evaluate(sSubj, vars, sList);
         if(CONF.debug)
             LOG.s << "Updating Event value " << value << " << ";
 
@@ -62,18 +62,11 @@ void Event::evaluate(const State& qSubj, const IntVars& vars,
       }
 }
 
-void Event::evaluateWithArea(const State& qSubj, const IntVars& vars,
+void Event::evaluateWithArea(const Sensing& sSubj, const IntVars& vars,
 			     const List<Sensing>& sList, bool omniscient, const Area& obs)
 {
-  /* First normal evaluation */
-  List<State> qList;
-  Iterator<Sensing> sensIt(sList);
-  Sensing s;
-
-  while (sensIt(s))
-    qList.insHead(s.q);
-  
-  evaluate(qSubj, vars, qList, omniscient);
+  /* First normal evaluation */  
+  evaluate(sSubj, vars, sList, omniscient);
 
   /* true if some subevents have changed value next to the area evaluation */
   bool valueChanged = false;
@@ -92,7 +85,7 @@ void Event::evaluateWithArea(const State& qSubj, const IntVars& vars,
 	    {
 	      /* compute sub-event indicator area */
 	      Area indicator;
-	      se->evaluateArea(qSubj, indicator);
+	      se->evaluateArea(sSubj, indicator);
 	      /* subtract observable area */
 	      indicator -= obs;
 	      if(indicator.isEmpty())

@@ -93,7 +93,7 @@ public:
     /*!
      * \brief Run a single simulation step.
      */
-    void run(const List<Sensing>& sList, const State& agentQ, const Maneuver& agentManeuver, const Area& obs);
+    void run(const List<Sensing>& sList, const State& agentQ, const Parms& agentP, const Maneuver& agentManeuver, const Area& obs);
     /*!
      * \brief Get all monitor's simpler hypothesis.
      */

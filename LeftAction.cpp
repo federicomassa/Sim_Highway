@@ -26,9 +26,9 @@ bool LeftAction::triggerCondition()
     { 
       double radius;
 
-      const State currentState = (*monitorStates)[0];
-      const State lastState = (*monitorStates)[1];
-      const State previousState = (*monitorStates)[2];
+      const Sensing currentState = (*monitorStates)[0];
+      const Sensing lastState = (*monitorStates)[1];
+      const Sensing previousState = (*monitorStates)[2];
       
       double centerX, centerY;
       try
@@ -61,9 +61,9 @@ bool LeftAction::endCondition()
     { 
       double radius;
       
-      const State currentState = (*monitorStates)[0];
-      const State lastState = (*monitorStates)[1];
-      const State previousState = (*monitorStates)[2];
+      const Sensing currentState = (*monitorStates)[0];
+      const Sensing lastState = (*monitorStates)[1];
+      const Sensing previousState = (*monitorStates)[2];
       
       double centerX, centerY;
       try

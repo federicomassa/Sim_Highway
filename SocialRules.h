@@ -63,7 +63,7 @@ class Rule {
 
   const List<Event>& getEventList() {return eList;}
   
-  void check(const Vector<State, 10>& monitorStates, const Vector<List<Sensing>, 10>& neighStates, const Area& obs, const int& triggerTime,
+  void check(const Vector<Sensing, 10>& monitorStates, const Vector<List<Sensing>, 10>& neighStates, const Area& obs, const int& triggerTime,
 	     const int& endTime)
   {
     Iterator<Event> eIt(eList);

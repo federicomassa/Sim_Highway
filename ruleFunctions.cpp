@@ -1,5 +1,6 @@
 #include "ruleFunctions.h"
 #include "systemParms.h"
+#include "Sensing.h"
 #include <iostream>
 // ---------------------------------------------------------------------------
 // Rules parameters
@@ -58,7 +59,7 @@ const double D_BACK = ruleFunctions::dBack();
 // SubEvents functions
 // ---------------------------------------------------------------------------
 
-bool ruleFunctions::forwardBlocking(const State& s1, const IntVars& v1, const State& s2)
+bool ruleFunctions::forwardBlocking(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if((s2.x - s1.x) > 0 && (s2.x - s1.x) < D_FORWARD*2 &&
         s2.y > floor(s1.y) && s2.y < (floor(s1.y) + 1))
@@ -67,7 +68,7 @@ bool ruleFunctions::forwardBlocking(const State& s1, const IntVars& v1, const St
     return false;
 }
 
-bool ruleFunctions::forwardDangerous(const State& s1, const IntVars& v1, const State& s2)
+bool ruleFunctions::forwardDangerous(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if((s2.x - s1.x) > 0 && (s2.x - s1.x) < D_FORWARD &&
         s2.y > floor(s1.y) && s2.y < (floor(s1.y) + 1))
@@ -77,7 +78,7 @@ bool ruleFunctions::forwardDangerous(const State& s1, const IntVars& v1, const S
 }
 
 
-bool ruleFunctions::leftBlocking(const State& s1, const IntVars& v1, const State& s2)
+bool ruleFunctions::leftBlocking(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if((s1.x - s2.x) < D_BACK && (s2.x - s1.x) < D_FORWARD &&
         s2.y > (floor(s1.y) + 1) && s2.y < (floor(s1.y) + 2 ))
@@ -86,7 +87,7 @@ bool ruleFunctions::leftBlocking(const State& s1, const IntVars& v1, const State
     return false;
 }
 
-bool ruleFunctions::rightBlocking(const State& s1, const IntVars& v1, const State& s2)
+bool ruleFunctions::rightBlocking(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if((s1.x - s2.x) < D_BACK && (s2.x - s1.x) < D_FORWARD &&
        s2.y > (floor(s1.y) - 1) && s2.y < floor(s1.y))
@@ -95,7 +96,7 @@ bool ruleFunctions::rightBlocking(const State& s1, const IntVars& v1, const Stat
     return false;
 }
 
-bool ruleFunctions::minLane(const State& s1, const IntVars& v1, const State& s2)
+bool ruleFunctions::minLane(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if(floor(s1.y) == (double)MIN_LANE)
         return true;
@@ -103,7 +104,7 @@ bool ruleFunctions::minLane(const State& s1, const IntVars& v1, const State& s2)
     return false;
 }
 
-bool ruleFunctions::trueFunction(const State& s1, const IntVars& v1, const State& s2)
+bool ruleFunctions::trueFunction(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     return true;
 }
@@ -111,7 +112,7 @@ bool ruleFunctions::trueFunction(const State& s1, const IntVars& v1, const State
 
 /* Area functions */
 
-void ruleFunctions::forwardArea(const State& s, Area& ind)
+void ruleFunctions::forwardArea(const Sensing& s, Area& ind)
 {
     if (!ind.isEmpty())
         ind.purge();
@@ -124,7 +125,7 @@ void ruleFunctions::forwardArea(const State& s, Area& ind)
     ind.addRect(bounds);
 }
 
-void ruleFunctions::forwardDangerousArea(const State& s, Area& ind)
+void ruleFunctions::forwardDangerousArea(const Sensing& s, Area& ind)
 {
     if (!ind.isEmpty())
         ind.purge();
@@ -138,7 +139,7 @@ void ruleFunctions::forwardDangerousArea(const State& s, Area& ind)
 }
 
 
-void ruleFunctions::leftArea(const State& s, Area& ind)
+void ruleFunctions::leftArea(const Sensing& s, Area& ind)
 {
     if (!ind.isEmpty())
         ind.purge();
@@ -155,7 +156,7 @@ void ruleFunctions::leftArea(const State& s, Area& ind)
     ind.addRect(bounds);
 }
 
-void ruleFunctions::rightArea(const State& s, Area& ind)
+void ruleFunctions::rightArea(const Sensing& s, Area& ind)
 {
     if (!ind.isEmpty())
         ind.purge();

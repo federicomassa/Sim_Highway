@@ -4,7 +4,7 @@
 #include <string>
 #include <cstdlib>
 
-ActionManager::ActionManager(const Vector<State, 10>& mStates, const Vector<List<Sensing>, 10>& nStates) : monitorStates(mStates),
+ActionManager::ActionManager(const Vector<Sensing, 10>& mStates, const Vector<List<Sensing>, 10>& nStates) : monitorStates(mStates),
 													 neighStates(nStates)
 {}
 

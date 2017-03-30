@@ -20,8 +20,8 @@ public:
     /* initialization */
     void init(const List<Event*>& eList) { eventList = eList; }
     /* evaluate the event */
-    void evaluate(const State& qSubj, const IntVars& vars,
-                  const List<State>& qList, bool omniscient);
+    void evaluate(const Sensing& sSubj, const IntVars& vars,
+                  const List<Sensing>& sList, bool omniscient);
     /* re-evaluate the transition after some subEvents changed their value */
     void reEvaluate();
     /* return the value */

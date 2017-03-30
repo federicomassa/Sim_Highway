@@ -12,6 +12,6 @@
 
 extern Logger LOG;
 
-Control computeControl(Maneuver, const State&, /* For platoon */ List<State>, int idx = -1, bool debug = false);
+Control computeControl(const Maneuver&, const State&, const Parms&, const List<Sensing>&, int idx = -1, bool debug = false);
 
 #endif

@@ -56,7 +56,7 @@ const double D_BACK = dBack();
 // SubEvents functions
 // ---------------------------------------------------------------------------
 
-bool forwardBlocking(const State& s1, const IntVars& v1, const State& s2)
+bool forwardBlocking(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if((s2.x - s1.x) > 0 && (s2.x - s1.x) < D_FORWARD &&
         s2.y > floor(s1.y) && s2.y < (floor(s1.y) + 1))
@@ -65,7 +65,7 @@ bool forwardBlocking(const State& s1, const IntVars& v1, const State& s2)
     return false;
 }
 
-bool leftBlocking(const State& s1, const IntVars& v1, const State& s2)
+bool leftBlocking(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if((s1.x - s2.x) < D_BACK && (s2.x - s1.x) < D_FORWARD &&
         s2.y > (floor(s1.y) + 1) && s2.y < (floor(s1.y) + 2 ))
@@ -78,7 +78,7 @@ bool leftBlocking(const State& s1, const IntVars& v1, const State& s2)
     return false;
 }
 
-bool rightBlocking(const State& s1, const IntVars& v1, const State& s2)
+bool rightBlocking(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if((s1.x - s2.x) < D_BACK && (s2.x - s1.x) < D_FORWARD &&
         s2.y < floor(s1.y) && s2.y > (floor(s1.y) - 1))
@@ -87,7 +87,7 @@ bool rightBlocking(const State& s1, const IntVars& v1, const State& s2)
     return false;
 }
 
-bool rightBackBlocking(const State& s1, const IntVars& v1, const State& s2)
+bool rightBackBlocking(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if((s1.x - s2.x) < D_BACK && s1.x > s2.x &&
         s2.y < floor(s1.y) && s2.y > (floor(s1.y) - 1))
@@ -97,7 +97,7 @@ bool rightBackBlocking(const State& s1, const IntVars& v1, const State& s2)
 }
 
 
-bool forwardPresent(const State& s1, const IntVars& v1, const State& s2) 
+bool forwardPresent(const Sensing& s1, const IntVars& v1, const Sensing& s2) 
 {
   if ((s2.x - s1.x) > 0 &&
       (s2.x - s1.x) < INTERACTION_DISTANCE &&
@@ -107,7 +107,7 @@ bool forwardPresent(const State& s1, const IntVars& v1, const State& s2)
   return false;
 }
 
-bool backPresent(const State& s1, const IntVars& v1, const State& s2) 
+bool backPresent(const Sensing& s1, const IntVars& v1, const Sensing& s2) 
 {
   if ((s1.x - s2.x) > 0 &&
       (s1.x - s2.x) < INTERACTION_DISTANCE &&
@@ -117,7 +117,7 @@ bool backPresent(const State& s1, const IntVars& v1, const State& s2)
   return false;
 }
 
-bool forwardCompatible(const State& s1, const IntVars& v1, const State& s2)
+bool forwardCompatible(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
   if ((s2.x - s1.x) > 0 && (s2.x - s1.x) < INTERACTION_DISTANCE && s2.y < (floor(s1.y) + 1) && s2.y > floor(s1.y))
     if (fabs(s1.desiredV - s2.desiredV) < V_TOLERANCE*s1.desiredV)
@@ -126,7 +126,7 @@ bool forwardCompatible(const State& s1, const IntVars& v1, const State& s2)
   return false;
 }
 
-bool rightForwardIncompatible(const State& s1, const IntVars& v1, const State& s2)
+bool rightForwardIncompatible(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
   if ((s2.x - s1.x) > 0 && (s2.x - s1.x) < INTERACTION_DISTANCE && s2.y < floor(s1.y) && s2.y > floor(s1.y - 1))
     if (fabs(s1.desiredV - s2.desiredV) > V_TOLERANCE*s1.desiredV)
@@ -136,7 +136,7 @@ bool rightForwardIncompatible(const State& s1, const IntVars& v1, const State& s
 }
 
 
-bool backCompatible(const State& s1, const IntVars& v1, const State& s2)
+bool backCompatible(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
   if ((s1.x - s2.x) > 0 && (s1.x - s2.x) < INTERACTION_DISTANCE && s2.y < (floor(s1.y) + 1) && s2.y > floor(s1.y))
     if (fabs(s1.desiredV - s2.desiredV) < V_TOLERANCE*s1.desiredV)
@@ -146,7 +146,7 @@ bool backCompatible(const State& s1, const IntVars& v1, const State& s2)
 }
 
 
-bool maxLane(const State& s1, const IntVars& v1, const State& s2)
+bool maxLane(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if(floor(s1.y) == (double)MAX_LANE)
         return true;
@@ -154,7 +154,7 @@ bool maxLane(const State& s1, const IntVars& v1, const State& s2)
     return false;
 }
 
-bool minLane(const State& s1, const IntVars& v1, const State& s2)
+bool minLane(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if(floor(s1.y) == (double)MIN_LANE)
         return true;
@@ -162,7 +162,7 @@ bool minLane(const State& s1, const IntVars& v1, const State& s2)
     return false;
 }
 
-bool targetLane(const State& s1, const IntVars& v1, const State& s2)
+bool targetLane(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if (floor(s1.y) == v1)
         return true;
@@ -170,7 +170,7 @@ bool targetLane(const State& s1, const IntVars& v1, const State& s2)
     return false;
 }
 
-bool linedUp(const State& s1, const IntVars& v1, const State& s2)
+bool linedUp(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if (fabs(s1.y - floor(s1.y) - 0.5) < 0.1 && fabs(s1.theta) < 0.1)
         return true;
@@ -179,7 +179,7 @@ bool linedUp(const State& s1, const IntVars& v1, const State& s2)
 }
 
 // Another platoon is passing on the left (not necessarily next lane), is it compatible with our desired speed?
-bool LeftPlatoonCompatible(const State& s1, const IntVars& v1, const State& s2) 
+bool LeftPlatoonCompatible(const Sensing& s1, const IntVars& v1, const Sensing& s2) 
 {
   if ((s2.x - s1.x) > 0 && (s2.x - s1.x) < INTERACTION_DISTANCE)
     if (fabs(s1.desiredV - s2.desiredV) < V_TOLERANCE*s1.desiredV)
@@ -190,7 +190,7 @@ bool LeftPlatoonCompatible(const State& s1, const IntVars& v1, const State& s2)
 }
 
 // Another platoon is passing on the right (not necessarily next lane), is it more compatible with our desired speed?
-bool RightPlatoonCompatible(const State& s1, const IntVars& v1, const State& s2) 
+bool RightPlatoonCompatible(const Sensing& s1, const IntVars& v1, const Sensing& s2) 
 {
   if ((s2.x - s1.x) > 0 && (s2.x - s1.x) < INTERACTION_DISTANCE)
     if (fabs(s1.desiredV - s1.v) > fabs(s1.desiredV - s2.v))
@@ -201,7 +201,7 @@ bool RightPlatoonCompatible(const State& s1, const IntVars& v1, const State& s2)
 }
 
 // On the right there is a vehicle with a greater or equal speed -> can't overtake it
-bool RightBlockingOvertakeable(const State& s1, const IntVars& v1, const State& s2)
+bool RightBlockingOvertakeable(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
   // if (s1.x < 2.167 && s1.x > 2.165)
   //   if (s1.y < 1.501 && s1.y > 1.499)
@@ -221,7 +221,7 @@ bool RightBlockingOvertakeable(const State& s1, const IntVars& v1, const State& 
 // Indicator functions
 // ---------------------------------------------------------------------------
 
-void forwardArea(const State& s, Area& ind)
+void forwardArea(const Sensing& s, Area& ind)
 {
     if (!ind.isEmpty())
         ind.purge();
@@ -235,7 +235,7 @@ void forwardArea(const State& s, Area& ind)
 }
 
 // CHECK THIS: only useful for monitor?
-void backArea(const State& s, Area& ind)
+void backArea(const Sensing& s, Area& ind)
 {
     if (!ind.isEmpty())
         ind.purge();
@@ -249,7 +249,7 @@ void backArea(const State& s, Area& ind)
 }
 
 
-void leftArea(const State& s, Area& ind)
+void leftArea(const Sensing& s, Area& ind)
 {
     if (!ind.isEmpty())
         ind.purge();
@@ -272,7 +272,7 @@ void leftArea(const State& s, Area& ind)
     ind.addRect(bounds);
 }
 
-void rightArea(const State& s, Area& ind)
+void rightArea(const Sensing& s, Area& ind)
 {
     if (!ind.isEmpty())
         ind.purge();
@@ -288,7 +288,7 @@ void rightArea(const State& s, Area& ind)
     ind.addRect(bounds);
 }
 
-void forwardVisibleArea(const State& s, Area &ind)
+void forwardVisibleArea(const Sensing& s, Area &ind)
 {
   if (!ind.isEmpty())
     ind.purge();
@@ -302,7 +302,7 @@ void forwardVisibleArea(const State& s, Area &ind)
   
 }
 
-void backVisibleArea(const State& s, Area &ind)
+void backVisibleArea(const Sensing& s, Area &ind)
 {
   if (!ind.isEmpty())
     ind.purge();
@@ -316,7 +316,7 @@ void backVisibleArea(const State& s, Area &ind)
   
 }
 
-void rightBackArea(const State& s, Area& ind)
+void rightBackArea(const Sensing& s, Area& ind)
 {
     if (!ind.isEmpty())
         ind.purge();
@@ -332,7 +332,7 @@ void rightBackArea(const State& s, Area& ind)
     ind.addRect(bounds);
 }
 
-void leftForwardVisibleArea(const State& s, Area& ind)
+void leftForwardVisibleArea(const Sensing& s, Area& ind)
 {
     if (!ind.isEmpty())
         ind.purge();
@@ -349,7 +349,7 @@ void leftForwardVisibleArea(const State& s, Area& ind)
     ind.addRect(bounds);
 }
 
-void rightForwardVisibleArea(const State& s, Area& ind)
+void rightForwardVisibleArea(const Sensing& s, Area& ind)
 {
     if (!ind.isEmpty())
         ind.purge();
@@ -371,19 +371,19 @@ void rightForwardVisibleArea(const State& s, Area& ind)
 // IntVars reset functions
 // ---------------------------------------------------------------------------
 
-IntVars setTargetLane(const State& s)
+IntVars setTargetLane(const Sensing& s)
 {
     IntVars v = floor(s.y);
     return v;
 }
 
-IntVars incTargetLane(const State& s)
+IntVars incTargetLane(const Sensing& s)
 {
     IntVars v = floor(s.y) + 1;
     return v;
 }
 
-IntVars decTargetLane(const State& s)
+IntVars decTargetLane(const Sensing& s)
 {
     IntVars v = floor(s.y) - 1;
     return v;
@@ -396,7 +396,7 @@ IntVars decTargetLane(const State& s)
 /**
  * this function returns the active area for an agent
  */
-void activeArea(const State& s, Area& active)
+void activeArea(const Sensing& s, Area& active)
 {
     if(CONF.debug)
         LOG.s << "Computing active area for state " << s << ":" << EndLine();

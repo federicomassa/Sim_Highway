@@ -9,25 +9,26 @@ class Knowledge;
 
 class Vehicle
 {
-  std::ofstream simulLeftTest;
-  std::ofstream simulOtherTest;
-    friend class Image;
-    Automaton automaton;
-    PhysicalLayer pLayer;
-    MonitorLayer mLayer;
-    ReputationManager repMan;
-    int idx;
-    /* set reputation manager's current parameters */
-    void setRM();
-    /* List of sensor measurements */
-    List<Sensing> sList; 
+  friend class Image;
+  Automaton automaton;
+  PhysicalLayer pLayer;
+  MonitorLayer mLayer;
+  ReputationManager repMan;
+  int idx;
+  Parms p;
+  /* set reputation manager's current parameters */
+  void setRM();
+  /* List of sensor measurements */
+  List<Sensing> sList;
+  /* Vehicle type */
+  
 public:
     /* constructor */
     Vehicle() { idx = -1; }
     /* destructor */
     ~Vehicle() { }
     /* initialization */
-    void init(const State&, const Parms&);
+    void init(const std::pair<State, Parms>&);
     /* set vehicle identifier */
     void setID(int index)
     {
@@ -48,11 +49,11 @@ public:
     State getQ() const { return pLayer.getQ(); }
 
     /* set continuous state q - for predictor */
-    void setQ(const State& q) {pLayer.init(q, q.v);}
+    void setQ(const State& q) {pLayer.setQ(q);}
     
     /* get vehicle identifier */
     int getID() const { return idx; }
-    Parms getParms() const { return pLayer.getParms(); }
+    Parms getParms() const { return p; }
     Maneuver getManeuver() const { return automaton.getManeuver(); }
     List<Sensing>& getSList() {return sList;}
     /* check if (part of) the vehicle state q belongs to the Area */

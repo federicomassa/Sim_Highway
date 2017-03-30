@@ -3,8 +3,8 @@
 
 using namespace std;
 
-void Transition::evaluate(const State& qSubj, const IntVars& vars,
-                          const List<State>& qList, bool omniscient)
+void Transition::evaluate(const Sensing& sSubj, const IntVars& vars,
+                          const List<Sensing>& sList, bool omniscient)
 {   
     if(CONF.debug)
         LOG.s << "Evaluating Transition BEGIN..." << EndLine(EndLine::INC);
@@ -25,7 +25,7 @@ void Transition::evaluate(const State& qSubj, const IntVars& vars,
             LOG.s << "Calling evaluation of Event " << tmpE->getID() << "...";
             LOG.s << EndLine();
         }
-        tmpE->evaluate(qSubj, vars, qList, omniscient);
+        tmpE->evaluate(sSubj, vars, sList, omniscient);
         if(CONF.debug)
             LOG.s << "Updating Transition value " << value << " << ";
         value = value || tmpE->getValue();

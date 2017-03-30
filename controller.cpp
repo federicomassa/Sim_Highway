@@ -3,7 +3,7 @@
 #include "rules.h"
 #include <iostream>
 
-Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<State> qList, int idx, bool debug)
+Control computeControl(const Maneuver& sigma, const State& q, const Parms& p, const List<Sensing>& sList, int idx, bool debug)
 {
     Control c;
     
@@ -19,46 +19,49 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 	{
 	  if (debug)
 	    {
-	      std::cout << "See: " << qList.count() << " vehicles" << std::endl;
-	      const State* q;
-	      for (int i = 0; i < qList.count(); i++)
+	      std::cout << "See: " << sList.count() << " vehicles" << std::endl;
+	      const Sensing* s;
+	      for (int i = 0; i < sList.count(); i++)
 		{
-		  qList.getElem(q, i);
-		  std::cout << *q << std::endl;
+		  sList.getElem(s, i);
+		  std::cout << *s << std::endl;
 		}
 	    }
 	  
 	  /* Platoon case FIXME */
 	  // Look for vehicle ahead and behind
-	  Iterator<State> is(qList);
-	  State tmpQ(0,0,0,0);
-	  State aheadQ(0,0,0,0);
-	  State behindQ(0,0,0,0);
+	  Iterator<Sensing> is(sList);
+	  Sensing tmpQ;
+	  Sensing aheadQ;
+	  Sensing behindQ;
 	  
 	  bool isVehicleAheadCompatible = false;
 	  bool isVehicleBehindCompatible = false;
 	  bool isVehicleAheadBlocking = false;
 
+
+	  /* dummy sensing to use rule functions */
+	  Sensing myS(idx, q, p);
 	  
-	  for (int i = 0; i < qList.count(); i++) {
-	    is(tmpQ);
+	  while(is(tmpQ))
+	    {
 	    
-	    /* If same lane */
+	      /* If same lane */
 	    if (tmpQ.y < floor(q.y) + 1 && tmpQ.y > floor(q.y)) {
 	      /* If ahead of you */
-	      if (tmpQ.x - q.x > 0 && fabs(tmpQ.desiredV - q.desiredV) < V_TOLERANCE*q.desiredV){
+	      if (tmpQ.x - q.x > 0 && fabs(tmpQ.desiredV - p.desiredV) < V_TOLERANCE*p.desiredV){
 		aheadQ = tmpQ;
 		isVehicleAheadCompatible = true;
 		continue;
 	      }
 	      /* If behind you */
-	      else if (tmpQ.x - q.x < 0 && fabs(tmpQ.desiredV - q.desiredV) < V_TOLERANCE*q.desiredV) {
+	      else if (tmpQ.x - q.x < 0 && fabs(tmpQ.desiredV - p.desiredV) < V_TOLERANCE*p.desiredV) {
 		behindQ = tmpQ;
 		isVehicleBehindCompatible = true;
 		continue;
 	      }
 
-	      else if (forwardBlocking(q, floor(q.y), tmpQ)) {
+	      else if (forwardBlocking(myS, floor(q.y), tmpQ)) {
 		aheadQ = tmpQ;
 		isVehicleAheadBlocking = true;
 		continue;
@@ -69,7 +72,6 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 	    }
 	  }
 
-	  
 	  
 	  // if there is both a vehicle ahead and behind
 	  if (isVehicleAheadCompatible && isVehicleBehindCompatible) {
@@ -83,13 +85,6 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 	  
 	  // Platoon leader
 	  else if (!isVehicleAheadCompatible && isVehicleBehindCompatible) {
-
-	    // std::cout << "isVehicleAheadBlocking: " << isVehicleAheadBlocking << std::endl;
-	    // std::cout << "Ahead distance: " << aheadQ.x - q.x << std::endl;
-	    // std::cout << "Behind distance: " << q.x - behindQ.x << std::endl;
-	    // std::cout << "My speed: " << q.v << std::endl;
-	    // std::cout << "Ahead speed: " << aheadQ.v << std::endl;
-	    // std::cout << "dForward: " << dForward() << std::endl;
 	      
 	    
 	    if (isVehicleAheadBlocking) {
@@ -97,11 +92,10 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 	    }
 	    else
 	      {
-		c.a = -B_BACK*(q.x - behindQ.x - D_REF) /*- GAMMA*B_BACK*(q.v - behindQ.v)*/ - 10*K_LEADER*(q.v - q.desiredV);
+		c.a = -B_BACK*(q.x - behindQ.x - D_REF) /*- GAMMA*B_BACK*(q.v - behindQ.v)*/ - 10*K_LEADER*(q.v - p.desiredV);
 
 	      }
 
-	    //	    std::cout << "a: " << c.a << std::endl;
 	    
 	  }
 	  
@@ -120,14 +114,6 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 	      / q.theta - LOOP_GAIN_CONSTANT * q.v * q.theta;
 	  } else
 	    c.omega = - (q.y - (floor(q.y) + 0.5) ) * q.v;
-
-	  /*	  if (idx == 2)
-	    {
-	      std::cout << "aheadComp: " << isVehicleAheadCompatible << std::endl;
-	      std::cout << "backComp: " << isVehicleBehindCompatible << std::endl;
-	      std::cout << "aheadBlock: " << isVehicleAheadBlocking << std::endl;
-	      std::cout << "v: " << q.v << std::endl;
-	      }*/
 			
 	  
 	  break;
@@ -135,7 +121,7 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
       case FAST:
 	{
 	  
-	  if (q.v < q.desiredV)
+	  if (q.v < p.desiredV)
 	    c.a = ACCELERATION;
 	  else
 	    c.a = 0;
@@ -159,7 +145,7 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 	}
 	break;
       case LEFT:
-	if (q.v < q.desiredV)
+	if (q.v < p.desiredV)
 	  c.a = ACCELERATION;
 	else
 	  c.a = 0;
@@ -167,7 +153,7 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 	c.omega = MAX_ANGULAR_SPEED;
 	break;
       case RIGHT:
-	if (q.v < q.desiredV)
+	if (q.v < p.desiredV)
 	  c.a = ACCELERATION;
 	else
 	  c.a = 0;

@@ -55,7 +55,7 @@ class Monitor
     int targetID;
 
     /* Memory of the target and neighbors trajetory */
-    Vector<State, 10> monitorStates;
+    Vector<Sensing, 10> monitorStates;
     Vector<List<Sensing>, 10> neighStates;
 
     /* ActionManager and RuleMonitor */
@@ -73,7 +73,7 @@ public:
     ~Monitor() { }
 
     /* Run monitor */
-    void run(const State&, const List<Sensing>&, const Area&);
+    void run(const Sensing&, const List<Sensing>&, const Area&);
 
     int getTargetID() const { return targetID; }
     /*!

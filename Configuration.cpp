@@ -1,9 +1,16 @@
-
 #include "Configuration.h"
 #include <iostream>
 #include <string>
 
 using namespace std;
+
+ostream& operator<<(ostream& os, const pair<State, Parms>& p)
+{
+  os << p.first << EndLine();
+  os << p.second << EndLine();
+
+  return os;
+}
 
 Configuration::Configuration(const string& fileName)
 {
@@ -173,7 +180,7 @@ void Configuration::parseConf(const string& fileName)
                     break;
                 if(str[0] == '#')
                     continue;
-                qList.insTail(State(str));
+                qpList.insTail(State::makeStatesAndParms(str));
             }
             continue;
 		}
@@ -273,7 +280,7 @@ void Configuration::parseConf(const string& fileName)
         /* default */
         error("Configuration", "parse error at line " + toString(line));
     }
-    const int nV = qList.count();
+    const int nV = qpList.count();
     if(allMonitorsActive)
         for(int i = 0; i < nV; i++)
             activeMonitors.insTail(i);
@@ -291,7 +298,7 @@ ostream& operator<<(ostream& os, const Configuration& c)
     os << "Debug: " << (c.debug ? "ON" : "OFF") << EndLine();
     os << "Simulation steps: " << c.nSteps << EndLine();
     os << "States: " << EndLine(EndLine::INC);
-    os << c.qList << EndLine(EndLine::DEC);
+    os << c.qpList << EndLine(EndLine::DEC);
     os << "Failures: " << EndLine(EndLine::INC);
     os << c.failures << EndLine(EndLine::DEC);
     if(c.allMonitorsActive)

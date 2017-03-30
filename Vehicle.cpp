@@ -5,53 +5,27 @@
 #include <fstream>
 
 
-void Vehicle::init(const State& s, const Parms& p)
+void Vehicle::init(const std::pair<State, Parms>& sp)
 {
-    automaton.init(s);
-    pLayer.init(s, p);
-    /*    simulLeftTest.open("simulatorLeft.dat");
-	  simulOtherTest.open("simulatorOther.dat");*/
+    automaton.init(sp);
+    pLayer.init(sp);
+    p = sp.second;
 }
 
 void Vehicle::setRM()
 {
-  //    Knowledge k;
-    //    mLayer.buildKnowledge(k); /* take current neighborhood list */
-    //    repMan.setCurrentParams(pLayer.getQ(), k);
 }
 
 void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
 {
   (*this).sList = sList;
-  Sensing tmpS;
-  Iterator<Sensing> i(sList);
-  List<State> qList;
-  while(i(tmpS))
-    qList.insHead(tmpS.q);
-  /* detecting events */
-
-  /* First change maneuver, then evolve pLayer*/
-  automaton.run(getQ(), qList);
+  
+  Sensing myS(idx, getQ(), getParms());
+  /* First change maneuver, then evolve pLayer*/    
+  automaton.run(myS, sList);
   
   /* physical layer evolution */
-  
-  pLayer.computeNextQ(automaton.getManeuver(), /* For platoon controller */qList);
-
-  /*  if (idx == 0)
-    {
-      State currentQ = getQ();
-      std::string qStr;
-      qStr = toStringWithPrecision(currentQ.x, 5) + ' ' + toStringWithPrecision(currentQ.y, 5) + ' ' + toStringWithPrecision(currentQ.theta, 5) + ' ' + toStringWithPrecision(currentQ.v, 5) + '\n';
-      simulLeftTest << qStr;
-    }
-
-  if (idx == 1)
-    {
-      State currentQ = getQ();
-      std::string qStr;
-      qStr = toStringWithPrecision(currentQ.x, 5) + ' ' + toStringWithPrecision(currentQ.y, 5) + ' ' + toStringWithPrecision(currentQ.theta, 5) + ' ' + toStringWithPrecision(currentQ.v, 5) + '\n';
-      simulOtherTest << qStr;
-      }*/
+  pLayer.computeNextQ(automaton.getManeuver(), sList);
 
 }
 
@@ -59,7 +33,7 @@ void Vehicle::evolveMonitor(const Area& obs)
 {
   /* monitor layer evolution */
   if(mLayer.isActive())
-    mLayer.run(sList, pLayer.getQ(), automaton.getManeuver(), obs);
+    mLayer.run(sList, pLayer.getQ(), getParms(), automaton.getManeuver(), obs);
   /* set reputation manager */
   if(repMan.isActive())
     setRM(); 

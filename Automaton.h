@@ -67,7 +67,7 @@ public:
      *
      * @param q continuous state.
      */
-    void init(const State& q);
+    void init(const std::pair<State, Parms>& qp);
     /*!
      * \brief Set current maneuver to m.
      *
@@ -77,7 +77,7 @@ public:
      * @param m new automaton discrete state.
      * @param q vehicle continuous state.
      */
-    void setManeuver(Maneuver m, const State& q);
+    void setManeuver(Maneuver m, const Sensing& q);
     /*!
      * \brief Detect event based on a list of neighbors states.
      *
@@ -90,7 +90,7 @@ public:
      *        not.
      * @return True if an event was detected, false otherwise.
      */
-    bool detectEvents(const State& qSubj, const List<State>& qList,
+    bool detectEvents(const Sensing& sSubj, const List<Sensing>& sList,
                       bool omniscient);
     /*!
      * \brief Run an evolution step of the automaton.
@@ -100,7 +100,7 @@ public:
      * @param qSubj vehicle continuous state.
      * @param qList neighbors states list.
      */
-    void run(const State& qSubj, const List<State>& qList);
+    void run(const Sensing& sSubj, const List<Sensing>& sList);
     /*!
      * \brief Return current automaton discrete state.
      *
