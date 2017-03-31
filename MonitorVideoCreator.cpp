@@ -27,7 +27,7 @@ void MonitorVideoCreator::run()
   
   Vehicle* monitorV = env->getVehicleFromID(monitorID);
   if (monitorV == NULL)
-    error("MonitorVideoCreator::run", "Monitor vehicle's ID not found");
+    return;
   
   Image img(monitorV->getQ().x);
 
@@ -53,7 +53,12 @@ void MonitorVideoCreator::run()
   env->observableArea(observerIndex, obs, hiddenObs);
   img.drawArea(*hiddenObs, gray);
 
-  const RuleMonitor* rMon = globalEnv->getVehicleFromID(observerID)->getMonitorLayer()->getMonitor(monitorID)->getRuleMonitor();
+  const RuleMonitor* rMon;
+  if (globalEnv->getVehicleFromID(observerID)->getMonitorLayer()->getMonitor(monitorID))
+    rMon = globalEnv->getVehicleFromID(observerID)->getMonitorLayer()->getMonitor(monitorID)->getRuleMonitor();
+  else
+    return;
+  
   List<std::pair<Action*, List<Rule> > > processedActions = rMon->getProcessedActions();
 
   Iterator<std::pair<Action*, List<Rule> > > aIt(processedActions);

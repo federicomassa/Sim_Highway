@@ -36,7 +36,13 @@ void ActionVideoCreator::run()
 
 
   /* Get observer's ActionManager */
-  List<const Action*> activeActions = observerV->getMonitorLayer()->getMonitor(monitorID)->getActionManager()->getActiveActions();
+  List<const Action*> activeActions;
+  
+  if (observerV->getMonitorLayer()->getMonitor(monitorID))
+    activeActions = observerV->getMonitorLayer()->getMonitor(monitorID)->getActionManager()->getActiveActions();
+  else
+    return;
+  
   Iterator<const Action*> aIt(activeActions);
   const Action* tmpA;
 

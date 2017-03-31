@@ -26,6 +26,9 @@ clean:
 clean2:
 	rm -rf Output 
 
+depMaker:
+	g++ -std=c++11 -o dependencyMaker DepMaker/dependencyMaker.cpp -lboost_filesystem -lboost_system
+
 .PHONY: tar
 
 tar:

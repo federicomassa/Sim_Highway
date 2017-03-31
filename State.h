@@ -11,17 +11,36 @@
 #include "utility.h"
 #include "Vector.h"
 
+class VehicleType
+{
+  double width;
+  double height;
+  std::string name;
+ public:
+  VehicleType() {width = -1; height = -1;}
+  void setType(const std::string&);
+  const double& getWidth() const {return width;}
+  const double& getHeight() const {return height;}
+  const std::string& getName() const {return name;}
+  bool operator==(const VehicleType& vT) const
+  {
+    return (width == vT.width) && (height == vT.height);
+  }
+  
+};
+
+
 struct Parms
 {
   double desiredV;
   Maneuver initManeuver;
-  std::string vehicleType;
+  VehicleType vehicleType;
   std::string pLayerType;
   std::string automatonType;
 
   Parms(const double& qDesiredV,
 	const Maneuver& qInitManeuver,
-	const std::string& vType,
+	const VehicleType& vType,
 	const std::string& pType,
 	const std::string& aType) : desiredV(qDesiredV*MAX_SPEED), initManeuver(qInitManeuver)
   {
@@ -34,7 +53,7 @@ struct Parms
   {
     desiredV = MAX_SPEED;
     initManeuver = FAST;
-    vehicleType = "STANDARD";
+    vehicleType.setType("StandardVehicle");
     pLayerType = "STANDARD";
     automatonType = "STANDARD";    
   }

@@ -4,12 +4,17 @@
 #include <utility>
 #include <fstream>
 
+Vehicle::Vehicle()
+{
+  idx = -1;
+}
 
 void Vehicle::init(const std::pair<State, Parms>& sp)
 {
     automaton.init(sp);
     pLayer.init(sp);
-    p = sp.second;
+    p = sp.second;    
+
 }
 
 void Vehicle::setRM()

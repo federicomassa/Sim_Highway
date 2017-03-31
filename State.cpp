@@ -2,6 +2,29 @@
 
 using namespace std;
 
+void VehicleType::setType(const string& type)
+{
+  width = -1;
+  height = -1;
+  name = type;
+  
+  if (type == "StandardVehicle")
+    {
+      width = 1.22;
+      height = 0.72;
+    }
+  else if (type == "LongVehicle")
+    {
+      width = 1.52;
+      height = 0.72;
+    }
+  else
+    error("VehicleType::setType", "Invalid vehicle type: " + type);
+  
+  if (width < 0 || height < 0)
+    error("VehicleType::setType", "Forgot to specify width/height for vehicle type: " + type + " ?");
+}
+
 State::State(const string& str)
 {
     //qV expressed as fraction of MAX_SPEED defined in systemParms.h
@@ -60,7 +83,7 @@ ostream& operator<<(ostream& os, const Parms& s)
 {
     os << "Parms (desiredV = " << fixed << setprecision(3) << s.desiredV;
     os << ", initManeuver = " << s.initManeuver;
-    os << ", vehicleType = " << s.vehicleType;
+    os << ", vehicleType = " << s.vehicleType.getName();
     os << ", pLayerType = " << s.pLayerType;
     os << ", automatonType = " << s.automatonType << ')';
     os.flush();
@@ -86,7 +109,8 @@ std::pair<State, Parms> State::makeStatesAndParms(const std::string& str)
   // 
   double qX = -100, qY = -100, qTheta = -100, qV = -100, qDesiredV = -100;
   Maneuver qInitMan = UNKNOWN;
-  string vType, pType, aType; 
+  VehicleType vType;
+  string pType, aType; 
   
   vector<string> tokens = split(str, " ");
   if (tokens.size() < 4)
@@ -100,7 +124,7 @@ std::pair<State, Parms> State::makeStatesAndParms(const std::string& str)
       qV = stod(tokens[3]);
       qDesiredV = 1; /* max velocity by default */
       qInitMan = FAST;
-      vType = "STANDARD";
+      vType.setType("StandardVehicle");
       pType = "STANDARD";
       aType = "STANDARD";
     }
@@ -112,7 +136,7 @@ std::pair<State, Parms> State::makeStatesAndParms(const std::string& str)
       qV = stod(tokens[3]);
       qDesiredV = stod(tokens[4]);
       qInitMan = strToManeuver(tokens[5]);
-      vType = tokens[6];
+      vType.setType(tokens[6]);
       pType = tokens[7];
       aType = tokens[8];
     }

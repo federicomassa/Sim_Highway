@@ -21,6 +21,7 @@
 #define VEHICLE_IMG_W 61
 #define VEHICLE_IMG_H 36
 #define VEHICLE_TXT_SIZE 0.27
+#define VEHICLE_TXT_SCALE 61
 #define FRAME_W 900
 #define FRAME_H (17 + SCALE * LANES)
 #define Y_OFFSET (FRAME_H - 9)

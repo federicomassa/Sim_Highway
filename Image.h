@@ -33,7 +33,7 @@ class Image
     /* draw a vehicle */
     void addVehicle(const Vehicle&, bool isSubject = false);
     void drawVehicle(const State& q, const Maneuver m = FAST, int index = -1,
-                     bool isSubject = false, RepLevel rLev = UNSET);
+                     bool isSubject = false, RepLevel rLev = UNSET, const int& pixWidth = -1, const int& pixHeight = -1);
     void drawVehicleWithLabel(const Vehicle&, const char*);
     void addHypothesis(const Hypothesis& hyp, const bool& invert = false);
     void cp(const Image& im);

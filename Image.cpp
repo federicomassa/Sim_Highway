@@ -167,7 +167,7 @@ string Image::save(const string prefix, const string suffix)
 }
 
 void Image::drawVehicle(const State& q, const Maneuver m, int index,
-                        bool isSubject, RepLevel rLev)
+                        bool isSubject, RepLevel rLev, const int& pixWidth, const int& pixHeight)
 {
     /* error handling */
     if (frame == NULL)
@@ -208,11 +208,11 @@ void Image::drawVehicle(const State& q, const Maneuver m, int index,
     
     if(index != -1)
     {
-        int text_size;
-        if(vImg->sx > vImg->sy)
-            text_size = (int)round((double)vImg->sy * VEHICLE_TXT_SIZE);
-        else
-            text_size = (int)floor((double)vImg->sx * VEHICLE_TXT_SIZE);
+      int text_size;
+      if (vImg->sx > vImg->sy)
+	text_size = (int)round((double)vImg->sy * VEHICLE_TXT_SIZE / (double)pixWidth * VEHICLE_TXT_SCALE);
+      else
+	text_size = (int)floor((double)vImg->sx * VEHICLE_TXT_SIZE / (double)pixWidth * VEHICLE_TXT_SCALE);
         
         const int circle_size = (int)ceil((double)text_size * 1.8);
         const int text_color = gdImageColorResolve(vImg, 0, 0, 0);
@@ -247,8 +247,8 @@ void Image::drawVehicle(const State& q, const Maneuver m, int index,
                         (char*)idStr.c_str());
     }
     
-    const double scale_x = (double)VEHICLE_IMG_W / (double)vImg->sx;
-    const double scale_y = (double)VEHICLE_IMG_H / (double)vImg->sy;
+    const double scale_x = (double)pixWidth / (double)vImg->sx;
+    const double scale_y = (double)pixHeight / (double)vImg->sy;
     
     fp = fopen(INPUT(transparent.png), "rb");
     /* error handling */
@@ -308,11 +308,11 @@ void Image::drawVehicleWithLabel(const Vehicle& v, const char* label)
     fclose(fp);
     
     int text_size;
-    if(vImg->sx > vImg->sy)
-      text_size = (int)round((double)vImg->sy * VEHICLE_TXT_SIZE);
+    if (vImg->sx > vImg->sy)
+      text_size = (int)round((double)vImg->sy * VEHICLE_TXT_SIZE / (double)v.getPixelWidth() * VEHICLE_TXT_SCALE);
     else
-      text_size = (int)floor((double)vImg->sx * VEHICLE_TXT_SIZE);
-
+      text_size = (int)floor((double)vImg->sx * VEHICLE_TXT_SIZE / (double)v.getPixelWidth() * VEHICLE_TXT_SCALE);
+    
     
     idStr = std::string(label);
     
@@ -329,8 +329,8 @@ void Image::drawVehicleWithLabel(const Vehicle& v, const char* label)
 
     
     
-    const double scale_x = (double)VEHICLE_IMG_W / (double)vImg->sx;
-    const double scale_y = (double)VEHICLE_IMG_H / (double)vImg->sy;
+    const double scale_x = (double)v.getPixelWidth() / (double)vImg->sx;
+    const double scale_y = (double)v.getPixelHeight() / (double)vImg->sy;
     
     fp = fopen(INPUT(transparent.png), "rb");
     /* error handling */
@@ -356,7 +356,7 @@ void Image::addVehicle(const Vehicle& v, bool isSubject)
     const State q = v.getQ();
     const int id = v.getID();
     const Maneuver m = v.getManeuver();
-    drawVehicle(q, m, id, isSubject);
+    drawVehicle(q, m, id, isSubject, UNSET, v.getPixelWidth(), v.getPixelHeight());
 }
 
 void Image::addAllVehicles(const Environment& env)

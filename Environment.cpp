@@ -114,13 +114,15 @@ void Environment::observableArea(int index, Area& obs, Area* hiddenArea, const d
         double sinTheta = 0;
         if (s.theta != 0)
         {
-            cosTheta = cos(s.theta);
-            sinTheta = sin(s.theta);
+	  cosTheta = cos(s.theta);
+	  sinTheta = sin(s.theta);
         }
-        const double deltaXX = 0.5 * VEHICLE_IMG_W / SCALE * cosTheta;
-        const double deltaXY = 0.5 * VEHICLE_IMG_H / SCALE * sinTheta;
-        const double deltaYX = 0.5 * VEHICLE_IMG_W / SCALE * sinTheta;
-        const double deltaYY = 0.5 * VEHICLE_IMG_H / SCALE * cosTheta;
+        const double deltaXX = 0.5 * v[k].getPixelWidth() / SCALE * cosTheta;
+        const double deltaXY = 0.5 * v[k].getPixelHeight() / SCALE * sinTheta;
+        const double deltaYX = 0.5 * v[k].getPixelWidth() / SCALE * sinTheta;
+        const double deltaYY = 0.5 * v[k].getPixelHeight() / SCALE * cosTheta;
+
+	
         /* x[] and y[] are the vertexes of vehicle's image */
         x[0] = s.x - deltaXX + deltaXY;
         x[1] = s.x + deltaXX + deltaXY;

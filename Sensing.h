@@ -3,6 +3,7 @@
 #define SENSING_H
 
 #include "EndLine.h"
+#include "State.h"
 #include "systemTypes.h"
 
 class State;
@@ -16,7 +17,7 @@ public:
     int agentID;
     double x, y, theta, v;
     double desiredV;
-    std::string vehicleType;
+    VehicleType vehicleType;
     
     Sensing() { agentID = -1; }
     Sensing(int tIdx, const State& tQ, const Parms& tP)
@@ -32,7 +33,7 @@ public:
     }
 
     Sensing(const int& tIdx, const double& x, const double& y, const double& theta, const double& v,
-	    const double& desiredV, const std::string& vehicleType)
+	    const double& desiredV, const VehicleType& vehicleType)
       {
 	/* this is the list of available sensor data */
         agentID           = tIdx;

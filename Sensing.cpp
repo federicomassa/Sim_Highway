@@ -12,7 +12,7 @@ ostream& operator<<(ostream& os, const Sensing& s)
     os << "         theta = " << s.theta << EndLine();
     os << "         v = " << s.v << " }" << EndLine();
     os << "Parms: { " << "desiredV = " << s.desiredV << EndLine();
-    os << "         vehicleType = " << s.vehicleType  << " }" << EndLine(EndLine::DEC);
+    os << "         vehicleType = " << s.vehicleType.getName()  << " }" << EndLine(EndLine::DEC);
     os << '}';
     os.flush();
     
