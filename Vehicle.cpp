@@ -9,12 +9,46 @@ Vehicle::Vehicle()
   idx = -1;
 }
 
+Vehicle::~Vehicle()
+{}
+
 void Vehicle::init(const std::pair<State, Parms>& sp)
 {
     automaton.init(sp);
+    
     pLayer.init(sp);
     p = sp.second;    
 
+}
+
+void Vehicle::setID(int index)
+{
+  idx = index;
+  automaton.setID(index);
+  mLayer.setID(index);
+    
+  pLayer.setID(index);
+}
+
+State Vehicle::getQ() const
+{
+  return pLayer.getQ();
+}
+
+/* set continuous state q - for predictor */
+void Vehicle::setQ(const State& q)
+{
+  pLayer.setQ(q);
+}
+
+bool Vehicle::inArea(const Area& a) const
+{  
+  return a.contains(pLayer.getQ().toPoint());
+}
+
+void Vehicle::run()
+{  
+  pLayer.updateQ();
 }
 
 void Vehicle::setRM()

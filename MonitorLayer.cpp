@@ -95,7 +95,7 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Pa
     {
       State q(s.x, s.y, s.theta, s.v);
       /* some parameters are not measured but they are not relevant -> set default values */
-      Parms p(s.desiredV, FAST, s.vehicleType, "STANDARD", "STANDARD");
+      Parms p(s.desiredV, FAST, s.vehicleType, "StandardUnicycle", "StandardRules");
       totalPList.insTail(std::make_pair(q,p));
     }
 

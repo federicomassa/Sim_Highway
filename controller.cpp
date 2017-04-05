@@ -61,7 +61,7 @@ Control computeControl(const Maneuver& sigma, const State& q, const Parms& p, co
 		continue;
 	      }
 
-	      else if (forwardBlocking(myS, floor(q.y), tmpQ)) {
+	      else if (standardRules::forwardBlocking(myS, floor(q.y), tmpQ)) {
 		aheadQ = tmpQ;
 		isVehicleAheadBlocking = true;
 		continue;
@@ -88,7 +88,7 @@ Control computeControl(const Maneuver& sigma, const State& q, const Parms& p, co
 	      
 	    
 	    if (isVehicleAheadBlocking) {
-	      c.a = -B_BACK*(q.x - behindQ.x - D_REF) -B_FORWARD*(q.x - aheadQ.x + dForward()) - GAMMA*(B_BACK*(q.v - behindQ.v) + B_FORWARD*(q.v - aheadQ.v));
+	      c.a = -B_BACK*(q.x - behindQ.x - D_REF) -B_FORWARD*(q.x - aheadQ.x + standardRules::dForward()) - GAMMA*(B_BACK*(q.v - behindQ.v) + B_FORWARD*(q.v - aheadQ.v));
 	    }
 	    else
 	      {

@@ -85,7 +85,7 @@ ostream& operator<<(ostream& os, const Parms& s)
     os << ", initManeuver = " << s.initManeuver;
     os << ", vehicleType = " << s.vehicleType.getName();
     os << ", pLayerType = " << s.pLayerType;
-    os << ", automatonType = " << s.automatonType << ')';
+    os << ", ruleType = " << s.ruleType << ')';
     os.flush();
     
     return os;
@@ -110,7 +110,7 @@ std::pair<State, Parms> State::makeStatesAndParms(const std::string& str)
   double qX = -100, qY = -100, qTheta = -100, qV = -100, qDesiredV = -100;
   Maneuver qInitMan = UNKNOWN;
   VehicleType vType;
-  string pType, aType; 
+  string pType, rType; 
   
   vector<string> tokens = split(str, " ");
   if (tokens.size() < 4)
@@ -125,8 +125,8 @@ std::pair<State, Parms> State::makeStatesAndParms(const std::string& str)
       qDesiredV = 1; /* max velocity by default */
       qInitMan = FAST;
       vType.setType("StandardVehicle");
-      pType = "STANDARD";
-      aType = "STANDARD";
+      pType = "StandardUnicycle";
+      rType = "StandardRules";
     }
   else if (tokens.size() == 9)
     {
@@ -138,13 +138,13 @@ std::pair<State, Parms> State::makeStatesAndParms(const std::string& str)
       qInitMan = strToManeuver(tokens[5]);
       vType.setType(tokens[6]);
       pType = tokens[7];
-      aType = tokens[8];
+      rType = tokens[8];
     }
   else
     error("State::State(const string&)", "Too few arguments");
 
   State q(qX, qY, qTheta, qV);
-  Parms p(qDesiredV, qInitMan, vType, pType, aType);
+  Parms p(qDesiredV, qInitMan, vType, pType, rType);
 
   return std::make_pair(q, p);
   

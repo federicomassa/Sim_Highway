@@ -7,14 +7,7 @@ using namespace std;
 
 Environment::Environment(int n, double r, double p) : repChannel(r, p), nV(n)
 {
-  v = new Vehicle[nV];
-  
-  for(int i = 0; i < nV; i++)
-    {
-      v[i].setID(i);
-      v[i].initRM(&repChannel);
-    }
-  
+  v = new Vehicle[nV];  
 }
 
 void Environment::initVehicles(const List<pair<State, Parms> >& qpL)
@@ -28,6 +21,13 @@ void Environment::initVehicles(const List<pair<State, Parms> >& qpL)
 
     for(int i = 0; i < nV && iQP(tmpQP); i++)
       v[i].init(tmpQP);
+
+    for(int i = 0; i < nV; i++)
+      {
+	v[i].setID(i);
+	v[i].initRM(&repChannel);
+      }
+    
 }
 
 /**

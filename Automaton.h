@@ -3,6 +3,7 @@
 #define AUTOMATON_H
 
 #include "rules.h"
+#include "DynVector.h"
 
 /*!
  * This class represents an automaton with discrete state sigma -- of type
@@ -20,11 +21,11 @@ class Automaton
     /*!
      * \brief A vector of sub-events.
      */
-    Vector<SubEvent, N_SUB_EVENT> subEvents;
+    DynVector<SubEvent> subEvents;
     /*!
      * \brief A vector of events.
      */
-    Vector<Event, N_EVENT> events;
+    DynVector<Event> events;
     /*!
      * \brief A vector of transitions.
      */
@@ -53,7 +54,12 @@ class Automaton
      * \brief The discrete state of the automaton represents vehicle maneuver.
      */
     Maneuver sigma;
-public:
+
+    void (*initRules)(DynVector<SubEvent>&, DynVector<Event>&,
+		      Vector<Vector<Transition, N_MANEUVER>, N_MANEUVER>&,
+		      Vector<ResetFunction, N_MANEUVER>&);
+    
+ public:
     /*!
      * \brief Default constructor.
      */

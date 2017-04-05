@@ -1,4 +1,3 @@
-
 #include "Automaton.h"
 
 using namespace std;
@@ -10,19 +9,20 @@ Automaton::Automaton()
 {
     initialized = false;
     agentID = -1;
-    initRules(subEvents, events, transitions, resetFunctions);
+    initRules = 0;
 }
 
 void Automaton::init(const std::pair<State, Parms>& qp)
 {
-    /* error handling */
-  /*    if(initialized)
-        error("Automaton", "object initialized twice");
-  */
-    /* initialization */
-    // sigma = SIGMA_0;
+  /* Parse automaton type */
+  if (qp.second.ruleType == "StandardRules")
+    initRules = &(standardRules::initStandardRules);
+  else
+    error("Automaton::init", "ruleType " + qp.second.ruleType + " unknown");
+  
+  initRules(subEvents, events, transitions, resetFunctions);
 
-    // sigma is defined in the conf file, and is in the state
+  // sigma is defined in the conf file
   sigma = qp.second.initManeuver;
   Sensing s(agentID, qp.first, qp.second);
   xi = resetFunctions[sigma](s);
@@ -99,7 +99,6 @@ void Automaton::run(const Sensing& sSubj, const List<Sensing>& sList)
 bool Automaton::detectEvents(const Sensing& sSubj, const List<Sensing>& sList,
                              bool omniscient)
 {
-  
   Maneuver startManeuver = UNKNOWN;
   Maneuver endManeuver = UNKNOWN;
   bool foundTransition = false;

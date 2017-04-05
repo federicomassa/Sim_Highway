@@ -1,7 +1,17 @@
 #ifndef SYSTEMPARMS_H
 #define SYSTEMPARMS_H
 
+#include "Vector.h"
+
 #define N_MANEUVER 5
+#define MIN_LANE 0
+#define MAX_LANE 1
+#define LANE_HEIGHT 1.0
+#define DELTA_Y LANE_HEIGHT / 2.0
+  
+#define PI 3.14159265358979323846
+
+typedef Vector<Vector<double, 2>, 2> Matrix_2x2;
 
 // Controller parameters:
 #define MAX_THETA 0.9

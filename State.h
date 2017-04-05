@@ -24,7 +24,7 @@ class VehicleType
   const std::string& getName() const {return name;}
   bool operator==(const VehicleType& vT) const
   {
-    return (width == vT.width) && (height == vT.height);
+    return (width == vT.width) && (height == vT.height) && (name == vT.name);
   }
   
 };
@@ -36,17 +36,17 @@ struct Parms
   Maneuver initManeuver;
   VehicleType vehicleType;
   std::string pLayerType;
-  std::string automatonType;
+  std::string ruleType;
 
   Parms(const double& qDesiredV,
 	const Maneuver& qInitManeuver,
 	const VehicleType& vType,
 	const std::string& pType,
-	const std::string& aType) : desiredV(qDesiredV*MAX_SPEED), initManeuver(qInitManeuver)
+	const std::string& rType) : desiredV(qDesiredV*MAX_SPEED), initManeuver(qInitManeuver)
   {
     vehicleType = vType;
     pLayerType = pType;
-    automatonType = aType;
+    ruleType = rType;
   }
 
   Parms()
@@ -54,8 +54,8 @@ struct Parms
     desiredV = MAX_SPEED;
     initManeuver = FAST;
     vehicleType.setType("StandardVehicle");
-    pLayerType = "STANDARD";
-    automatonType = "STANDARD";    
+    pLayerType = "StandardUnicycle";
+    ruleType = "StandardRules";    
   }
 
   bool operator==(const Parms& p) const
@@ -64,7 +64,7 @@ struct Parms
 	    (this->initManeuver == p.initManeuver) &&
 	    (this->vehicleType == p.vehicleType) &&
 	    (this->pLayerType == p.pLayerType) &&
-	    (this->automatonType == p.automatonType));
+	    (this->ruleType == p.ruleType));
 	    
   }
   
