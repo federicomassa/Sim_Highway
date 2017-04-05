@@ -157,13 +157,10 @@ void ActionManager::printHistory()
   
   while (iHistory(a))
     {
-      ResultLog.s << a->info() << EndLine();
+      ResultLog.s << a->info() << EndLine(ResultLog.getIndentation());
     }
 
-  /*  double cX, cY, R;
-  circle3points(1, 0, 0, 1, -1, 0, cX, cY, R);
-
-  std::cout << "Circle: " << cX << '\t' << cY << '\t' << R << std::endl;*/
+  ResultLog.s << EndLine(ResultLog.decrementIndentation());
   
 }
 

@@ -30,18 +30,22 @@ class Logger
     /* simulation step */
     int step;
     std::string fileName;
-    
+    int indentation;    
 public:
     /* stream */
     std::ofstream s;
     /* constructor */
-    Logger(const std::string& fname = LOG_FILE_NAME) { start(0, fname); }
+    Logger(const std::string& fname = LOG_FILE_NAME) { start(0, fname); indentation = 0;}
     /* destructor */
     ~Logger() { stop(); }
     /* mark log file with a timestamp */
     void mark();
     /* switch log file */
     void setFile();
+    /* indentation */
+    const int& getIndentation() const {return indentation;}
+    const int& incrementIndentation() {return (indentation = indentation + 1);}
+    const int& decrementIndentation() {return (indentation = indentation - 1);}
 };
 
 #endif

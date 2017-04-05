@@ -23,6 +23,7 @@ void RuleMonitor::buildRules()
 }
 
 void RuleMonitor::run(const Area& obs) {
+  ResultLog.s << "Time: " << now << EndLine(ResultLog.incrementIndentation());
   
   observableArea = obs;
   /* error handling */
@@ -100,7 +101,7 @@ void RuleMonitor::processActions()
 		  break;
 		}
 	    }
-	  
+
 	  if (!r->isProcessed() && !ruleFound)
 	    {
 	      r->check(aMan.monitorStates, aMan.neighStates, observableArea, p->first->triggerTime, p->first->endTime);

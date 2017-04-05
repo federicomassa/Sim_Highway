@@ -57,7 +57,7 @@ const Monitor* MonitorLayer::getMonitor(const int& id) const
 
 bool MonitorLayer::removeMonitor(int t)
 {
-    Monitor* m = lookFor(t);
+  Monitor* m = lookFor(t);
     if(m == NULL)
         return false;
 
@@ -197,7 +197,9 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Pa
 
       /* run the monitor passing the last points recorded. The monitor will form its own neighbors */
       if (agentID == 0 && s.agentID == 1)
-	m->run(s, targetSList, obs);
+	{
+	  m->run(s, targetSList, obs);
+	}
       
       monitorLog.s << EndLine(EndLine::DEC);
       monitorLog.s << "Vehicle " << agentID << " observing vehicle " << m->getTargetID() << " END..." << EndLine();

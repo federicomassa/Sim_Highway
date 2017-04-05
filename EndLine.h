@@ -16,9 +16,11 @@ public:
 private:
     Operation operation;
     static int depth;
+    int customDepth;
 public:
     /* constructor */
     EndLine(Operation op = NOP);
+    EndLine(const int&);
     /* destructor */
     ~EndLine() { }
 };

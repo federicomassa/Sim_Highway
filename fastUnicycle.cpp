@@ -2,6 +2,8 @@
 #include "rules.h"
 #include <iostream>
 
+const double angular_speed = MAX_ANGULAR_SPEED*1.5;
+
 Control fastUnicycle::computeControl(const Maneuver& sigma, const State& q, const Parms& p, const List<Sensing>& sList, int idx, bool debug)
 {
     Control c;
@@ -149,7 +151,7 @@ Control fastUnicycle::computeControl(const Maneuver& sigma, const State& q, cons
 	else
 	  c.a = 0;
 	
-	c.omega = MAX_ANGULAR_SPEED;
+	c.omega = angular_speed;
 	break;
       case RIGHT:
 	if (q.v < p.desiredV)
@@ -157,7 +159,7 @@ Control fastUnicycle::computeControl(const Maneuver& sigma, const State& q, cons
 	else
 	  c.a = 0;
 	
-	c.omega = -MAX_ANGULAR_SPEED;
+	c.omega = -angular_speed;
 	break;
       default:
 	error("computeControl", "maneuver UNKNOWN passed");
@@ -166,16 +168,16 @@ Control fastUnicycle::computeControl(const Maneuver& sigma, const State& q, cons
     
     if(c.omega > 0)
     {
-        if(c.omega > MAX_ANGULAR_SPEED)
-            c.omega = MAX_ANGULAR_SPEED;
+        if(c.omega > angular_speed)
+            c.omega = angular_speed;
         if(q.theta + c.omega > MAX_THETA)
             //c.omega = 0;
             c.omega = MAX_THETA - q.theta;
     }
     else if(c.omega < 0)
     {
-        if(c.omega < -MAX_ANGULAR_SPEED)
-            c.omega = -MAX_ANGULAR_SPEED;
+        if(c.omega < -angular_speed)
+            c.omega = -angular_speed;
         if(q.theta + c.omega < -MAX_THETA)
             //c.omega = 0;
             c.omega = -MAX_THETA - q.theta;

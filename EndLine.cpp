@@ -7,26 +7,44 @@ int EndLine::depth = 0;
 
 EndLine::EndLine(Operation op)
 {
-    operation = op;
+  customDepth = -1;
+  operation = op;
+}
+
+EndLine::EndLine(const int& d)
+{
+  customDepth = d;
 }
 
 ostream& operator<<(ostream& os, const EndLine& el)
 {
-    switch(el.operation)
+  os << '\n';
+  
+  if (el.customDepth == -1)
     {
+      switch(el.operation)
+	{
         case EndLine::INC:
-            el.depth++;
-            break;
+	  el.depth++;
+	  break;
         case EndLine::DEC:
-            el.depth--;
-            break;
+	  el.depth--;
+	  break;
         default:
-            // NOP...
-            break;
+	  // NOP...
+	  break;
+	}
+
+      for(int i = 0; i < el.depth; i++)
+	os << INDENTATION;
+      
     }
-    os << '\n';
-    for(int i = 0; i < el.depth; i++)
-        os << INDENTATION;
-    os.flush();
-    return os;
+  else
+    {
+      for(int i = 0; i < el.customDepth; i++)
+	os << INDENTATION;
+    }
+  
+  os.flush();
+  return os;
 }

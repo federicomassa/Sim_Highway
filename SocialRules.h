@@ -46,48 +46,16 @@ class Rule {
   CheckMode mode;
   
   
-  void init(const std::string& cat, const List<Event>& eL, const std::string& n, const CheckMode& m)
-  {
-    category = cat;
-    eList = eL;
-    name = n;
-    mode = m;
-  }
+  void init(const std::string& cat, const List<Event>& eL, const std::string& n, const CheckMode& m);
  public:
 
-  Rule()
-    {
-      lastCheckTime = -1;
-      processed = false;
-    }
-
+  Rule();
+  
   const List<Event>& getEventList() {return eList;}
   
   void check(const Vector<Sensing, 10>& monitorStates, const Vector<List<Sensing>, 10>& neighStates, const Area& obs, const int& triggerTime,
-	     const int& endTime)
-  {
-    Iterator<Event> eIt(eList);
-    Event e;
-
-    /* The evaluation of the event is on the current state. See comments to template addRule!
-     If we want to do something more complicated for specific rules we need to derive from rule our version of check() */
-    while (eIt(e))
-      {
-	/* Debug */
-	/*	e.evaluate(monitorStates[0], 0.0, neighStates[0], false);
-		std::cout << "Value before area: " << e.getValue() << std::endl;*/
-	ResultLog.s << "Time: " << now << EndLine();
-	ResultLog.s << "Evaluating rule: " << name << EndLine(EndLine::INC);
-	e.evaluateWithArea(monitorStates[0], 0.0, neighStates[0], false, obs);
-	ResultLog.s << "Result: " << e.getValue().nonOmniscientValue << EndLine(EndLine::DEC);
-      }
-
-    lastCheckTime = now;
-
-    updateProcessStatus(triggerTime, endTime);
-    
-  }
-
+	     const int& endTime);
+  
   bool isProcessed() const;
   
   bool operator==(const Rule& r)
