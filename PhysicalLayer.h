@@ -1,4 +1,3 @@
-
 #ifndef PHYSICALLAYER_H
 #define PHYSICALLAYER_H
 
@@ -36,5 +35,6 @@ public:
 };
 
 void unicycleControl(const State&, State&, const int&, const Parms&, const Maneuver&, const List<Sensing>&, const bool&);
+void fastUnicycleControl(const State&, State&, const int&, const Parms&, const Maneuver&, const List<Sensing>&, const bool&);
 
 #endif

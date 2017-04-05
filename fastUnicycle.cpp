@@ -1,9 +1,8 @@
-
-#include "controller.h"
+#include "fastUnicycle.h"
 #include "rules.h"
 #include <iostream>
 
-Control computeControl(const Maneuver& sigma, const State& q, const Parms& p, const List<Sensing>& sList, int idx, bool debug)
+Control fastUnicycle::computeControl(const Maneuver& sigma, const State& q, const Parms& p, const List<Sensing>& sList, int idx, bool debug)
 {
     Control c;
     
