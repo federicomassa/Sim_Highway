@@ -32,7 +32,15 @@ bool RightAction::triggerCondition()
       const Sensing currentState = (*monitorStates)[0];
       const Sensing lastState = (*monitorStates)[1];
       const Sensing previousState = (*monitorStates)[2];
+
+      if (currentState.dummy || lastState.dummy || previousState.dummy)
+	return false;
       
+      currentLane = floor(previousState.y);
+      targetLane = floor(previousState.y) - 1;
+
+      if (currentLane == MIN_LANE)
+	return false;
       
       double centerX, centerY;
       try {
@@ -44,7 +52,7 @@ bool RightAction::triggerCondition()
       catch (int& n){
 	return false;}
       
-      if (radius > -R_MAX_TURN && radius < -R_MIN_TURN && (currentState.y - 1.5) < 0.1 && currentState.theta < 0)
+      if (radius > -R_MAX_TURN && radius < -R_MIN_TURN && (currentState.y - (currentLane + 0.5)) < 0.1 && currentState.theta < 0)
 	return true; 
       
     }
@@ -70,6 +78,10 @@ bool RightAction::endCondition()
       const Sensing currentState = (*monitorStates)[0];
       const Sensing lastState = (*monitorStates)[1];
       const Sensing previousState = (*monitorStates)[2];      
+
+      if (currentState.dummy || lastState.dummy || previousState.dummy)
+	return false;
+      
       
       double centerX, centerY;
       circle3points(previousState.x, previousState.y,
@@ -77,7 +89,7 @@ bool RightAction::endCondition()
 		    currentState.x, currentState.y,
 		    centerX, centerY, radius);
 
-      if (fabs(radius) > R_END_TURN && fabs(currentState.y - 0.5) < Y_TOLERANCE)
+      if (fabs(radius) > R_END_TURN && fabs(currentState.y - (targetLane + 0.5)) < Y_TOLERANCE)
 	return true; 
       
     }
@@ -89,7 +101,8 @@ bool RightAction::endCondition()
 
 bool RightAction::abortCondition()
 {
-  
+  if ((*monitorStates)[1].dummy)
+    return true;
   
   return false;
 }

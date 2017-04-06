@@ -212,7 +212,8 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Pa
   Iterator<Monitor*> im(monitorList);
   Monitor* m;
   while(im(m))
-    if(!processedID.belongs(m->getTargetID()))
+    /* delete monitor if you do not see it since N simulation steps */
+    if(!processedID.belongs(m->getTargetID()) && (now - m->getLastRunTime()) > 50)
       {
 	if(CONF.debug)
 	  LOG.s << m->getAgentID() << ' ';

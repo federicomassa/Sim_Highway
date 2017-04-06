@@ -19,7 +19,7 @@ class LeftOvertakeAction : public Action
   int targetID;
  public:
   LeftOvertakeAction();
- LeftOvertakeAction(const Action& a) : Action(a) {}
+ LeftOvertakeAction(const Action& a) : Action(a) {targetID = -1;}
   ~LeftOvertakeAction();
   bool triggerCondition();
   bool endCondition();

@@ -20,15 +20,18 @@ bool LeftOvertakeAction::triggerCondition()
   /* This action is triggered when the monitored vehicle is x-near another and the distance diminishes with time */
   if (monitorStates->length < 3)
     return false;
+
+  if ((*monitorStates)[1].dummy)
+    return false;
   
   /* if there is no other vehicle do not trigger */
   if ((*neighStates)[0].count() == 0)
     return false;
-
+  
   /* list of candidates to overtake */
   List<Sensing> candidates;
   Sensing* s;
-  
+
   for (int i = 0; i < (*neighStates)[2].count(); i++)
     {
       (*neighStates)[0].getElem(s, i);
@@ -96,6 +99,10 @@ bool LeftOvertakeAction::triggerCondition()
 
 bool LeftOvertakeAction::endCondition()
 {
+
+  if ((*monitorStates)[1].dummy)
+    return false;
+  
   /* LeftOvertakeAction is ended when the monitored has overtaken the target */
   Sensing* s = 0;
   Sensing* currTargetState = 0;
@@ -123,6 +130,9 @@ bool LeftOvertakeAction::endCondition()
 
 bool LeftOvertakeAction::abortCondition()
 {
+  if ((*monitorStates)[1].dummy)
+    return true;
+  
   /* This action is aborted if the vehicle disappears from sight before ending the action */
   Sensing* currTargetState = 0;
   Sensing* s = 0;

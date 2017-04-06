@@ -15,9 +15,10 @@
 
 class LeftAction : public Action
 {
+  double currentLane, targetLane;
  public:
   LeftAction();
- LeftAction(const Action& a) : Action(a) {}
+ LeftAction(const Action& a) : Action(a) {currentLane = targetLane = -1;}
   ~LeftAction();
   bool triggerCondition();
   bool endCondition();

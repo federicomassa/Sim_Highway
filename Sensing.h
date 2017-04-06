@@ -18,10 +18,14 @@ public:
     double x, y, theta, v;
     double desiredV;
     VehicleType vehicleType;
+
+    /* if true, empty sensing */
+    bool dummy;
     
-    Sensing() { agentID = -1; }
+    Sensing() { agentID = -1; dummy = true;}
     Sensing(int tIdx, const State& tQ, const Parms& tP)
     {
+      dummy = false;
       /* this is the list of available sensor data */
         agentID = tIdx;
         x = tQ.x;
@@ -35,6 +39,7 @@ public:
     Sensing(const int& tIdx, const double& x, const double& y, const double& theta, const double& v,
 	    const double& desiredV, const VehicleType& vehicleType)
       {
+	dummy = false;
 	/* this is the list of available sensor data */
         agentID           = tIdx;
         this->x           = x;
@@ -59,7 +64,7 @@ public:
 	v = s.v;
 	desiredV = s.desiredV;
 	vehicleType = s.vehicleType;
-
+	dummy = s.dummy;
 	return *this;
       }
     

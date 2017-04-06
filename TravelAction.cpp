@@ -27,7 +27,10 @@ bool TravelAction::triggerCondition()
       const Sensing currentState = (*monitorStates)[0];
       const Sensing lastState = (*monitorStates)[1];
       const Sensing previousState = (*monitorStates)[2];
-            
+
+      if (currentState.dummy || lastState.dummy || previousState.dummy)
+	return false;
+      
       double centerX, centerY;
       try {
 	circle3points(previousState.x, previousState.y,
@@ -62,6 +65,9 @@ bool TravelAction::endCondition()
       const Sensing currentState = (*monitorStates)[0];
       const Sensing lastState = (*monitorStates)[1];
       const Sensing previousState = (*monitorStates)[2];
+
+      if (currentState.dummy || lastState.dummy || previousState.dummy)
+	return false;
       
       
       double centerX, centerY;
@@ -84,7 +90,9 @@ bool TravelAction::endCondition()
 
 bool TravelAction::abortCondition()
 {
-  
+      
+  if ((*monitorStates)[1].dummy)
+    return true;
   
   return false;
 }

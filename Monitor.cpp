@@ -26,6 +26,20 @@ Monitor::Monitor(int a, int t) : aMan(monitorStates, neighStates), rMon(aMan)
 
 void Monitor::run(const Sensing& targetQ, const List<Sensing>& targetSList, const Area& monitorObs)
 {
+  /* if monitor disappeared for a while */
+  if (now - lastRunTime != 1)
+    {
+      /* add empty elements to the vectors */
+      for (int i = 0; i < (now - lastRunTime - 1); i++)
+	{
+	  Sensing dummyS;
+	  List<Sensing> dummySList;
+
+	  monitorStates.insHead(dummyS);
+	  neighStates.insHead(dummySList);
+	}
+    }
+  
   /* update memory with new info */
   monitorStates.insHead(targetQ);
   neighStates.insHead(targetSList);
@@ -34,7 +48,8 @@ void Monitor::run(const Sensing& targetQ, const List<Sensing>& targetSList, cons
   rMon.run(monitorObs);
 
   aMan.printHistory();
-  
+
+  lastRunTime = now;
 }
 
 

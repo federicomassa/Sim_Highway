@@ -20,6 +20,9 @@ bool RightOvertakeAction::triggerCondition()
   /* This action is triggered when the monitored vehicle is x-near another and the distance diminishes with time */
   if (monitorStates->length < 3)
     return false;
+
+  if ((*monitorStates)[1].dummy)
+    return false;
   
   /* if there is no other vehicle do not trigger */
   if ((*neighStates)[0].count() == 0)
@@ -96,6 +99,9 @@ bool RightOvertakeAction::triggerCondition()
 
 bool RightOvertakeAction::endCondition()
 {
+  if ((*monitorStates)[1].dummy)
+    return false;
+  
   /* RightOvertakeAction is ended when the monitored has overtaken the target */
   Sensing* s = 0;
   Sensing* currTargetState = 0;
@@ -123,6 +129,9 @@ bool RightOvertakeAction::endCondition()
 
 bool RightOvertakeAction::abortCondition()
 {
+  if ((*monitorStates)[1].dummy)
+    return true;
+  
   /* This action is aborted if the vehicle disappears from sight before ending the action */
   Sensing* currTargetState = 0;
   Sensing* s = 0;

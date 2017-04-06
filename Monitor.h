@@ -61,7 +61,8 @@ class Monitor
     /* ActionManager and RuleMonitor */
     ActionManager aMan;
     RuleMonitor rMon;
-    
+
+    int lastRunTime;
 public:
     /*!
      * \brief Constructor.
@@ -75,6 +76,7 @@ public:
     /* Run monitor */
     void run(const Sensing&, const List<Sensing>&, const Area&);
 
+    
     int getTargetID() const { return targetID; }
     /*!
      * \brief Return agentID.
@@ -87,6 +89,7 @@ public:
     /* accessor to rule monitor */
     const RuleMonitor* getRuleMonitor() const {return &rMon;}
 
+    const int& getLastRunTime() const {return lastRunTime;}
     
 };
 

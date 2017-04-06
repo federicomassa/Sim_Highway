@@ -23,12 +23,23 @@ bool LeftAction::triggerCondition()
 
   
   if (monitorStates->length >= 3)
-    { 
+    {
+      
       double radius;
 
       const Sensing currentState = (*monitorStates)[0];
       const Sensing lastState = (*monitorStates)[1];
       const Sensing previousState = (*monitorStates)[2];
+
+      if (currentState.dummy || lastState.dummy || previousState.dummy)
+	return false;
+      
+      /* set current and target lane */
+      currentLane = floor(previousState.y);
+      targetLane = currentLane + 1;
+
+      if (currentLane == MAX_LANE)
+	return false;
       
       double centerX, centerY;
       try
@@ -41,7 +52,7 @@ bool LeftAction::triggerCondition()
       catch (int& n){
 	return false;}
 	  
-      if (radius <  R_MAX_TURN && radius > R_MIN_TURN && (currentState.y - 0.5) < 0.1 && currentState.theta > 0)
+      if (radius <  R_MAX_TURN && radius > R_MIN_TURN && (currentState.y - (currentLane + DELTA_Y)) < Y_TOLERANCE && currentState.theta > 0)
 	return true; 
       
     }
@@ -64,6 +75,9 @@ bool LeftAction::endCondition()
       const Sensing currentState = (*monitorStates)[0];
       const Sensing lastState = (*monitorStates)[1];
       const Sensing previousState = (*monitorStates)[2];
+
+      if (currentState.dummy || lastState.dummy || previousState.dummy)
+	return false;
       
       double centerX, centerY;
       try
@@ -76,7 +90,7 @@ bool LeftAction::endCondition()
       catch (int& n){
 	return false;}
       
-      if (fabs(radius) > R_END_TURN && fabs(currentState.y - 1.5) < Y_TOLERANCE)
+      if (fabs(radius) > R_END_TURN && fabs(currentState.y - (targetLane + 0.5)) < Y_TOLERANCE)
 	return true; 
       
     }
@@ -88,7 +102,8 @@ bool LeftAction::endCondition()
 
 bool LeftAction::abortCondition()
 {
-  
+  if ((*monitorStates)[1].dummy)
+    return true;
   
   return false;
 }

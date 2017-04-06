@@ -15,9 +15,10 @@
 
 class RightAction : public Action
 {
+  double currentLane, targetLane;
  public:
   RightAction();
- RightAction(const Action& a) : Action(a) {}
+ RightAction(const Action& a) : Action(a) {currentLane = targetLane = -1;}
   ~RightAction();
   bool triggerCondition();
   bool endCondition();
