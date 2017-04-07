@@ -49,3 +49,30 @@ bool operator!=(const Reputation& r1, const Reputation& r2)
 {
     return !(r1 == r2);
 }
+
+void Reputation::addRecord(const int& eT, const std::string& r, const ExtBool& res)
+{
+  RepRecord record;
+  record.init(eT, r, res);
+  history.insHead(record);
+
+  switch (res)
+    {
+    case T:
+      level = FAULTY;
+      break;
+    case U:
+      if (level == CORRECT || level == UNSET)
+	level = UNCERTAIN;
+      break;
+    case F:
+      if (level == UNSET)
+	level = CORRECT;
+      break;
+    }
+
+  ResultLog.s << "Evaluating rule: " << r << EndLine(ResultLog.incrementIndentation());
+  ResultLog.s << "Result: " << res << EndLine(ResultLog.decrementIndentation());
+
+  
+}

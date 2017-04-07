@@ -16,6 +16,10 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include "systemParms.h"
+
+class Sensing;
+template<class T, int N> class Vector;
 
 /**
  * this function gives information about a specific error and it terminates
@@ -53,4 +57,16 @@ void circle3points(const double&, const double&,
 /* split string into elements separated by a delimiter */
 std::vector<std::string> split(const std::string&, const std::string&);
 
+/* least-square fit of a circle. 
+ Measurements are taken from the last n elements of the vector states. 
+ Results of the fit are xc, yc, R of the circumference.
+*/
+void circleFit(const Vector<Sensing, VEHICLE_MEMORY>* states, const int& n, double& xc, double& yc, double& R);
+/* compute minimum distance of point (x0, y0) from circle with center xc, yc and radius r */
+double distanceFromCircle(const double& x0, const double& y0, const double& xc, const double& yc, const double& r);
+double fitDistance(const Vector<Sensing, VEHICLE_MEMORY>* states, const int& n, const double& xc, const double& yc, const double& r);
+/* calculate mean and sigma of points */
+void calculateMeanSigma(const Vector<Sensing, VEHICLE_MEMORY>* states, const int& n, double& mean, double& sigma);
+/* calculate average deltaY */
+double calculateAverageDeltaY(const Vector<Sensing, VEHICLE_MEMORY>* states, const int& n);
 #endif

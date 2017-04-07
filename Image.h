@@ -34,7 +34,7 @@ class Image
     void addVehicle(const Vehicle&, bool isSubject = false);
     void drawVehicle(const State& q, const Maneuver m = FAST, int index = -1,
                      bool isSubject = false, RepLevel rLev = UNSET, const int& pixWidth = -1, const int& pixHeight = -1);
-    void drawVehicleWithLabel(const Vehicle&, const char*);
+    void drawVehicleWithLabel(const Vehicle&, const char*, const RepLevel& level = UNSET);
     void addHypothesis(const Hypothesis& hyp, const bool& invert = false);
     void cp(const Image& im);
 public:
@@ -66,7 +66,7 @@ public:
     /* draw all vehicles */
     void addAllVehicles(const Environment&);
     /* draw all vehicles highlighting observer and monitor */
-    void addAllVehicles(const Environment&, const int&, const int&);
+    void addAllVehicles(const Environment&, const int&, const int&, const RepLevel& level = UNSET);
 
     /* draw all visible vehicles from i-th vehicle */
     void addVisibleVehicles(int, const Environment&);

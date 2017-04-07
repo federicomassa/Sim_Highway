@@ -15,11 +15,12 @@
 
 #include <iostream>
 
-Monitor::Monitor(int a, int t) : aMan(monitorStates, neighStates), rMon(aMan)
+Monitor::Monitor(int a, int t) : aMan(monitorStates, neighStates), rMon(aMan, rep)
 {
     agentID = a;
     targetID = t;
-
+    rep.targetID = t;
+    
     aMan.init();
     rMon.setRules(new TestRules);
 }
@@ -43,10 +44,10 @@ void Monitor::run(const Sensing& targetQ, const List<Sensing>& targetSList, cons
   /* update memory with new info */
   monitorStates.insHead(targetQ);
   neighStates.insHead(targetSList);
-  
+
   aMan.run();
   rMon.run(monitorObs);
-
+  
   aMan.printHistory();
 
   lastRunTime = now;

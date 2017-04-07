@@ -1,9 +1,12 @@
-
 #include "Environment.h"
 #include <iostream>
 #include <string>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
+
+typedef Vector<Vector<double, 2>, 2> Matrix_2x2;
 
 Environment::Environment(int n, double r, double p) : repChannel(r, p), nV(n)
 {
@@ -283,7 +286,7 @@ void Environment::observableArea(int index, Area& obs, Area* hiddenArea, const d
 }
 
 void Environment::run()
-{
+{ 
   Area* obsAreas = new Area[nV];
   List<Sensing>* sLists = new List<Sensing>[nV];
   
@@ -319,7 +322,19 @@ void Environment::run()
 	  // vehicles seen by the subject are the ones within observable area
 	  if(j != i && v[j].inArea(obs))
             {
-	      Sensing tmpS(v[j].getID(), v[j].getQ(), v[j].getParms());
+	      double x = v[j].getQ().x + SIGMA_X*sqrt(12)*(double)rand()/(double)RAND_MAX - SIGMA_X*sqrt(12)/2;
+	      double y = v[j].getQ().y + SIGMA_Y*sqrt(12)*(double)rand()/(double)RAND_MAX - SIGMA_Y*sqrt(12)/2;
+	      double theta = v[j].getQ().theta + SIGMA_THETA*sqrt(12)*(double)rand()/(double)RAND_MAX - SIGMA_THETA*sqrt(12)/2;
+	      double vel = v[j].getQ().v + SIGMA_V*sqrt(12)*(double)rand()/(double)RAND_MAX - SIGMA_V*sqrt(12)/2;
+	      
+	      if (vel > MAX_SPEED)
+		vel = MAX_SPEED;
+	      if (vel < 0)
+		vel = 0;
+	      
+	      State errQ(x,y,theta,vel);
+	      
+	      Sensing tmpS(v[j].getID(), errQ, v[j].getParms());
 	      sList.insHead(tmpS);
             }
         }

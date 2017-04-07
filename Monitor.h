@@ -19,7 +19,7 @@
 #include "systemTypes.h"
 #include "ActionManager.h"
 #include "RuleMonitor.h"
-
+#include "Reputation.h"
 
 extern Logger monitorLog;
 
@@ -55,13 +55,14 @@ class Monitor
     int targetID;
 
     /* Memory of the target and neighbors trajetory */
-    Vector<Sensing, 10> monitorStates;
-    Vector<List<Sensing>, 10> neighStates;
+    Vector<Sensing, VEHICLE_MEMORY> monitorStates;
+    Vector<List<Sensing>, VEHICLE_MEMORY> neighStates;
 
     /* ActionManager and RuleMonitor */
     ActionManager aMan;
     RuleMonitor rMon;
-
+    Reputation rep;
+    
     int lastRunTime;
 public:
     /*!

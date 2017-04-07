@@ -6,6 +6,8 @@
 // Rules parameters
 // ---------------------------------------------------------------------------
 
+typedef Vector<Vector<double, 2>, 2> Matrix_2x2;
+
 double ruleFunctions::dForward()
 {
   double d;
@@ -70,7 +72,7 @@ bool ruleFunctions::forwardBlocking(const Sensing& s1, const IntVars& v1, const 
 
 bool ruleFunctions::forwardDangerous(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
-    if((s2.x - s1.x) > 0 && (s2.x - s1.x) < D_FORWARD &&
+    if((s2.x - s1.x) > 0 && (s2.x - s1.x) < 0.8*D_FORWARD &&
         s2.y > floor(s1.y) && s2.y < (floor(s1.y) + 1))
             return true;
 
@@ -132,7 +134,7 @@ void ruleFunctions::forwardDangerousArea(const Sensing& s, Area& ind)
     
     Matrix_2x2 bounds;
     bounds[0][0] = s.x;
-    bounds[0][1] = s.x + D_FORWARD; //safety distance
+    bounds[0][1] = s.x + 0.8*D_FORWARD; //safety distance
     bounds[1][0] = floor(s.y);
     bounds[1][1] = floor(s.y) + 1;
     ind.addRect(bounds);

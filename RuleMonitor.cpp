@@ -2,7 +2,7 @@
 #include "Actions.h"
 #include <iostream>
 
-RuleMonitor::RuleMonitor(const ActionManager& aM): aMan(aM) {rules = 0;}
+RuleMonitor::RuleMonitor(const ActionManager& aM, Reputation& reputation): aMan(aM), rep(reputation) {rules = 0;}
 
 RuleMonitor::~RuleMonitor()
 {
@@ -104,7 +104,7 @@ void RuleMonitor::processActions()
 
 	  if (!r->isProcessed() && !ruleFound)
 	    {
-	      r->check(aMan.monitorStates, aMan.neighStates, observableArea, p->first->triggerTime, p->first->endTime);
+	      r->check(aMan.monitorStates, aMan.neighStates, observableArea, p->first->triggerTime, p->first->endTime, getReputation());
 	      processedRules.insHead(r);
 	    }
 	}

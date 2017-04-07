@@ -42,7 +42,7 @@ struct Parms
 	const Maneuver& qInitManeuver,
 	const VehicleType& vType,
 	const std::string& pType,
-	const std::string& rType) : desiredV(qDesiredV*MAX_SPEED), initManeuver(qInitManeuver)
+	const std::string& rType) : desiredV(qDesiredV), initManeuver(qInitManeuver)
   {
     vehicleType = vType;
     pLayerType = pType;

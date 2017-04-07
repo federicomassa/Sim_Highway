@@ -4,7 +4,7 @@
 #include <string>
 #include <cstdlib>
 
-ActionManager::ActionManager(const Vector<Sensing, 10>& mStates, const Vector<List<Sensing>, 10>& nStates) : monitorStates(mStates),
+ActionManager::ActionManager(const Vector<Sensing, VEHICLE_MEMORY>& mStates, const Vector<List<Sensing>, VEHICLE_MEMORY>& nStates) : monitorStates(mStates),
 													 neighStates(nStates)
 {}
 
@@ -123,8 +123,8 @@ void ActionManager::recordAction(Action* a)
 	foundAction = tmpA;
 
       /* recent actions are in the head of the history list. This stops the search if the current entry is too old. */
-      if (tmpA->triggerTime < a->triggerTime)
-	break;
+      if ((tmpA->triggerTime + tmpA->getTriggerOffset()) < (a->triggerTime + a->getTriggerOffset()))
+	      break;
     }
 
   if (foundAction == NULL)

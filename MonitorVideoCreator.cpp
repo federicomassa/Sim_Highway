@@ -122,7 +122,9 @@ void MonitorVideoCreator::run()
 	}
     }
 
-  img.addAllVehicles(*env, observerID, monitorID);
+  if (rMon)
+    img.addAllVehicles(*env, observerID, monitorID, rMon->getReputation().level);
+  
   img.writeFrameNumber();
  
   std::string fileName = img.save();

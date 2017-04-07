@@ -5,6 +5,8 @@
 // ---------------------------------------------------------------------------
 using namespace standardRules;
 
+typedef Vector<Vector<double, 2>, 2> Matrix_2x2;
+
 double standardRules::dForward()
 {
   double d;
@@ -26,7 +28,7 @@ double standardRules::dForward()
     return d;
 }
 
-const double D_FORWARD = dForward();
+const double D_FORWARD = 1.2*dForward();
 
 double standardRules::dBack()
 {

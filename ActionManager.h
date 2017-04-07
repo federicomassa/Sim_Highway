@@ -26,8 +26,8 @@ class ActionManager {
   friend class RuleMonitor;
  private:
   /* Keeps track of the states of the monitored vehicle across the prefixed time span FIXME where? */
-  const Vector<Sensing, 10>& monitorStates;
-  const Vector<List<Sensing>, 10>& neighStates;
+  const Vector<Sensing, VEHICLE_MEMORY>& monitorStates;
+  const Vector<List<Sensing>, VEHICLE_MEMORY>& neighStates;
   /* List of actions that are being monitored. Populated during initialization. */
   List<Action*> listeners;
   /* Keeps track of the actions done by the monitored vehicle. */
@@ -51,7 +51,7 @@ class ActionManager {
   
  public:
   /* Constructor */
-  ActionManager(const Vector<Sensing, 10>&, const Vector<List<Sensing>, 10>&);
+  ActionManager(const Vector<Sensing, VEHICLE_MEMORY>&, const Vector<List<Sensing>, VEHICLE_MEMORY>&);
 
   /* clear memory */
   ~ActionManager();

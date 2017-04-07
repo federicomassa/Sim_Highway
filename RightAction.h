@@ -16,6 +16,9 @@
 class RightAction : public Action
 {
   double currentLane, targetLane;
+  static const int triggerOffset;
+  static const int endOffset;
+  static const int abortOffset;
  public:
   RightAction();
  RightAction(const Action& a) : Action(a) {currentLane = targetLane = -1;}
@@ -24,6 +27,10 @@ class RightAction : public Action
   bool endCondition();
   bool abortCondition();
 
+  int getTriggerOffset() const {return triggerOffset;}
+  int getEndOffset() const {return endOffset;}
+  int getAbortOffset() const {return abortOffset;}
+  
   void initRuleCategories();
   
   std::string name() const {return actionName;}

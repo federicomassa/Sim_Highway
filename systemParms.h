@@ -1,8 +1,6 @@
 #ifndef SYSTEMPARMS_H
 #define SYSTEMPARMS_H
 
-#include "Vector.h"
-
 #define N_MANEUVER 5
 #define MIN_LANE 0
 #define MAX_LANE 1
@@ -11,7 +9,6 @@
   
 #define PI 3.14159265358979323846
 
-typedef Vector<Vector<double, 2>, 2> Matrix_2x2;
 
 // Controller parameters:
 #define MAX_THETA 0.9
@@ -47,5 +44,22 @@ typedef Vector<Vector<double, 2>, 2> Matrix_2x2;
 //#define V_REF 0.5*MAX_SPEED
 #define V_TOLERANCE 0.1
 
+/* sensor sigma error */
+
+
+#define SIGMA_X 0.01
+#define SIGMA_Y 0.05
+#define SIGMA_THETA 2*PI/180
+#define SIGMA_V MAX_SPEED/10
+
+
+/*
+#define SIGMA_X 0.0001
+#define SIGMA_Y 0.0001
+#define SIGMA_THETA 0.0001
+#define SIGMA_V 0.0001
+*/
+
+#define VEHICLE_MEMORY 10
 
 #endif

@@ -18,6 +18,7 @@ extern int now;
 extern Logger ResultLog;
 
 class SocialRules;
+class Reputation;
 
 /* Type that describes when the rule has to be evaluated:
  ex: at trigger time or at each instant */
@@ -53,8 +54,8 @@ class Rule {
   
   const List<Event>& getEventList() {return eList;}
   
-  void check(const Vector<Sensing, 10>& monitorStates, const Vector<List<Sensing>, 10>& neighStates, const Area& obs, const int& triggerTime,
-	     const int& endTime);
+  void check(const Vector<Sensing, VEHICLE_MEMORY>& monitorStates, const Vector<List<Sensing>, VEHICLE_MEMORY>& neighStates, const Area& obs, const int& triggerTime,
+	     const int& endTime, Reputation&);
   
   bool isProcessed() const;
   

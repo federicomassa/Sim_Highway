@@ -1,4 +1,5 @@
 #include "State.h"
+#include <sstream>
 
 using namespace std;
 
@@ -35,7 +36,7 @@ State::State(const string& str)
     //qV expressed as fraction of MAX_SPEED defined in systemParms.h
     // desiredV = desired velocity/MAX_SPEED, not necessarily the maximum allowed
     // 
-  double qX, qY, qTheta, qV;
+  double qX = -100, qY = -100, qTheta = -100, qV = -100;
   
   vector<string> tokens = split(str, " ");
   if (tokens.size() != 4)
@@ -46,7 +47,7 @@ State::State(const string& str)
       qX = stod(tokens[0]);
       qY = stod(tokens[1]);
       qTheta = stod(tokens[2]);
-      qV = stod(tokens[3]);
+      qV = stod(tokens[3])*MAX_SPEED;
     }
   
   init(qX, qY, qTheta, qV);
@@ -55,13 +56,19 @@ State::State(const string& str)
 void State::init(const double& qX, const double& qY, const double& qTheta, const double& qV)
 {
   /* error handling */
-  if(qV > 1 || qV < 0)
-    error("State::init", "v MUST be between 0 and 1");
+  if(qV > MAX_SPEED || qV < 0)
+    {
+      std::stringstream ss;
+      ss << qV/MAX_SPEED;
+      std::string errValue;
+      ss >> errValue;
+      error("State::init", "v MUST be between 0 and 1, instead it is " + errValue);
+    }
   
   x = qX;
   y = qY;
   theta = qTheta;
-  v = qV*MAX_SPEED;  
+  v = qV;  
 }
 
 Vector<double, 2> State::toPoint() const
@@ -126,8 +133,8 @@ std::pair<State, Parms> State::makeStatesAndParms(const std::string& str)
       qX = stod(tokens[0]);
       qY = stod(tokens[1]);
       qTheta = stod(tokens[2]);
-      qV = stod(tokens[3]);
-      qDesiredV = 1; /* max velocity by default */
+      qV = stod(tokens[3])*MAX_SPEED;
+      qDesiredV = MAX_SPEED; /* max velocity by default */
       qInitMan = FAST;
       vType.setType("StandardVehicle");
       pType = "StandardUnicycle";
@@ -138,8 +145,8 @@ std::pair<State, Parms> State::makeStatesAndParms(const std::string& str)
       qX = stod(tokens[0]);
       qY = stod(tokens[1]);
       qTheta = stod(tokens[2]);
-      qV = stod(tokens[3]);
-      qDesiredV = stod(tokens[4]);
+      qV = stod(tokens[3])*MAX_SPEED;
+      qDesiredV = stod(tokens[4])*MAX_SPEED;
       qInitMan = strToManeuver(tokens[5]);
       vType.setType(tokens[6]);
       pType = tokens[7];

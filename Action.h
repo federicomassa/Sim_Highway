@@ -28,13 +28,13 @@ class Action
  protected:
   void addRuleCategory(const std::string& cat) {ruleCategoryList.insHead(cat);}
   /* reference to ActionManager's monitor state history */
-  const Vector<Sensing, 10>* monitorStates;
-  const Vector<List<Sensing>, 10>* neighStates;
+  const Vector<Sensing, VEHICLE_MEMORY>* monitorStates;
+  const Vector<List<Sensing>, VEHICLE_MEMORY>* neighStates;
  public:
   Action();
   Action(const Action&);
 
-  void init(const Vector<Sensing, 10>&, const Vector<List<Sensing>, 10>&);
+  void init(const Vector<Sensing, VEHICLE_MEMORY>&, const Vector<List<Sensing>, VEHICLE_MEMORY>&);
 
   int triggerTime;
   int endTime;
@@ -49,6 +49,10 @@ class Action
 
   virtual ~Action() {};
   virtual void listen();
+  virtual int getTriggerOffset() const {return 0;}
+  virtual int getEndOffset() const {return 0;}
+  virtual int getAbortOffset() const {return 0;}
+  
   virtual std::string name() const = 0;
 
   virtual void initRuleCategories() = 0;

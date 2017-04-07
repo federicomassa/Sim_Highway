@@ -7,6 +7,8 @@
 
 using namespace std;
 
+typedef Vector<Vector<double, 2>, 2> Matrix_2x2;
+
 void Image::cp(const Image& im)
 {
     if(im.frame == NULL)
@@ -268,7 +270,7 @@ void Image::drawVehicle(const State& q, const Maneuver m, int index,
     gdImageDestroy(vImg);
 }
 
-void Image::drawVehicleWithLabel(const Vehicle& v, const char* label)
+void Image::drawVehicleWithLabel(const Vehicle& v, const char* label, const RepLevel& rLev)
 {
     /* error handling */
     if (frame == NULL)
@@ -306,12 +308,34 @@ void Image::drawVehicleWithLabel(const Vehicle& v, const char* label)
         error("Image::addVehicle", "cannot open png file: " + tmpS);
     vImg = gdImageCreateFromPng(fp);
     fclose(fp);
+
+    int circle_color = 0;
+    switch(rLev)
+      {
+      case CORRECT:
+	circle_color = gdImageColorResolve(vImg, 0, 255, 0);
+	break;
+      case FAULTY:
+	circle_color = gdImageColorResolve(vImg, 255, 0, 0);
+	break;
+      case UNCERTAIN:
+	circle_color = gdImageColorResolve(vImg, 255, 204, 0);
+	break;
+      case UNSET:
+	circle_color = gdImageColorResolve(vImg, 255, 255, 255);
+	break;
+      }    
     
     int text_size;
     if (vImg->sx > vImg->sy)
       text_size = (int)round((double)vImg->sy * VEHICLE_TXT_SIZE / (double)v.getPixelWidth() * VEHICLE_TXT_SCALE);
     else
       text_size = (int)floor((double)vImg->sx * VEHICLE_TXT_SIZE / (double)v.getPixelWidth() * VEHICLE_TXT_SCALE);
+
+    const int circle_size = (int)ceil((double)text_size * 1.8);
+    gdImageFilledEllipse(vImg, (int)round((double)vImg->sx / 2.0),
+			 (int)round((double)vImg->sy / 2.0),
+			 circle_size, circle_size, circle_color);
     
     
     idStr = std::string(label);
@@ -365,14 +389,14 @@ void Image::addAllVehicles(const Environment& env)
         addVehicle(env.v[i]);
 }
 
-void Image::addAllVehicles(const Environment& env, const int& observerID, const int& monitorID)
+void Image::addAllVehicles(const Environment& env, const int& observerID, const int& monitorID, const RepLevel& rLev)
 {
   for (int i = 0; i < env.nV; i++)
     {
       if (env.v[i].getID() == observerID)
 	drawVehicleWithLabel(env.v[i], "O");
       else if (env.v[i].getID() == monitorID)
-	drawVehicleWithLabel(env.v[i], "M");
+	drawVehicleWithLabel(env.v[i], "M", rLev);
       else
 	addVehicle(env.v[i]);
     }

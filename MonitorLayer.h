@@ -39,8 +39,8 @@ class MonitorLayer
 
     /* Agent memory of past vehicles' trajectories. The dimension of the vector
      is the number of points recorded. */
-    Vector<State, 10> agentStates;
-    Vector<List<Sensing>, 10> agentNeighStates;
+    Vector<State, VEHICLE_MEMORY> agentStates;
+    Vector<List<Sensing>, VEHICLE_MEMORY> agentNeighStates;
 
     /* subjective environment */
     Environment* currentEnv;

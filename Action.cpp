@@ -6,11 +6,10 @@ Action::Action()
 {
   triggerTime = -1;
   endTime = -1;
-
   status = INACTIVE;
 }
 
-void Action::init(const Vector<Sensing, 10>& mStates, const Vector<List<Sensing>, 10>& nStates)
+void Action::init(const Vector<Sensing, VEHICLE_MEMORY>& mStates, const Vector<List<Sensing>, VEHICLE_MEMORY>& nStates)
 {
   monitorStates = &mStates;
   neighStates = &nStates;
@@ -23,7 +22,6 @@ Action::Action(const Action& a)
   endTime = a.endTime;
   monitorStates = a.monitorStates;
   status = a.status;
-
   ruleCategoryList = a.ruleCategoryList;
 }
 
@@ -36,7 +34,9 @@ void Action::listen()
       if (triggerCondition())
 	{
 	  status = TRIGGERED;
-	  triggerTime = now;
+	  triggerTime = now - getTriggerOffset();
+	  if (triggerTime < 0)
+	    triggerTime = 0;
 	}
     }
 
@@ -46,13 +46,15 @@ void Action::listen()
       if (endCondition())
 	{
 	  status = ENDED;
-	  endTime = now;
+	  endTime = now - getEndOffset();
+	  if (endTime < 0)
+	    endTime = 0;
 	}
       
       else if (abortCondition())
 	{
 	  status = ABORTED;
-	  endTime = now;
+	  endTime = now - getAbortOffset();
 	}
 
 

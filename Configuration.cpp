@@ -335,6 +335,8 @@ ostream& operator<<(ostream& os, const Configuration& c)
     }
     os << "Prediction simulation steps: " << c.nTimeSteps << EndLine();
     os << "Video output: " << (c.makeVideo ? "ON" : "OFF") << EndLine();
+    os << "Action Video output: " << (c.makeActionVideo ? "ON" : "OFF") << EndLine();
+    os << "Monitor Video output: " << (c.makeMonitorVideo ? "ON" : "OFF") << EndLine();
     os << "Split view: " << (c.splitView ? "ON" : "OFF") << EndLine();
     if(c.splitView)
         os << "Subject vehicle ID: " << c.subjID << EndLine();

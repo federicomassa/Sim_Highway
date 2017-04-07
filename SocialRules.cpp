@@ -1,5 +1,6 @@
 #include "SocialRules.h"
 #include "utility.h"
+#include "Reputation.h"
 
 Rule::Rule()
 {
@@ -7,8 +8,8 @@ Rule::Rule()
   processed = false;
 }
 
-void Rule::check(const Vector<Sensing, 10>& monitorStates, const Vector<List<Sensing>, 10>& neighStates, const Area& obs, const int& triggerTime,
-		 const int& endTime)
+void Rule::check(const Vector<Sensing, VEHICLE_MEMORY>& monitorStates, const Vector<List<Sensing>, VEHICLE_MEMORY>& neighStates, const Area& obs, const int& triggerTime,
+		 const int& endTime, Reputation& rep)
 {
   Iterator<Event> eIt(eList);
   Event e;
@@ -20,9 +21,8 @@ void Rule::check(const Vector<Sensing, 10>& monitorStates, const Vector<List<Sen
       /* Debug */
       /*	e.evaluate(monitorStates[0], 0.0, neighStates[0], false);
 		std::cout << "Value before area: " << e.getValue() << std::endl;*/
-      ResultLog.s << "Evaluating rule: " << name << EndLine(ResultLog.incrementIndentation());
       e.evaluateWithArea(monitorStates[0], 0.0, neighStates[0], false, obs);
-      ResultLog.s << "Result: " << e.getValue().nonOmniscientValue << EndLine(ResultLog.decrementIndentation());
+      rep.addRecord(now, name, e.getValue().nonOmniscientValue);
     }
   
   

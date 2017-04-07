@@ -13,11 +13,51 @@
 #define REPUTATION_H
 
 #include "State.h"
+#include "ExtValue.h"
+#include "List.h"
+#include "Logger.h"
+#include <string>
 
+
+extern Logger ResultLog;
 /*!
  * \brief Reputation level of an agent may be correct, faulty or uncertain.
  */
 enum RepLevel { FAULTY, UNCERTAIN, CORRECT, UNSET };
+
+struct RepRecord
+{
+  int evalTime;
+  std::string rule;
+  ExtBool result;
+
+  RepRecord()
+  {
+    evalTime = -1;
+    rule = "";
+    result = F;
+  }
+
+  void init(const int& eT, const std::string& r, const ExtBool& res)
+  {
+    evalTime = eT;
+    rule = r;
+    result = res;
+  }
+
+  bool operator==(const RepRecord& rec)
+  {
+    return (evalTime == rec.evalTime &&
+	    rule == rec.rule &&
+	    result == rec.result);
+  }
+
+  bool operator!=(const RepRecord& rec)
+  {
+    return !((*this) == rec);
+  }
+  
+};
 
 /*!
  * This class represents the reputation of a target-agent.
@@ -26,6 +66,7 @@ enum RepLevel { FAULTY, UNCERTAIN, CORRECT, UNSET };
  */
 class Reputation
 {
+  List<RepRecord> history;
 public:
     /*!
      * \brief Target agent identifier.
@@ -42,10 +83,11 @@ public:
     /*!
      * \brief Default constructor.
      */
-    Reputation() { targetID = -1; }
+    Reputation() { targetID = -1; level = UNSET;}
     /*!
      * \brief Destructor.
      */
+    void addRecord(const int&, const std::string&, const ExtBool&);
     ~Reputation() { }
 };
 

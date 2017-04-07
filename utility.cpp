@@ -9,6 +9,8 @@
  */
 
 #include "utility.h"
+#include "Vector.h"
+#include "Sensing.h"
 #include <cstdlib>
 #include <cmath>
 
@@ -239,4 +241,129 @@ vector<string> split(const string& str, const string& delim)
 	}
       while (pos < str.length() && prev < str.length());
       return tokens;
+}
+
+void circleFit(const Vector<Sensing, VEHICLE_MEMORY>* states, const int& n, double& xc, double& yc, double& R)
+{
+  /* error handling */
+  if (states == 0)
+    error("utility::circleFit", "Passed a null pointer");
+  if (states->length < n)
+    error("utility::circleFit", "State vector is to small compared to the number of measurements required");
+  if (n <= 0)
+    error("utility::circleFit", "N must be > 0");
+
+  
+  /* first calculate some auxiliary quantities */
+  double S_x = 0, S_y = 0, S_uu = 0, S_uv = 0, S_vv = 0, S_uuu = 0, S_uvv = 0, S_vuu = 0, S_vvv = 0;
+
+  for (int i = 0; i < n; i++)
+    {
+      S_x += (*states)[i].x;
+      S_y += (*states)[i].y;
+    }
+
+  for (int i = 0; i < n; i++)
+    {
+      double u = (*states)[i].x - S_x/n;
+      double v = (*states)[i].y - S_y/n;
+      S_uu += u*u;
+      S_uv += u*v;
+      S_vv += v*v;
+      S_uuu += u*u*u;
+      S_uvv += u*v*v;
+      S_vuu += v*u*u;
+      S_vvv += v*v*v;
+    }
+
+  double delta = S_uu*S_vv - S_uv*S_uv;
+  double deltaU = ((S_uuu + S_uvv)*S_vv - (S_vvv + S_vuu)*S_uv)/2.0;
+  double deltaV = ((S_vvv + S_vuu)*S_uu - (S_uuu + S_uvv)*S_uv)/2.0;
+
+  if (delta == 0)
+    throw (int)0;
+
+  double uc = deltaU/delta;
+  double vc = deltaV/delta;
+
+  double alpha = uc*uc + vc*vc + (S_uu + S_vv)/(double)n;
+
+  if (alpha < 0)
+    error("utility::circleFit", "Alpha < 0?");
+  
+  xc = uc + S_x/n;
+  yc = vc + S_y/n;
+  R = sqrt(alpha);
+  
+}
+
+double distanceFromCircle(const double& x0, const double& y0, const double& xc, const double& yc, const double& r)
+{
+  /* Compute minimum distance point. There are two solution to the intersection of a line with a circle, 
+   the right one will be the one with minimum distance */
+  double xi1, xi2, yi1, yi2;
+
+  /* tan of line going from x0,y0 to the center of the circle */
+  double m;
+  if (x0 != xc)
+    m = (y0 - yc)/(x0 -xc);
+  else
+    error("utility::distanceFromCircle", "Trying to compute distance with vertical line");
+
+  xi1 = xc + sqrt(r*r/(1+m*m));
+  xi2 = xc - sqrt(r*r/(1+m*m));
+
+  yi1 = m*(xi1 - xc) + yc;
+  yi2 = m*(xi2 - xc) + yc;
+
+  /* compute distance */
+  double d1, d2;
+
+  d1 = sqrt((x0-xi1)*(x0-xi1) + (y0-yi1)*(y0-yi1));
+  d2 = sqrt((x0-xi2)*(x0-xi2) + (y0-yi2)*(y0-yi2));
+
+  if (d1 < d2)
+    return d1;
+  else
+    return d2;
+}
+
+double fitDistance(const Vector<Sensing, VEHICLE_MEMORY>* states, const int& n, const double& xc, const double& yc, const double& r)
+{
+  if (states == 0)
+    error("utility::fitDistance", "Passed null pointer");
+
+  double totalD = 0;
+  
+  for (int i = 0; i < n; i++)
+    {
+      totalD += distanceFromCircle((*states)[i].x, (*states)[i].y, xc, yc, r);
+    }
+
+  return totalD;
+}
+
+void calculateMeanSigma(const Vector<Sensing, VEHICLE_MEMORY>* states, const int& n, double& mean, double& sigma)
+{
+  if (n < 2)
+    error("utility::calculateMeanSigma", "N must be >= 2");
+  
+  mean = 0;
+  for (int i = 0; i < n; i++)
+    mean += (*states)[i].y;
+
+  mean = mean/n;
+
+
+  sigma = 0;
+  for (int i = 0; i < n; i++)
+    sigma += pow(((*states)[i].y - mean),2);
+
+  sigma = sqrt(sigma/(n-1));
+ 
+}
+
+double calculateAverageDeltaY(const Vector<Sensing, VEHICLE_MEMORY>* states, const int& n)
+{
+  
 }
