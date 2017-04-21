@@ -1,0 +1,152 @@
+\documentclass{beamer}
+\usetheme{CambridgeUS}
+\usecolortheme{default}
+\setbeamercolor{itemize item}{fg=darkred!80!black}
+
+
+\makeatletter
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}F. Massa, A. Fagiolini
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}Monitoring update
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+    \usebeamerfont{date in head/foot} 28th of March, 2017\hspace*{2em}
+    \insertframenumber{} / \ref{Conclusions}\hspace*{2ex} 
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+\makeatother
+
+\setbeamercolor{section in head/foot}{fg=white, bg=darkred!95!white}
+
+\setbeamercolor{palette quaternary}{use=structure, bg=darkred!80!black} % changed this
+
+
+\setbeamertemplate{headline}{%
+\leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1.125ex]{palette quaternary}%
+    \insertsectionnavigationhorizontal{\paperwidth}{}{\hfill \hfill}
+    \end{beamercolorbox}%
+  }
+}
+
+\title{Highway simulator: \\
+Monitoring update}
+%\subtitle{Laurea Magistrale in Fisica}
+%\author{Federico Massa}
+%\institute{\large{Laurea Magistrale in Fisica \\
+%Universit\`a di Pisa}}
+\date{\small March, 28th 2017}
+
+%\setbeameroption{show notes}
+\setbeameroption{hide notes}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{positioning, calc}
+\newcommand{\tikzmark}[1]{\tikz[overlay,remember picture] \node (#1) {};}
+
+\usepackage{amsmath}% mathtools includes this so this is optional
+\usepackage{mathtools}
+\usepackage[export]{adjustbox}
+\usepackage{multimedia}
+\usepackage[utf8x]{inputenc}
+\usepackage{tcolorbox}
+\definecolor{dred}{RGB}{200, 0, 0}
+
+\begin{document}
+
+%-----------------------------------------
+
+{\setbeamertemplate{footline}{}
+\setbeamertemplate{headline}{}
+\begin{frame}
+\titlepage
+\bigskip
+\medskip
+\centering\small Federico Massa, Adriano Fagiolini
+
+\end{frame}}
+\addtocounter{framenumber}{-1}
+
+\begin{frame}
+\frametitle{Why we needed an update}
+\textbf{What we were doing}
+\begin{itemize}
+	\item We were trying to monitor the behaviour of a vehicle
+		  with a discrete states automaton running different
+		  controllers.
+ 	\item The recognition of the discrete state was made via 
+ 		  a forward prediction of the vehicle's continuous state,
+ 		  that was compared with the controller model that we
+ 		  supposed to know (first mayor problem)
+  	\item The monitoring itself was achieved by evaluating the
+  		  rules (that we also supposed to know from the constructor, second 
+  		  mayor problem) that determined the transition between
+  		  discrete states. Uncertain cases were due to the 
+  		  partial vision of the observer with respect to the 
+  		  monitored vehicle's surroundings.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Why we needed an update}
+\textbf{What we do now}
+\begin{itemize}
+	\item We monitor the behaviour of a vehicle based on the
+		  abstract features of its movements. This way, we can
+		  monitor a vehicle regardless of the dynamic model 
+		  (it could also be manually-driven)
+ 	\item Instead of the recognition of the discrete state,
+ 		  we try to recognize the abstract \textbf{action} 
+ 		  that the vehicle is pursuing. 
+  	\item The monitoring is now based on the definition
+  		  of some basic \textbf{social rules}, that 
+  		  are defined in an abstract way as the list of
+  		  conditions that make a certain action forbidden.
+\end{itemize}
+
+To achieve this, we only need:
+\begin{itemize}
+\item The sensor data of all the vehicles visible to the observer (x, y 
+      on the highway plane, at least) + some kind of vehicle ID to 
+      follow its trajectory.
+\item A list of possible actions that the monitored vehicle can do.
+\item The implementation of the social rules that are being monitored.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{First step: the action recognition}
+An action is abstractly defined as a vehicle behaviour. Examples of
+it include 
+\begin{itemize}
+\item \textit{left lane change}
+\item \textit{overtake}
+\item \textit{brake}
+\item ...
+\end{itemize}
+
+We could also imagine a more sophisticated action recognition system
+to include nuances of these basic actions, like \textit{slow left lane change} or
+\textit{abrupt left lane change}.\\
+
+\textbf{What the observer need to know:}
+
+The observer vehicle is supposed to have a list of all the
+
+\end{frame}
+
+
+\begin{frame}\label{Conclusions}
+\end{frame}
+\end{document}
+
