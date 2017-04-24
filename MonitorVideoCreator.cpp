@@ -24,6 +24,7 @@ void MonitorVideoCreator::run()
   if (globalEnv == NULL)
     error("MonitorVideoCreator::run", "Global Environment is not initialized");
     
+  Environment noErrEnv = *env;
   
   Vehicle* monitorV = env->getVehicleFromID(monitorID);
   if (monitorV == NULL)
@@ -67,9 +68,9 @@ void MonitorVideoCreator::run()
   /* for each processed action */
   while (aIt(a))
     {
+      /* only for left action */
       if (dynamic_cast<LeftAction*>(a.first))
 	{
-	  /* only for left action */
 	  if (now > a.first->endTime && a.first->endTime != -1)
 	    {
 	      img.drawString("Left action ended", red);
@@ -122,6 +123,19 @@ void MonitorVideoCreator::run()
 	}
     }
 
+  Vehicle* localVehicles = env->getVehicles();
+  Vehicle* globalVehicles = globalEnv->getVehicles();
+  Vehicle* noErrVehicles = noErrEnv.getVehicles();
+  
+  for (int i = 0; i < env->getNVehicles(); i++)
+    for (int j = 0; j < globalEnv->getNVehicles(); j++)
+      {
+	if (globalVehicles[j].getID() != localVehicles[i].getID())
+	  continue;
+
+	noErrVehicles[i] = globalVehicles[j];
+      }
+  
   if (rMon)
     img.addAllVehicles(*env, observerID, monitorID, rMon->getReputation().level);
   

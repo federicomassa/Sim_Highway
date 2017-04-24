@@ -13,6 +13,15 @@ Environment::Environment(int n, double r, double p) : repChannel(r, p), nV(n)
   v = new Vehicle[nV];  
 }
 
+Environment::Environment(const Environment& e) : repChannel(e.repChannel), nV(e.nV)
+{
+  v = new Vehicle[e.nV];
+  for (int i = 0; i < nV; i++)
+    v[i] = e.getVehicles()[i];
+  
+}
+
+
 void Environment::initVehicles(const List<pair<State, Parms> >& qpL)
 {
     /* error handling */

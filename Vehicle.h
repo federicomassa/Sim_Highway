@@ -71,6 +71,8 @@ class Vehicle
     return repMan.getKnowledge();
   }
 
+  const Vehicle& operator=(const Vehicle&);
+  
   int getPixelWidth() const {return p.vehicleType.getWidth()*SCALE;}
   int getPixelHeight() const {return p.vehicleType.getHeight()*SCALE;}
 };

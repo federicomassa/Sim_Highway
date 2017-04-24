@@ -22,6 +22,7 @@ class Environment
 public:
     /* constructor */
     Environment(int n, double r, double p);
+    Environment(const Environment&);
     /* destructor */
     ~Environment() { delete[] v; }
     /* vehicles initialization */

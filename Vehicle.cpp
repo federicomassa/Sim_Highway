@@ -30,6 +30,13 @@ void Vehicle::setID(int index)
   pLayer.setID(index);
 }
 
+const Vehicle& Vehicle::operator=(const Vehicle& v)
+{
+  std::pair<State, Parms> sp = std::make_pair(v.getQ(), v.getParms());
+  setID(v.getID());
+  init(sp);
+}
+
 State Vehicle::getQ() const
 {
   return pLayer.getQ();

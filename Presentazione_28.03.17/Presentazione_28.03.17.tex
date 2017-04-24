@@ -15,7 +15,7 @@
     \usebeamerfont{title in head/foot}Monitoring update
   \end{beamercolorbox}%
   \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
-    \usebeamerfont{date in head/foot} 28th of March, 2017\hspace*{2em}
+    \usebeamerfont{date in head/foot} April, 24th 2017\hspace*{2em}
     \insertframenumber{} / \ref{Conclusions}\hspace*{2ex} 
   \end{beamercolorbox}}%
   \vskip0pt%
@@ -42,7 +42,7 @@ Monitoring update}
 %\author{Federico Massa}
 %\institute{\large{Laurea Magistrale in Fisica \\
 %Universit\`a di Pisa}}
-\date{\small March, 28th 2017}
+\date{\small April, 24th 2017}
 
 %\setbeameroption{show notes}
 \setbeameroption{hide notes}
@@ -125,6 +125,27 @@ To achieve this, we only need:
 \end{itemize}
 \end{frame}
 
+\begin{frame}
+\frametitle{Configuration}
+
+In the configuration file it is possible to choose, for every vehicle in the environment:
+\begin{itemize}
+\item Initial continuous and discrete state;
+\item Geometrical parameters (Type of vehicle);
+\item Dynamic model (Physical Layer type);
+\item Automaton type;
+\item Sensor errors.
+\end{itemize}
+
+
+\bigskip
+\bigskip
+\bigskip
+
+The action recognition and rule monitor systems are very general and should work in any realistic case (if correctly tuned...see later on).
+
+\end{frame}
+
 \section{Action recognition}
 
 
@@ -182,7 +203,7 @@ Specific actions (LeftAction, RightAction...) inherit from abstract class Action
 If an action is registered in the ActionManager listener list, it enters a cycle:\\
 
 \centering
-\includegraphics[scale=0.4]{ListeningCycle}
+\includegraphics[scale=0.6]{ListeningCycle2}
 
 \end{frame}
 
@@ -194,7 +215,8 @@ We use the following parameters (also using the N-points trajectory):
 \item $\Delta y$: Transversal distance covered in the recorded trajectory (last y - initial y);
 \item $\mu_y$: Average transversal position;
 \item $\sigma_y$: Standard deviation of transversal position.
-\item f: constant between 0 and 1;
+\item f: constant between 0 and 1 (needs tuning);
+\item $\Delta y_{tolerance}$: transversal position tolerance on central position (needs tuning);
 \item $\epsilon_y$: transverse position sensor error. 
 \end{itemize}
 
@@ -294,7 +316,7 @@ following features:
 An object called \textbf{Rule Monitor} is used to check if the rules are 
 violated, as the Action Manager ``listens'' to each action.\\
 
-These two objects are independent, but they can communicate via the \textbf{rules category}.\\
+These two objects are independent, but they can communicate via the \textbf{rules categories}.\\
 
 $\rightarrow$ Each action has a set of rule categories that it must follow. 
 
@@ -343,22 +365,73 @@ the rule system and verify that the right rules are checked. At each instant:\\
 
 \setbeamertemplate{enumerate items}[default]
 \begin{enumerate}
-\item Ask the Action Manager the list of triggered actions.\\ 
-\item Extract the list of rule categories to be checked by merging the
-	list of rule categories of each action.
-\item For each rule category, take each rule and consider its ``Evaluation Mode''.
-\item If the Evaluation Mode is on TRIGGER, the rule is checked only at trigger time. If it is on CONTINUOUS, the rule is checked every time until the action ends. (e.g. Safety rules are generally in CONTINUOUS mode).
-\item A rule is \textbf{true} if a wrong behaviour was spotted (at least one of the events is true), \textbf{uncertain} if the observer cannot tell 
-if a rule is verified or not due to hidden areas (no events are true, at least one uncertain), \textbf{false} if the behaviour is correct (all events are false).
+\item<+-> Ask the Action Manager the list of triggered actions;\\ 
+\item<+-> Extract the list of rule categories to be checked by merging the
+	list of rule categories of each action;
+\item<+-> For each rule category, take each rule and consider its ``Evaluation Mode'';
+\item<+-> If the Evaluation Mode is on TRIGGER, the rule is checked only at trigger time. If it is on CONTINUOUS, the rule is checked every time until the action ends (e.g. Safety rules are generally in CONTINUOUS mode);
+\item<+-> A rule is \textbf{true} if a wrong behaviour was spotted (at least one of the events is true), \textbf{uncertain} if the observer cannot tell 
+if a rule is verified or not due to hidden areas (no events are true, at least one uncertain), \textbf{false} if the behaviour is correct  (all events are false).
 \end{enumerate}
 \end{frame}
 
 \begin{frame}
+\frametitle{LeftAction example}
+
+Without sensor errors:\\
+\movie[externalviewer]{\includegraphics[scale=0.5]{leftActionVideo.png}}{monitorLeftActionVideoNoErrors.avi}
+
+\bigskip
+\bigskip
+
+With sensor errors:\\
+\movie[externalviewer]{\includegraphics[scale=0.5]{leftActionVideo.png}}{monitorLeftActionVideoErrors.avi}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Remarks on the C++ code}
+The C++ code is mostly written using polymorphism, so that it is
+very easy to make a more complex system without having to understand the
+underlying code:\\
+
+\begin{itemize}
+\item Specific actions inherit from the Action class. To add a new action,
+	it is only necessary to manually write the trigger, end and abort 			    conditions.
+\item Specific set of rules inherit from the SocialRules class. After   		    manually
+	writing a new set of rules it is possible to change the monitored rules
+	by changing a single line of code.
+\end{itemize}
+
+A similar concept applies when wanting to change the vehicle geometry, dynamics or automaton. The code is written keeping flexibility in high regard.
+
 
 \end{frame}
 
 \begin{frame}\label{Conclusions}
-\end{frame}
+\frametitle{Summing up}
+The simulator should now be able to:
+\begin{itemize}
+\item Recognize and record list of actions done by the monitored vehicles;
+\item Verify, if possible, if the monitored vehicle is following the rules;
+\item Do this no matter the vehicle size, dynamic model, state transition rules (could also be manually driven in theory).
+\end{itemize}
 
+
+\begin{alertblock}{Critical point:}
+Action parameters tuning
+\end{alertblock}
+
+Further studies:
+\begin{itemize}
+\item Use of consensus to improve the observer dataset (both to reduce sensor errors and to reveal the content of the hidden areas);
+\item Reputation system: how to deal with infractions?
+\item Roomba?
+\item Possible application in Roborace?
+\item Besides highways? 
+\end{itemize}
+
+
+\end{frame}
 \end{document}
 
