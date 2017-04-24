@@ -11,7 +11,7 @@ LeftOvertakeAction::~LeftOvertakeAction() {}
 
 void LeftOvertakeAction::initRuleCategories()
 {
-  addRuleCategory("LeftOvertake");
+  addRuleCategory("Cruise");
   addRuleCategory("Safety");
 }
 

@@ -65,7 +65,7 @@ bool LeftAction::triggerCondition()
       catch (int& n){
 	return false;}
 	  
-      if (/*radius <  R_MAX_TURN && radius > R_MIN_TURN*/ deltaY > MAX_SPEED/3 && fabs((*monitorStates)[triggerOffset-1].y - (currentLane + DELTA_Y)) < 3*SIGMA_Y)
+      if (/*radius <  R_MAX_TURN && radius > R_MIN_TURN*/ deltaY > MAX_SPEED/3 && fabs((*monitorStates)[triggerOffset-1].y - (currentLane + DELTA_Y)) < Y_TOLERANCE + 3*SIGMA_Y)
 	return true; 
       
     }
@@ -109,7 +109,7 @@ bool LeftAction::endCondition()
     return false;}
   
   /*if (fabs(radius) > R_END_TURN && fabs(currentState.y - (targetLane + 0.5)) < Y_TOLERANCE)*/
-  if (fabs(mean - (targetLane + DELTA_Y)) < Y_TOLERANCE && sigma < SIGMA_Y)
+  if (fabs(mean - (targetLane + DELTA_Y)) < (Y_TOLERANCE + 3*SIGMA_Y/sqrt(triggerOffset)) && sigma < SIGMA_Y)
     {
       //	  std::cout << "TargetLane = " << targetLane << std::endl;
       return true;

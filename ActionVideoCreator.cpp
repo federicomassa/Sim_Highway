@@ -77,8 +77,8 @@ void ActionVideoCreator::run()
   
   Image img(monitorV->getQ().x);
   
-  if (leftFound && !leftEnded)
-    img.drawTrajectory(monitorTrajectory);
+  /*  if (leftFound && !leftEnded)
+      img.drawTrajectory(monitorTrajectory);*/
 
   const int& red = gdImageColorAllocate(img.getFrame(), 255, 0, 0);
   const int& green = gdImageColorAllocate(img.getFrame(), 0, 255, 0);
@@ -87,18 +87,24 @@ void ActionVideoCreator::run()
   if (floor(monitorV->getQ().y) == 0 && !leftFound)
     {
       /* draw left curvature radii */
-      img.drawArc(monitorV->getQ().x, monitorV->getQ().y,
+      /*      img.drawArc(monitorV->getQ().x, monitorV->getQ().y,
 		  floor(monitorV->getQ().y) + 1.5, R_MIN_TURN, 1, red);
       img.drawArc(monitorV->getQ().x, monitorV->getQ().y,
-		  floor(monitorV->getQ().y) + 1.5, R_MAX_TURN, 1, red);
+      floor(monitorV->getQ().y) + 1.5, R_MAX_TURN, 1, red);*/
+      img.drawArea(monitorV->getQ().x, 0.5 + Y_TOLERANCE,
+		   FRAME_W/SCALE, 0.5 - Y_TOLERANCE, red);
+      
       img.drawString("Left trigger condition: FALSE", red);
     }
   if (leftFound && !leftEnded)
     {
-      img.drawArc(leftTriggerState.x, leftTriggerState.y,
+      /*      img.drawArc(leftTriggerState.x, leftTriggerState.y,
 		  floor(leftTriggerState.y) + 1.5, R_MIN_TURN, 1, green);
       img.drawArc(leftTriggerState.x, leftTriggerState.y,
-		  floor(leftTriggerState.y) + 1.5, R_MAX_TURN, 1, green);
+      floor(leftTriggerState.y) + 1.5, R_MAX_TURN, 1, green);*/
+      img.drawArea(monitorV->getQ().x, 0.5 + Y_TOLERANCE,
+		   FRAME_W/SCALE, 0.5 - Y_TOLERANCE, green);
+
       img.drawArea(monitorV->getQ().x, 1.5 + Y_TOLERANCE,
 		   FRAME_W/SCALE, 1.5 - Y_TOLERANCE, red);
       img.drawString("Left trigger condition: TRUE", green);
