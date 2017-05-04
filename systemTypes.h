@@ -20,6 +20,7 @@ Maneuver strToManeuver(const std::string& str);
 
 /* function to pass from maneuver to std::string */
 std::string maneuverToStr(const Maneuver& sigma);
+std::string maneuverToLowercase(const Maneuver& sigma);
 
 std::ostream& operator<<(std::ostream& os, Maneuver m);
 std::string operator+(const std::string&, Maneuver);

@@ -32,7 +32,7 @@ class Image
     void close();
     /* draw a vehicle */
     void addVehicle(const Vehicle&, bool isSubject = false);
-    void drawVehicle(const State& q, const Maneuver m = FAST, int index = -1,
+    void drawVehicle(const Sensing& s, const Maneuver m = FAST, int index = -1,
                      bool isSubject = false, RepLevel rLev = UNSET, const int& pixWidth = -1, const int& pixHeight = -1);
     void drawVehicleWithLabel(const Vehicle&, const char*, const RepLevel& level = UNSET);
     void drawVehicleWithLabel(const Sensing&, const char*, const RepLevel& level = UNSET);

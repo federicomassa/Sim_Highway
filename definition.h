@@ -18,6 +18,8 @@
 /* MAX_LANE: see also rules.h */
 #define LANES 2
 #define SCALE 50
+
+/* 61 x 36*/
 #define VEHICLE_IMG_W 61
 #define VEHICLE_IMG_H 36
 #define VEHICLE_TXT_SIZE 0.27

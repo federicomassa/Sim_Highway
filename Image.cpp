@@ -168,7 +168,7 @@ string Image::save(const string prefix, const string suffix)
     return fileName;
 }
 
-void Image::drawVehicle(const State& q, const Maneuver m, int index,
+void Image::drawVehicle(const Sensing& s, const Maneuver m, int index,
                         bool isSubject, RepLevel rLev, const int& pixWidth, const int& pixHeight)
 {
     /* error handling */
@@ -180,27 +180,12 @@ void Image::drawVehicle(const State& q, const Maneuver m, int index,
     int brect[8];
     FILE *fp = NULL;
 
-    string tmpS;
-    switch(m)
-    {
-        case FAST:
-            tmpS = INPUT(vehicle.png);
-            break;
-        case SLOW:
-            tmpS = INPUT(vehicle_slow.png);
-            break;
-        case LEFT:
-            tmpS = INPUT(vehicle_left.png);
-            break;
-        case RIGHT:
-            tmpS = INPUT(vehicle_right.png);
-            break;
-        case PLATOON:
-  	    tmpS = INPUT(vehicle_platoon.png);
-	    break;
-        default:
-            error("Image::addVehicle", "maneuver UNKNOWN passed");
-    }
+    string imageName = s.vehicleType.getImageName();
+    string suffix = ".png";
+    string maneuver = maneuverToLowercase(m);
+
+    string tmpS = string(INPUT_DIR) + "/" + imageName + "_" + maneuver + suffix;
+    
     fp = fopen(tmpS.c_str(), "rb");
     /* error handling */
     if (fp == NULL)
@@ -257,14 +242,15 @@ void Image::drawVehicle(const State& q, const Maneuver m, int index,
     if (fp == NULL)
         error("Image::addVehicle", "cannot open png file: transparent.png");
     aux = gdImageCreateFromPng(fp);
+    
     fclose(fp);
     const int dest_w = (int)round(aux->sx * scale_x);
     const int dest_h = (int)round(aux->sy * scale_y);
     gdImageCopyRotated(aux, vImg, aux->sx / 2.0, aux->sy / 2.0, 0, 0,
-                       vImg->sx, vImg->sy, (int)round(q.theta / PI * 180));
+                       vImg->sx, vImg->sy, (int)round(s.theta / PI * 180));
     gdImageCopyResampled(frame, aux,
-                         (int)round((q.x - cameraX) * SCALE - (double)dest_w / 2.0),
-                         (int)round(Y_OFFSET - q.y * SCALE - (double)dest_h / 2.0),
+                         (int)round((s.x - cameraX) * SCALE - (double)dest_w / 2.0),
+                         (int)round(Y_OFFSET - s.y * SCALE - (double)dest_h / 2.0),
                          0, 0, dest_w, dest_h, aux->sx, aux->sy);
     gdImageDestroy(aux);
     gdImageDestroy(vImg);
@@ -281,27 +267,12 @@ void Image::drawVehicleWithLabel(const Vehicle& v, const char* label, const RepL
     int brect[8];
     FILE *fp = NULL;
 
-    string tmpS;
-    switch(v.getManeuver())
-    {
-        case FAST:
-            tmpS = INPUT(vehicle.png);
-            break;
-        case SLOW:
-            tmpS = INPUT(vehicle_slow.png);
-            break;
-        case LEFT:
-            tmpS = INPUT(vehicle_left.png);
-            break;
-        case RIGHT:
-            tmpS = INPUT(vehicle_right.png);
-            break;
-        case PLATOON:
-  	    tmpS = INPUT(vehicle_platoon.png);
-	    break;
-        default:
-            error("Image::addVehicle", "maneuver UNKNOWN passed");
-    }
+    string imageName = v.getS().vehicleType.getImageName();
+    string suffix = ".png";
+    string maneuver = maneuverToLowercase(v.getManeuver());
+
+    string tmpS = string(INPUT_DIR) + "/" + imageName + "_" + maneuver + suffix;
+
     fp = fopen(tmpS.c_str(), "rb");
     /* error handling */
     if (fp == NULL)
@@ -386,7 +357,11 @@ void Image::drawVehicleWithLabel(const Sensing& s, const char* label, const RepL
     int brect[8];
     FILE *fp = NULL;
 
-    string tmpS = INPUT(vehicle.png);
+    string imageName = s.vehicleType.getImageName();
+    string suffix = ".png";
+
+    string tmpS = string(INPUT_DIR) + "/" + imageName + suffix;
+    
 
     fp = fopen(tmpS.c_str(), "rb");
     /* error handling */
@@ -466,10 +441,10 @@ void Image::drawVehicleWithLabel(const Sensing& s, const char* label, const RepL
 
 void Image::addVehicle(const Vehicle& v, bool isSubject)
 {
-    const State q = v.getQ();
+    const Sensing s = v.getS();
     const int id = v.getID();
     const Maneuver m = v.getManeuver();
-    drawVehicle(q, m, id, isSubject, UNSET, v.getPixelWidth(), v.getPixelHeight());
+    drawVehicle(s, m, id, isSubject, UNSET, v.getPixelWidth(), v.getPixelHeight());
 }
 
 void Image::addAllVehicles(const Environment& env)
@@ -524,8 +499,6 @@ void Image::addMonitoredVehicles(int index, const Environment& env)
         /* error handling */
         if(mon == NULL)
             error("Image::addMonitoredVehicles", "monitor not found");
-	/*        const Maneuver m = mon->targetManeuver;
-		  drawVehicle(r.qTarget, m, r.targetID, false, r.level);*/
     }
 }
 
@@ -656,7 +629,7 @@ void Image::drawNeighborhood(const Neighborhood& n)
   
   //probably doesn't write the IDs?
   //while(qi(tmpQ))
-  //  drawVehicle(tmpQ);
+
   /* draw frame number */
   //writeFrameNumber(now - 1);
 
@@ -724,8 +697,10 @@ void Image::drawNeighborhood(const Neighborhood& n)
 void Image::drawNeighborhood(const Neighborhood& n, const State& q, Maneuver m,
                              int index)
 {
+  /*
     drawNeighborhood(n);
-    drawVehicle(q, m, index, true);
+    drawVehicle(s, m, index, true);
+  */
 }
 
 void Image::saveConsensusImages(const Environment& env,
@@ -757,14 +732,42 @@ void Image::saveConsensusImages(const Environment& env,
 
 	while (nItr(n))
 	  {
-	    Reputation* rep = env.v[i].getRM().findReputation(n.getTargetID());
+	    open();
+	    
+	    const Reputation* rep = env.v[i].getRM().findReputation(n.getTargetID());
 	    if (rep == 0)
 	      continue;
+	    
+	    const List<RepRecord>& history = rep->getHistory();
+	    
+	    int red = gdImageColorResolve(frame, 255, 0, 0);
+	    int green = gdImageColorResolve(frame, 0, 255, 0);
 
+	    Iterator<RepRecord> recordItr(history);
+	    RepRecord record;
+
+	    while (recordItr(record))
+	      {
+
+		/* only rules evaluated at this moment. NB history is filled with newest rules on top */
+		if (record.evalTime < now)
+		  break;
+		
+		drawArea(record.negativeArea, red);
+		
+		Iterator<Area> posItr(record.positiveArea);
+		Area pos;
+		
+		while (posItr(pos))
+		  {
+		    drawArea(pos, green);
+		  }
+		
+	      }
+		
 	    /* draw observed */
             drawVehicleWithLabel(n.sTarget, "O", rep->level);    
-
-	    
+	  
 	    /* draw everyone else */
 	    Iterator<Sensing> sItr(n.sList);
 	    Sensing s;
@@ -773,8 +776,7 @@ void Image::saveConsensusImages(const Environment& env,
 	      {
 		if (s.agentID != env.v[i].idx)
 		  {
-		    State q(s.x, s.y, s.theta, s.v);
-		    drawVehicle(q, FAST, s.agentID,false, UNSET, s.vehicleType.getWidth()*SCALE, s.vehicleType.getHeight()*SCALE);
+		    drawVehicle(s, FAST, s.agentID,false, UNSET, s.vehicleType.getWidth()*SCALE, s.vehicleType.getHeight()*SCALE);
 		  }
 		else
 		  {

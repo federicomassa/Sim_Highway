@@ -110,6 +110,7 @@ public:
   void addRecord(const int&, const std::string&, const ExtBool&, const List<Area>&, const Area&);
   ~Reputation() { }
   List<RepRecord>& getHistory() {return history;}
+  const List<RepRecord>& getHistory() const {return history;}
   const int& getTargetID() const {return targetID;}
 
   /* Re-evaluate reputation level after consensus */

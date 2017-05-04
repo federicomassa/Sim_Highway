@@ -39,6 +39,26 @@ std::string maneuverToStr(const Maneuver& sigma)
   
 }
 
+std::string maneuverToLowercase(const Maneuver& sigma)
+{
+  
+  if (sigma == FAST)
+    return "fast";
+  else if (sigma == SLOW)
+    return "slow";
+  else if (sigma == LEFT)
+    return "left";
+  else if (sigma == RIGHT)
+    return "right";
+  else if (sigma == PLATOON)
+    return "platoon";
+  else
+    return "unknown";
+  
+}
+
+
+
 
 ostream& operator<<(ostream& os, Maneuver m)
 {

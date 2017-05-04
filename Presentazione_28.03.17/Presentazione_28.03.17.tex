@@ -9,7 +9,7 @@
   \leavevmode%
   \hbox{%
   \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
-    \usebeamerfont{author in head/foot}F. Massa, A. Fagiolini
+    \usebeamerfont{author in head/foot}F. Massa
   \end{beamercolorbox}%
   \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
     \usebeamerfont{title in head/foot}Monitoring update
@@ -73,7 +73,7 @@ Monitoring update}
 \titlepage
 \bigskip
 \medskip
-\centering\small Federico Massa, Adriano Fagiolini
+\centering\small Federico Massa, Adriano Fagiolini, Antonio Bicchi, Lucia Pallottino
 \end{frame}}
 \addtocounter{framenumber}{-1}
 
@@ -193,10 +193,11 @@ We can also imagine a more sophisticated action recognition system
 to include more complicated actions, like \textit{slow left lane change} or
 \textit{abrupt left lane change}.\\
 
-\textbf{What the observer needs to know:}
-
+\begin{block}{\textbf{What the monitor needs to know:}}
 The monitor must have a list of possible actions that the 
-observed vehicle can do. The action recognition system is now \emph{independent} from the monitored vehicle's dynamic model. 
+observed vehicle can do. The action recognition system is now \textbf{independent} from the monitored vehicle's dynamic model. 
+\end{block}
+
 \end{frame}
 
 \begin{frame}
@@ -211,7 +212,7 @@ Each action is recognized independently $\rightarrow$ concurrent actions are pos
 
 \bigskip
 
-An \textbf{Action Manager} ($\mathbf{\Phi}$) continuously listens to each action ($a_1$, $a_2$, ...) and verifies if the trajectory of the monitored vehicle is compatible with that action. If it is, the action is successfully recognized.
+An \textbf{Action Manager} ($\mathbf{\Phi}$) continuously listens to each action ($a_1$, $a_2$, ...) and verifies if the trajectory of the monitored vehicle ($q_1, ..., q_N$) is compatible with that action. If it is, the action is \emph{triggered}.
 
 \end{frame}
 
@@ -232,7 +233,7 @@ The ActionManager initializes several \textit{listeners}, i.e. actions that the 
 If an action is registered in the ActionManager listener list, it enters a cycle:\\
 
 \centering
-\includegraphics<1>[scale=0.6]{ListeningCycle3}
+\includegraphics<1>[scale=0.6]{ListeningCycle4}
 \includegraphics<2>[scale=0.4]{ListeningSignal}
 
 
@@ -242,21 +243,20 @@ If an action is registered in the ActionManager listener list, it enters a cycle
 \frametitle{LeftAction example}
 
 We use a N-point trajectory ($q_1, ..., q_N$) and the following parameters:
-\begin{itemize}
-\item $\Delta y$: Transversal distance covered in the recorded trajectory (last y - initial y)/N;
-\item $\mu_y$: Average transversal position;
-\item $\sigma_y$: Standard deviation of transversal position.
-\item f: constant between 0 and 1 (needs tuning);
-\item $\Delta y_{tolerance}$: transversal position tolerance on central position (needs tuning);
-\item $\epsilon_y$: transverse position sensor error. 
-\end{itemize}
+\begin{description}
+\item[\color{dred}$\Delta y$:] Transversal distance covered in the recorded trajectory $(y_N - y_1)/N$;
+\item[\color{dred}$\sigma_y$:] Standard deviation of transversal position.
+\item[\color{dred}f:] constant between 0 and 1 (needs tuning);
+\item[\color{dred}$\Delta y_{tolerance}$:] transversal position tolerance on central position (needs tuning);
+\item[\color{dred}$\epsilon_y$:] transverse position sensor error. 
+\end{description}
 
 \bigskip
 
 \begin{description}
 \item[triggerCondition()] 
-$ \Delta y > f\cdot v_{max}$ \\
- $\ \ \ \ \ \ \ |y_{init} - y_{initLane}| < \Delta y_{tolerance} + 3\cdot\epsilon_y$
+$ \Delta y > f\cdot v_{max}\cdot \Delta t_{sim. step}$ \\
+ $\ \ \ \ \ \ \ |y_{1} - y_{initLane}| < \Delta y_{tolerance} + 3\cdot\epsilon_y$
 
 \item[endCondition()] 
 $\ \ \ \ |\mu_y - y_{targetLane}| < \Delta y_{tolerance} + 3\cdot\epsilon_y/\sqrt{N}$ \\
@@ -270,20 +270,20 @@ $\ \ \ \ \ \ \ \ \sigma_y < \epsilon_y$
 \begin{frame}
 \frametitle{LeftAction video}
 
-\movie[externalviewer]{\includegraphics[scale=0.5]{leftActionVideo.png}}{leftActionVideo.avi}
+\movie[externalviewer]{\includegraphics[scale=0.5]{leftActionVideo2.png}}{leftActionVideo2.avi}
 
 \end{frame}
 
 \begin{frame}
 \frametitle{Complete action example}
 
-\movie[externalviewer]{\includegraphics<1>[scale=0.5]{ActionExample/F00000.png}}{ActionExample/actionVideo.avi}
-\includegraphics<2>[scale=0.5]{ActionExample/F00007.png}
-\includegraphics<3>[scale=0.5]{ActionExample/F00030.png}
-\includegraphics<4>[scale=0.5]{ActionExample/F00040.png}
-\includegraphics<5>[scale=0.5]{ActionExample/F00080.png}
-\includegraphics<6>[scale=0.5]{ActionExample/F00125.png}
-\includegraphics<7>[scale=0.5]{ActionExample/F00148.png}
+\movie[externalviewer]{\includegraphics<+>[scale=0.5]{ActionExample/0.png}}{ActionExample/actionVideo2.avi}
+\includegraphics<+>[scale=0.5]{ActionExample/7.png}
+\includegraphics<+>[scale=0.5]{ActionExample/28.png}
+\includegraphics<+>[scale=0.5]{ActionExample/40.png}
+\includegraphics<+>[scale=0.5]{ActionExample/90.png}
+\includegraphics<+>[scale=0.5]{ActionExample/125.png}
+\includegraphics<+>[scale=0.5]{ActionExample/150.png}
 
 
 \bigskip
@@ -291,7 +291,7 @@ $\ \ \ \ \ \ \ \ \sigma_y < \epsilon_y$
 \bigskip
 \bigskip	
 
-\includegraphics[scale=0.5]{Results}
+\includegraphics[scale=0.5]{Results2}
 \end{frame}
 
 \section{Social rules monitoring}
@@ -316,21 +316,21 @@ following features:
 \frametitle{Example: Italian-like highway rules}
 \textbf{Safety rules}\\
 \begin{itemize}
-\item Safety distance, 1 event: ``Someone is in front of the monitored vehicle at less than x meters'';
-\item Maximum speed, 1 event: ``The monitored vehicle is faster than x km/h''
+\item Safety distance, 1 event: ``Someone is in front of the observed vehicle at less than x meters'';
+\item Maximum speed, 1 event: ``The observed vehicle is faster than x km/h''
 \end{itemize}
 
 \textbf{Left lane change rules}
 \begin{itemize}
-\item 1 event: ``Nobody is in front of the monitored vehicle'';
+\item 1 event: ``Nobody is in front of the observed vehicle'';
 \item 1 event: ``Left lane is occupied'';
-\item 1 event: ``The monitored vehicle is on the maximum lane''.
+\item 1 event: ``The observed vehicle is on the maximum lane''.
 \end{itemize}
 
 \textbf{Right lane change rules}
 \begin{itemize}
 \item 1 event: ``Right lane is occupied'';
-\item 1 event: ``The monitored vehicle is on the minimum lane''.
+\item 1 event: ``The observed vehicle is on the minimum lane''.
 \end{itemize}
 
 \textbf{Travel rules}
@@ -364,7 +364,7 @@ $\rightarrow$ Each action has a set of rule categories that it must follow.
 \end{alertblock}
 
 \onslide<3->{
-$\rightarrow$ This also allow to make complex action managers without changing the rule system.}
+$\rightarrow$ This also allows to make complex action managers without changing the rule system.}
 
 
 \end{frame}
@@ -412,13 +412,13 @@ if a rule is verified or not due to hidden areas (no events are true, at least o
 \frametitle{LeftAction example}
 
 Without sensor errors:\\
-\movie[externalviewer]{\includegraphics[scale=0.5]{leftActionVideo.png}}{monitorLeftActionVideoNoErrors.avi}
+\movie[externalviewer]{\includegraphics[scale=0.5]{leftActionVideo2.png}}{monitorLeftActionVideoNoErrors2.avi}
 
 \bigskip
 \bigskip
 
 With sensor errors:\\
-\movie[externalviewer]{\includegraphics[scale=0.5]{leftActionVideo.png}}{monitorLeftActionVideoErrors.avi}
+\movie[externalviewer]{\includegraphics[scale=0.5]{leftActionVideo2.png}}{monitorLeftActionVideoErrors2.avi}
 
 \end{frame}
 

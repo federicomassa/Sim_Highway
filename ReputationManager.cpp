@@ -19,6 +19,11 @@ void ReputationManager::merge(const List<Message<Knowledge> >& msgList)
   while(mi(tmpMsg))
     {
       Knowledge tmpK;
+      
+      /* ignore your own message */
+      if (tmpK.agentID == agentID)
+	continue;
+      
       tmpMsg.getBody(tmpK); /* body extraction */
       singleMerge(tmpK);
     }
@@ -57,6 +62,7 @@ void ReputationManager::singleMerge(const Knowledge& k)
 {
   const List<Neighborhood>& nList = k.nList;
   const Area& recvObs = k.visibleArea;
+
   
   Iterator<Neighborhood> itr(nList);
   Neighborhood n;
@@ -68,7 +74,7 @@ void ReputationManager::singleMerge(const Knowledge& k)
 	continue;
 
       /* Now I need to see if in the received knowledge there is 
-       something about my uncertainty areas */
+	 something about my uncertainty areas */
       mergeReputation(rep, n, recvObs);
       
     }
@@ -143,6 +149,7 @@ void ReputationManager::mergeReputation(Reputation* rep, const Neighborhood& n, 
   if (rep == 0)
     error("ReputationManager::mergeReputation", "Reputation pointer argument cannot be null");
 
+  
   bool levelChanged = false;
   
   /* My history of reputation records */
@@ -166,8 +173,8 @@ void ReputationManager::mergeReputation(Reputation* rep, const Neighborhood& n, 
 	continue;
       
       /* these are the areas of the present rule */
-      const Area& neg = record->negativeArea;
-      const List<Area>& pos = record->positiveArea;
+      Area& neg = record->negativeArea;
+      List<Area>& pos = record->positiveArea;
 
       /* First check negative areas */
       Iterator<Sensing> sItr(sList);
@@ -195,27 +202,21 @@ void ReputationManager::mergeReputation(Reputation* rep, const Neighborhood& n, 
 		
 	}
 
-      if (resultChanged)
-	continue;
 
       /* if it gets here a vehicle was not found in the negative area */
-      Area negRemainder = neg - recvObs;
-      
-      /* if the sender was able to see everything in that area the negative condition holds true,
-	 whereas if he does not see everything it is still uncertain */
-      if (!negRemainder.isEmpty())
-	break;
+      neg = neg - recvObs;
       
       
       /* ============ POSITIVE AREAS HANDLING ================== */
       
-      Iterator<Area> posItr(pos);
-      Area posElement;
+      Area* posElement = 0;
 
       ExtBool isPositiveEventVerified = T;
-      while (posItr(posElement))
+      for (int i = 0; i < pos.count(); i++)
 	{
-	  Area posRemainder = posElement - recvObs;
+	  pos.getElem(posElement, i);
+	  
+	  *posElement = *posElement - recvObs;
 
 	  /* reset iterator */
 	  sItr.initialize(sList);
@@ -228,7 +229,7 @@ void ReputationManager::mergeReputation(Reputation* rep, const Neighborhood& n, 
 	      position[0] = s.x;
 	      position[1] = s.y;
 	      
-	      if (posElement.contains(position))
+	      if (posElement->contains(position))
 		{
 		  isVehiclePresentInPositiveArea = T;
 		  break;
@@ -241,7 +242,7 @@ void ReputationManager::mergeReputation(Reputation* rep, const Neighborhood& n, 
 
 	  if (isVehiclePresentInPositiveArea == F)
 	    {
-	      if (posRemainder.isEmpty())
+	      if ((*posElement).isEmpty())
 		{
 		  record->result = F;
 		  isPositiveEventVerified = F;
@@ -260,8 +261,10 @@ void ReputationManager::mergeReputation(Reputation* rep, const Neighborhood& n, 
 	  
 	}
       
-      if (resultChanged)
-	continue;
+      /* if the sender was able to see everything in that area the negative condition holds true,
+	 whereas if he does not see everything it is still uncertain */
+      if (!neg.isEmpty())
+	break;      
 
       if (!(isPositiveEventVerified == T))
 	break;

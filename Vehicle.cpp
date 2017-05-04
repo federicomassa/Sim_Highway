@@ -44,6 +44,16 @@ State Vehicle::getQ() const
   return pLayer.getQ();
 }
 
+Sensing Vehicle::getS() const
+{
+  State q = getQ();
+  Parms p = getParms();
+  
+  Sensing s(idx, q, p);
+
+  return s;
+}
+
 /* set continuous state q - for predictor */
 void Vehicle::setQ(const State& q)
 {
@@ -65,6 +75,7 @@ void Vehicle::setRM(const Area& obs)
   Knowledge k;
   mLayer.buildKnowledge(k, obs);
   repMan.setCurrentParams(pLayer.getQ(), k);
+  repMan.setReputations(mLayer);
 }
 
 void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)

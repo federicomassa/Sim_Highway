@@ -106,14 +106,7 @@ public:
      */
     void recvForConsensus(MonitorLayer& mLayer)
     {
-      List<Monitor*>& mList = mLayer.getMonitorList();
-      Iterator<Monitor*> itr(mList);
-      Monitor* m;
-
-      while (itr(m))
-	{
-	  repList.insTail(m->rep); 
-	}
+      setReputations(mLayer);
       
       /* message list that will contain neighborhood lists of my neighbors */
       List<Message<Knowledge> >msgList;
@@ -126,7 +119,23 @@ public:
     {
       repList.purge();
     }
+
+    /* take reputation from monitor layer */
+    void setReputations(MonitorLayer& mLayer)
+    {
+      clearReputation();
       
+      List<Monitor*>& mList = mLayer.getMonitorList();
+      Iterator<Monitor*> itr(mList);
+      Monitor* m;
+
+      while (itr(m))
+	{
+	  repList.insTail(m->rep); 
+	}
+      
+    }
+    
     /*!
      * \brief Merge my knowledge with the knowledge received from another agent.
      *

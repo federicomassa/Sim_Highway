@@ -20,9 +20,6 @@ void Rule::check(const Vector<Sensing, VEHICLE_MEMORY>& monitorStates, const Vec
      If we want to do something more complicated for specific rules we need to derive from rule our version of check() */
   while (eIt(e))
     {
-      /* Debug */
-      /*	e.evaluate(monitorStates[0], 0.0, neighStates[0], false);
-		std::cout << "Value before area: " << e.getValue() << std::endl;*/
       List<Area> positiveArea;
       Area negativeArea;
       e.evaluateWithArea(monitorStates[0], 0.0, neighStates[0], false, obs, positiveArea, negativeArea);

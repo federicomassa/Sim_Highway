@@ -24,7 +24,7 @@ class Knowledge
   /* pairs containing monitored vehicle's ID and a countdown indicating how long it will take to attempt to measure the 
    discrete state. */
   //  List<std::pair<int, int> > monitoredVehicles;
-
+  int agentID;
   /* Neighborhood list */
   List<Neighborhood> nList;
   Area visibleArea;

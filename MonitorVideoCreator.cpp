@@ -139,7 +139,7 @@ void MonitorVideoCreator::run()
 
   /* if you want errors place env instead of noErrEnv*/
   if (rMon)
-    img.addAllVehicles(noErrEnv, observerID, monitorID, rMon->getReputation().level);
+    img.addAllVehicles(*env, observerID, monitorID, rMon->getReputation().level);
   
   img.writeFrameNumber();
  

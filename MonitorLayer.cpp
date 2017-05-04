@@ -196,10 +196,7 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Pa
       monitorLog.s << "Vehicle " << agentID << " observing vehicle " << m->getTargetID() << " BEGIN..." << EndLine(EndLine::INC);
 
       /* run the monitor passing the last points recorded. The monitor will form its own neighbors */
-      if (agentID == 0 && s.agentID == 1)
-	{
-	  m->run(s, targetSList, obs);
-	}
+      m->run(s, targetSList, obs);
       
       monitorLog.s << EndLine(EndLine::DEC);
       monitorLog.s << "Vehicle " << agentID << " observing vehicle " << m->getTargetID() << " END..." << EndLine();
@@ -286,7 +283,7 @@ void MonitorLayer::buildKnowledge(Knowledge& k, const Area& obs) const
 	      monitoredVehicles.insHead(p);*/
     }
 
-
+  k.agentID = agentID;
   k.nList = nList;
   k.visibleArea = obs;
 }

@@ -13,16 +13,19 @@ void VehicleType::setType(const string& type)
     {
       width = 1.22;
       height = 0.72;
+      imageName = "car";
     }
   else if (type == "LongVehicle")
     {
-      width = 2.0;
-      height = 0.72;
+      width = 2.4;
+      height = 0.95;
+      imageName = "truck";
     }
   else if (type == "Motorcycle")
     {
       width = 0.9;
       height = 0.35;
+      imageName = "motorcycle";
     }
   else
     error("VehicleType::setType", "Invalid vehicle type: " + type);

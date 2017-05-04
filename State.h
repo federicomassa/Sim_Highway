@@ -16,6 +16,7 @@ class VehicleType
   double width;
   double height;
   std::string name;
+  std::string imageName;
  public:
   VehicleType() {width = -1; height = -1;}
   friend int size(const VehicleType& vT) {return size(vT.width) + size(vT.height) + size(vT.name);}
@@ -23,6 +24,7 @@ class VehicleType
   const double& getWidth() const {return width;}
   const double& getHeight() const {return height;}
   const std::string& getName() const {return name;}
+  const std::string& getImageName() const {return imageName;}
   bool operator==(const VehicleType& vT) const
   {
     return (width == vT.width) && (height == vT.height) && (name == vT.name);

@@ -42,6 +42,7 @@ class Vehicle
   const ReputationManager& getRM() const {return repMan;}
   /* get continuous state q */    
   State getQ() const;
+  Sensing getS() const;
   /* set continuous state q - for predictor */
   void setQ(const State& q);
   /* get vehicle identifier */
