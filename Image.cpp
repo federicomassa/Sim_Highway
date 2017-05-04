@@ -374,6 +374,95 @@ void Image::drawVehicleWithLabel(const Vehicle& v, const char* label, const RepL
     gdImageDestroy(vImg);
 }
 
+void Image::drawVehicleWithLabel(const Sensing& s, const char* label, const RepLevel& rLev)
+{
+  
+    /* error handling */
+    if (frame == NULL)
+        error("Image::addVehicle", "frame is NULL");
+    
+    gdImagePtr aux, vImg;
+    string idStr;
+    int brect[8];
+    FILE *fp = NULL;
+
+    string tmpS = INPUT(vehicle.png);
+
+    fp = fopen(tmpS.c_str(), "rb");
+    /* error handling */
+    if (fp == NULL)
+        error("Image::addVehicle", "cannot open png file: " + tmpS);
+    vImg = gdImageCreateFromPng(fp);
+    fclose(fp);
+
+    int circle_color = 0;
+    switch(rLev)
+      {
+      case CORRECT:
+	circle_color = gdImageColorResolve(vImg, 0, 255, 0);
+	break;
+      case FAULTY:
+	circle_color = gdImageColorResolve(vImg, 255, 0, 0);
+	break;
+      case UNCERTAIN:
+	circle_color = gdImageColorResolve(vImg, 255, 204, 0);
+	break;
+      case UNSET:
+	circle_color = gdImageColorResolve(vImg, 255, 255, 255);
+	break;
+      }    
+
+    
+    int text_size;
+    if (vImg->sx > vImg->sy)
+      text_size = (int)round((double)vImg->sy * VEHICLE_TXT_SIZE / (double)(s.vehicleType.getWidth()*SCALE) * VEHICLE_TXT_SCALE);
+    else
+      text_size = (int)floor((double)vImg->sx * VEHICLE_TXT_SIZE / (double)(s.vehicleType.getWidth()*SCALE) * VEHICLE_TXT_SCALE);
+
+    const int circle_size = (int)ceil((double)text_size * 1.8);
+    gdImageFilledEllipse(vImg, (int)round((double)vImg->sx / 2.0),
+			 (int)round((double)vImg->sy / 2.0),
+			 circle_size, circle_size, circle_color);
+    
+    
+    idStr = std::string(label);
+    
+    const int text_color = gdImageColorResolve(vImg, 0, 0, 0);    
+
+    gdImageStringFT(NULL, brect, text_color, FONT_NAME,
+		    text_size, 0, 0, 0, (char*)idStr.c_str());
+    
+    gdImageStringFT(vImg, brect, text_color, FONT_NAME, text_size, 0,
+		    (int)round((double)vImg->sx / 2.0 - (double)brect[2] / 2.0),
+		    (int)round((double)vImg->sy / 2.0 - (double)brect[7] / 2.0),
+		    (char*)idStr.c_str());
+
+    
+    const double scale_x = (double)(s.vehicleType.getWidth()*SCALE) / (double)vImg->sx;
+    const double scale_y = (double)(s.vehicleType.getHeight()*SCALE) / (double)vImg->sy;
+    
+    fp = fopen(INPUT(transparent.png), "rb");
+    /* error handling */
+    if (fp == NULL)
+      error("Image::addVehicle", "cannot open png file: transparent.png");
+    aux = gdImageCreateFromPng(fp);
+    fclose(fp);
+    const int dest_w = (int)round(aux->sx * scale_x);
+    const int dest_h = (int)round(aux->sy * scale_y);
+
+    
+    gdImageCopyRotated(aux, vImg, aux->sx / 2.0, aux->sy / 2.0, 0, 0,
+                       vImg->sx, vImg->sy, (int)round(s.theta / PI * 180));
+    gdImageCopyResampled(frame, aux,
+                         (int)round((s.x - cameraX) * SCALE - (double)dest_w / 2.0),
+                         (int)round(Y_OFFSET - s.y * SCALE - (double)dest_h / 2.0),
+                         0, 0, dest_w, dest_h, aux->sx, aux->sy);
+    gdImageDestroy(aux);
+    gdImageDestroy(vImg);
+
+}
+
+
 
 void Image::addVehicle(const Vehicle& v, bool isSubject)
 {
@@ -394,9 +483,9 @@ void Image::addAllVehicles(const Environment& env, const int& observerID, const 
   for (int i = 0; i < env.nV; i++)
     {
       if (env.v[i].getID() == observerID)
-	drawVehicleWithLabel(env.v[i], "O");
+	drawVehicleWithLabel(env.v[i], "M");
       else if (env.v[i].getID() == monitorID)
-	drawVehicleWithLabel(env.v[i], "M", rLev);
+	drawVehicleWithLabel(env.v[i], "O", rLev);
       else
 	addVehicle(env.v[i]);
     }
@@ -554,30 +643,31 @@ void Image::addHypothesis(int index, const Environment& env)
 
 void Image::drawNeighborhood(const Neighborhood& n)
 {  
-  Vector<double, 2> q = n.qTarget.toPoint();
+  
+  Vector<double, 2> q = n.sTarget.toPoint();
   /* center image on target x coordinate */
   init(q[0]);
   open();
-  const RepLevel rLev = n.getTargetReputation();
   
-  drawVehicle(n.qTarget, FAST, n.targetID, false, rLev);
+  //drawVehicleWithLabel(n.sTarget, FAST, n.targetID, false, rLev);
   /* draw other vehicles */
-  Iterator<State> qi(n.qList);
-  State tmpQ;
+  //  Iterator<State> qi(n.qList);
+  // State tmpQ;
   
   //probably doesn't write the IDs?
-  while(qi(tmpQ))
-    drawVehicle(tmpQ);
+  //while(qi(tmpQ))
+  //  drawVehicle(tmpQ);
   /* draw frame number */
-  writeFrameNumber(now - 1);
+  //writeFrameNumber(now - 1);
 
-  Image copyImg = *this;
+  //Image copyImg = *this;
   
   /* draw transition*/
-  writeTransition(n.targetLastManeuver, n.targetManeuver);
+  //writeTransition(n.targetLastManeuver, n.targetManeuver);
   
   /* draw hypothesis */
-  if(rLev != FAULTY)
+
+  /*  if(rLev != FAULTY)
     {
       if (n.targetLastManeuver != n.targetManeuver)
 	{
@@ -628,6 +718,7 @@ void Image::drawNeighborhood(const Neighborhood& n)
 	  
 	}
     }
+  */
 }
 
 void Image::drawNeighborhood(const Neighborhood& n, const State& q, Maneuver m,
@@ -638,71 +729,71 @@ void Image::drawNeighborhood(const Neighborhood& n, const State& q, Maneuver m,
 }
 
 void Image::saveConsensusImages(const Environment& env,
-                                /*FIXME dummy */const State lastStates[], int cStep)
+				int cStep, const int& time)
 {
+
+  
   /* How to read consensus images:
    
      Blue vehicles are the observers,
      Red, yellow and green vehicles are the monitors, respectively recognized with
         FAULTY, UNCERTAIN and CORRECT behaviour.
      
-     Each consensum image might contain more than one hypothesis on the transition SIGMA1 => SIGMA2
-
-     If SIGMA1 != SIGMA2
-          each hypothesis refers to a different possibility. Red areas represent hypotheses 
-	  on absence of a vehicle with a certain logical function. Green areas, analogously, 
-	  refers to the presence of a vehicle. The transition is true if both green and red
-	  areas are occupied by vehicles accordingly.
-
-
-     If SIGMA1 == SIGMA2
-          As the transition is true only if all the others are false, the different hypotheses
-	  represent the non-realization of the transition SIGMA1 => OTHER_SIGMA. The colors of
-	  the areas have the same meaning as the SIGMA1 != SIGMA2 case (the colors
-	  of the anti-hypothesis are inverted with respect to the hypothesis), but now, for the
-	  condition to be true, is sufficient that only one between the red and green areas are
-	  occupied accordingly to their meaning. This is because !(A && B) = !A || !B
-
   */
+
+  if (time != now && time != -1)
+    return;
   
-    for(int i = 0; i < env.nV; i++)
+  for(int i = 0; i < env.nV; i++)
     {
-        List<Neighborhood> nList;
+
+      /* take repList from reputation manager */
+	List<Neighborhood> nList;
 	
-	/* take nList from reputation manager */
-        /*env.v[i].getNeighborhoodList(nList);*/
+	env.v[i].getRM().getNeighborhoodList(nList);
 	
-	/* take monitor list from monitorLayer */
-	/*	List<Monitor*> mList = env.v[i].getMonitorLayer()->getMonitorList();*/
-	/*	
-        Iterator<Neighborhood> ni(nList);
-        Neighborhood tmpN;
-        while(ni(tmpN))
-        {
-	    if (tmpN.targetLastManeuver == UNKNOWN)
+	Iterator<Neighborhood> nItr(nList);
+	Neighborhood n;
+
+	while (nItr(n))
+	  {
+	    Reputation* rep = env.v[i].getRM().findReputation(n.getTargetID());
+	    if (rep == 0)
 	      continue;
 
-	    Iterator<Monitor*> mI(mList);
-	    Monitor* m;
-	    State tmpQ(-100, 0, 0, 0);
+	    /* draw observed */
+            drawVehicleWithLabel(n.sTarget, "O", rep->level);    
+
 	    
-	    while (mI(m))
+	    /* draw everyone else */
+	    Iterator<Sensing> sItr(n.sList);
+	    Sensing s;
+
+	    while (sItr(s))
 	      {
-		if (m->getTargetID() == tmpN.targetID)
+		if (s.agentID != env.v[i].idx)
 		  {
-		    tmpQ = m->lastPredictionAgentQ;
-		    break;
+		    State q(s.x, s.y, s.theta, s.v);
+		    drawVehicle(q, FAST, s.agentID,false, UNSET, s.vehicleType.getWidth()*SCALE, s.vehicleType.getHeight()*SCALE);
 		  }
-	      };
+		else
+		  {
+		    drawVehicleWithLabel(s, "M", UNSET);    
+		  }
+	      }
 	    
-            drawNeighborhood(tmpN, tmpQ, FAST, env.v[i].idx);
-            string suffix = "-A" + toString(env.v[i].idx, 2) + "-T"
-                          + toString(tmpN.targetID, 2) + "-CS"
-                          + toString(cStep, 2);
+	    string suffix = "-A" + toString(env.v[i].idx, 2) + "-T"
+	      + toString(rep->getTargetID(), 2) + "-CS"
+	      + toString(cStep, 2);
 	    
-			  save('C', suffix);
-			  }*/
+	    save('C', suffix);
+
+	  }
+
     }
+
+
+  
 }
 
 /* 

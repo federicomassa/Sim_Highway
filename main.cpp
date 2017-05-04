@@ -190,7 +190,6 @@ int main (int argc, char* argv[])
         if(CONF.saveTxtOutput && now > 0)
         {
             /* output neighborhood measures */
-            env.outputNeighborhoodsMu(0);
             env.outputTargetsReputation(0);
         }
 	
@@ -222,10 +221,10 @@ int main (int argc, char* argv[])
                 if(CONF.saveConsensusImages)
                 {
 		  Image tmpImg;
-		  tmpImg.saveConsensusImages(env, lastStates);
+		  tmpImg.saveConsensusImages(env, 0, 7);
 		}
 		
-                const int totCSteps = 1;
+                const int totCSteps = 5;
                 for(int cStep = 0; cStep < totCSteps; cStep++)
                 {
                     if(CONF.debug)
@@ -237,7 +236,6 @@ int main (int argc, char* argv[])
                     /* txt output */
                     if(CONF.saveTxtOutput)
 		      {
-                        env.outputNeighborhoodsMu(cStep + 1);
                         env.outputTargetsReputation(cStep + 1);
 		      }
                     /* update progress bar */
@@ -245,7 +243,7 @@ int main (int argc, char* argv[])
                     if(CONF.saveConsensusImages)
                     {
                         Image tmpImg;
-                        tmpImg.saveConsensusImages(env, lastStates, cStep + 1);
+                        tmpImg.saveConsensusImages(env, cStep + 1, 7);
                     }
                 }
                 if(CONF.debug)

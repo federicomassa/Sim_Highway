@@ -35,6 +35,7 @@ class Image
     void drawVehicle(const State& q, const Maneuver m = FAST, int index = -1,
                      bool isSubject = false, RepLevel rLev = UNSET, const int& pixWidth = -1, const int& pixHeight = -1);
     void drawVehicleWithLabel(const Vehicle&, const char*, const RepLevel& level = UNSET);
+    void drawVehicleWithLabel(const Sensing&, const char*, const RepLevel& level = UNSET);
     void addHypothesis(const Hypothesis& hyp, const bool& invert = false);
     void cp(const Image& im);
 public:
@@ -85,8 +86,8 @@ public:
     void drawNeighborhood(const Neighborhood& n);
     void drawNeighborhood(const Neighborhood& n,
                           const State& q, Maneuver m, int index);
-    void saveConsensusImages(const Environment& env, const State lastStates[],
-                             int cStep = 0);
+    void saveConsensusImages(const Environment& env,
+                             int cStep = 0, const int& time = -1);
     void drawArc(const double&, const double&,
 		 const double&, const double&,
 		 const int&, const int&);

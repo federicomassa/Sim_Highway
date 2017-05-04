@@ -27,18 +27,19 @@ void ActionManager::init()
 
 void ActionManager::run()
 {
+  
   Iterator<Action*> iListener(listeners);
   Action* a;
 
   while (iListener(a))
     {
+      
       /* Checks the conditions of this action and update its status. */
       a->listen();
       
       if (a->status != INACTIVE)
 	{
 	  /* Add to history and reset action */
-
 	  recordAction(a);
 
 	  if (a->status != TRIGGERED)

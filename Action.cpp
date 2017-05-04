@@ -27,7 +27,6 @@ Action::Action(const Action& a)
 
 void Action::listen()
 {
-
   /* Init condition */
   if (status == INACTIVE)
     {
@@ -38,6 +37,7 @@ void Action::listen()
 	  if (triggerTime < 0)
 	    triggerTime = 0;
 	}
+     
     }
 
   /* Running */
@@ -50,14 +50,13 @@ void Action::listen()
 	  if (endTime < 0)
 	    endTime = 0;
 	}
+
       
       else if (abortCondition())
 	{
 	  status = ABORTED;
 	  endTime = now - getAbortOffset();
 	}
-
-
       
     }
 

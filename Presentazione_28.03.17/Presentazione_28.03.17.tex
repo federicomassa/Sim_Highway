@@ -15,7 +15,7 @@
     \usebeamerfont{title in head/foot}Monitoring update
   \end{beamercolorbox}%
   \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
-    \usebeamerfont{date in head/foot} April, 24th 2017\hspace*{2em}
+    \usebeamerfont{date in head/foot} May, 4th 2017\hspace*{2em}
     \insertframenumber{} / \ref{Conclusions}\hspace*{2ex} 
   \end{beamercolorbox}}%
   \vskip0pt%
@@ -42,7 +42,7 @@ Monitoring update}
 %\author{Federico Massa}
 %\institute{\large{Laurea Magistrale in Fisica \\
 %Universit\`a di Pisa}}
-\date{\small April, 24th 2017}
+\date{\small May, 4th 2017}
 
 %\setbeameroption{show notes}
 \setbeameroption{hide notes}
@@ -114,35 +114,54 @@ Monitoring update}
   		  are defined in an abstract way as the list of
   		  conditions that make a certain action forbidden.
 \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Requirements}
 
 To achieve this, we only need:
 \begin{itemize}
-\item The sensor data of all the vehicles visible to the observer (x, y 
-      on the highway plane, at least) + some kind of vehicle ID to 
-      follow its trajectory.
-\item A list of possible actions that the monitored vehicle can do.
-\item The implementation of the social rules that are being monitored.
+\item The sensor data of all the vehicles visible by the observer (x, y 
+      on the highway plane, at least);
+\item Some kind of vehicle ID to 
+      follow its trajectory;
+\item A list of possible actions that the monitored vehicle can do;
+\item A specification of the social rules that are being monitored.
 \end{itemize}
+
 \end{frame}
 
 \begin{frame}
 \frametitle{Configuration}
 
 In the configuration file it is possible to choose, for every vehicle in the environment:
+\begin{columns}
+\begin{column}{0.6\textwidth}
 \begin{itemize}
 \item Initial continuous and discrete state;
-\item Geometrical parameters (Type of vehicle);
+\item Geometrical parameters \\(Type of vehicle);
 \item Dynamic model (Physical Layer type);
 \item Automaton type;
-\item Sensor errors.
+\item Magnitude of sensor errors.
 \end{itemize}
+\end{column}
+\begin{column}{0.4\textwidth}
+\centering
+\includegraphics[scale=0.15]{vehicletypes}
+\end{column}
+\end{columns}
 
 
-\bigskip
-\bigskip
-\bigskip
-
-The action recognition and rule monitor systems are very general and should work in any realistic case (if correctly tuned...see later on).
+\begin{columns}[c]
+\begin{column}{0.5\textwidth}
+\centering
+\includegraphics[width=.8\linewidth]{coordinates}
+\end{column}
+\begin{column}{0.5\textwidth}
+\flushleft
+\includegraphics[width=.5\linewidth]{Automaton}
+\end{column}
+\end{columns}
 
 \end{frame}
 
@@ -151,30 +170,40 @@ The action recognition and rule monitor systems are very general and should work
 
 \begin{frame}
 \frametitle{First step: the action recognition}
-An action is abstractly defined as a vehicle behaviour. Examples of
+An action is abstractly defined as a vehicle behaviour in a \textbf{finite interval of time}. Examples of
 it include 
+\begin{columns}
+\begin{column}{0.4\textwidth}
 \begin{itemize}
-\item \textit{left/right lane change}
-\item \textit{overtake}
-\item \textit{brake}
-\item ...
+\item \textit{Travel}
+\item \textit{Left/Right lane change}
+\item \textit{Left/Right overtake}
+\item \textit{Brake}
 \end{itemize}
+\end{column}
+\begin{column}{0.6\textwidth}
+\flushright
+\includegraphics[scale=0.4]{actionsTimeline}
+\end{column}
+\end{columns}
 
-We could also imagine a more sophisticated action recognition system
-to include nuances of these basic actions, like \textit{slow left lane change} or
+\bigskip
+
+We can also imagine a more sophisticated action recognition system
+to include more complicated actions, like \textit{slow left lane change} or
 \textit{abrupt left lane change}.\\
 
-\textbf{What the observer need to know:}
+\textbf{What the observer needs to know:}
 
-The observer vehicle should have a list of possible actions that the 
-monitored vehicle can do. The action recognition system is now \emph{independent} from the monitored vehicle's model. 
+The monitor must have a list of possible actions that the 
+observed vehicle can do. The action recognition system is now \emph{independent} from the monitored vehicle's dynamic model. 
 \end{frame}
 
 \begin{frame}
 \frametitle{How the action recognition works}
-In order to recognize an action, the observer needs to:
+In order to recognize an action, the monitor needs to:
 \begin{itemize}
-\item Identify the monitored vehicle;
+\item Identify the observed vehicle;
 \item Keep track of the visible vehicles' sensor data for a finite interval of time.
 \end{itemize}
 
@@ -182,13 +211,13 @@ Each action is recognized independently $\rightarrow$ concurrent actions are pos
 
 \bigskip
 
-An \textbf{Action Manager} continuously listens to each action and verifies if the trajectory of the monitored vehicle is compatible with that action. If it is, the action is successfully recognized.
+An \textbf{Action Manager} ($\mathbf{\Phi}$) continuously listens to each action ($a_1$, $a_2$, ...) and verifies if the trajectory of the monitored vehicle is compatible with that action. If it is, the action is successfully recognized.
 
 \end{frame}
 
 \begin{frame}
 \frametitle{The Action Manager structure}
-Specific actions (LeftAction, RightAction...) inherit from abstract class Action. The ActionManager initializes several \textit{listeners}, i.e. actions that the system can recognize.
+The ActionManager initializes several \textit{listeners}, i.e. actions that the system can recognize.
 \bigskip
 \bigskip
 \bigskip
@@ -203,16 +232,18 @@ Specific actions (LeftAction, RightAction...) inherit from abstract class Action
 If an action is registered in the ActionManager listener list, it enters a cycle:\\
 
 \centering
-\includegraphics[scale=0.6]{ListeningCycle2}
+\includegraphics<1>[scale=0.6]{ListeningCycle3}
+\includegraphics<2>[scale=0.4]{ListeningSignal}
+
 
 \end{frame}
 
 \begin{frame}
 \frametitle{LeftAction example}
 
-We use the following parameters (also using the N-points trajectory):
+We use a N-point trajectory ($q_1, ..., q_N$) and the following parameters:
 \begin{itemize}
-\item $\Delta y$: Transversal distance covered in the recorded trajectory (last y - initial y);
+\item $\Delta y$: Transversal distance covered in the recorded trajectory (last y - initial y)/N;
 \item $\mu_y$: Average transversal position;
 \item $\sigma_y$: Standard deviation of transversal position.
 \item f: constant between 0 and 1 (needs tuning);
@@ -276,8 +307,8 @@ In practice, a set of social rules is composed by single rules with the
 following features:
 \begin{description}
 \item[Category] A string useful to define groups of rules, such as "Safety rules", "Lane change rules", ...}
-\item<3->[Event list] The rule is activated when at least one event is true.  Each event is composed by subevents and is activated when all subevents are true. Each subevent checks a specific logical condition on the monitored vehicle and its neighbors and can have a specific \textbf{area} of competence. \\
-\item<4->[Evaluation mode] See after.
+\item<3->[Event list] The rule is activated when at least one event is true.  Each event is composed by subevents and is activated when all subevents are true. Each subevent checks a specific logical condition on the monitored vehicle and its neighbors and can have a specific \textbf{area} of influence. \\
+\item<4->[Eval mode] Specifies when the rule must be evaluated (when the action is triggered or continuously).
 \end{description}
 \end{frame}
 
@@ -370,8 +401,10 @@ the rule system and verify that the right rules are checked. At each instant:\\
 	list of rule categories of each action;
 \item<+-> For each rule category, take each rule and consider its ``Evaluation Mode'';
 \item<+-> If the Evaluation Mode is on TRIGGER, the rule is checked only at trigger time. If it is on CONTINUOUS, the rule is checked every time until the action ends (e.g. Safety rules are generally in CONTINUOUS mode);
-\item<+-> A rule is \textbf{true} if a wrong behaviour was spotted (at least one of the events is true), \textbf{uncertain} if the observer cannot tell 
-if a rule is verified or not due to hidden areas (no events are true, at least one uncertain), \textbf{false} if the behaviour is correct  (all events are false).
+\item<+-> A rule is \textbf{True} if a wrong behaviour was spotted (at least one of the events is true);\\
+\textbf{Uncertain} if the observer cannot tell 
+if a rule is verified or not due to hidden areas (no events are true, at least one uncertain);\\
+\textbf{False} if the behaviour is correct  (all events are false).
 \end{enumerate}
 \end{frame}
 
@@ -389,6 +422,7 @@ With sensor errors:\\
 
 \end{frame}
 
+\section{Conclusions}
 \begin{frame}
 \frametitle{Remarks on the C++ code}
 The C++ code is mostly written using polymorphism, so that it is

@@ -363,7 +363,3 @@ void calculateMeanSigma(const Vector<Sensing, VEHICLE_MEMORY>* states, const int
  
 }
 
-double calculateAverageDeltaY(const Vector<Sensing, VEHICLE_MEMORY>* states, const int& n)
-{
-  
-}

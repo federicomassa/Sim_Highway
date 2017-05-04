@@ -21,6 +21,9 @@ bool Area::addRect(const Rectangle& r)
 /**
  * this method checks if the area contains the point
  */
+
+// FIXME what if the area is partially contained in two rectangles so that no one contains it
+// but the total area does?
 bool Area::contains(const Rectangle& r2) const
 {
     Iterator<Rectangle> rectIt(rectList);

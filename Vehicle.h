@@ -3,6 +3,7 @@
 
 #include "ReputationManager.h"
 #include "MonitorLayer.h"
+#include "Area.h"
 #include <fstream>
 
 class Knowledge;
@@ -17,7 +18,7 @@ class Vehicle
   int idx;
   Parms p;
   /* set reputation manager's current parameters */
-  void setRM();
+  void setRM(const Area&);
   /* List of sensor measurements */
   List<Sensing> sList;
  public:
@@ -33,8 +34,10 @@ class Vehicle
   void initRM(Channel<Knowledge>* rC) { repMan.init(rC, idx); }
   /* execute the first step of the reputation manager's task */
   void sendRM() { if(repMan.isActive()) repMan.sendForConsensus(); }
-  /* execute the reputation manager's core-task */
-  void recvRM() { if(repMan.isActive()) repMan.recvForConsensus(); }
+  /* clear RM*/
+  void clearRM() { if(repMan.isActive()) repMan.clearReputation();}
+  /* execute the reputation manager's core-task */  
+  void recvRM() { if(repMan.isActive()) repMan.recvForConsensus(mLayer); }
   /* get pointer to reputation manager */
   const ReputationManager& getRM() const {return repMan;}
   /* get continuous state q */    

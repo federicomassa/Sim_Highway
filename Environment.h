@@ -52,8 +52,6 @@ public:
     void activateReputationManager(int index);
     /* get vehicle's hypothesis */
     void getHypothesis(int index, List<Hypothesis>& hypList) const;
-    /* output Neighborhoods measure */
-    void outputNeighborhoodsMu(int cStep) const;
     /* output targets reputation level */
     void outputTargetsReputation(int cStep) const;
     /* output Neighborhoods communication overhead */

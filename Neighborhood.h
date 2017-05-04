@@ -15,6 +15,7 @@
 #include "List.h"
 #include "Hypothesis.h"
 #include "Reputation.h"
+#include "Sensing.h"
 
 class Neighborhood
 {
@@ -25,7 +26,7 @@ class Neighborhood
     friend std::ostream& operator<<(std::ostream& os, const Neighborhood& n);
     friend bool operator==(const Neighborhood& n1, const Neighborhood& n2)
     {
-        return n1.targetID == n2.targetID && n1.qTarget == n2.qTarget;
+        return n1.targetID == n2.targetID;
     }
     friend bool operator!=(const Neighborhood& n1, const Neighborhood& n2)
     {
@@ -33,34 +34,36 @@ class Neighborhood
     }
     friend int size(Neighborhood n)
     {
-        return size(n.targetID) + size(n.qTarget) + size(n.qList) + size(n.hList);
+        return size(n.targetID) + size(n.sList);
     }
     int targetID, agentID;
-    State qTarget;
+    Sensing sTarget;
     
-    //contains all information about the vehicles 
-    List<State> qList;
+    //contains all information about the vehicles seen by the target (as visible from the monitor)
+    List<Sensing> sList;
     
-    List<Hypothesis> hList;
-    Vector<List<Hypothesis>, N_MANEUVER> lastHypLists;
-
-    // Needed to merge hypotheses
-    Maneuver targetManeuver;
-    Maneuver targetLastManeuver;
     
 public:
     Neighborhood() { targetID = -1; }
-    Neighborhood(int t, const State& qT, const List<State>& qL,
-                 const List<Hypothesis>& hL, const Vector<List<Hypothesis>, N_MANEUVER>& possibleHL);
+    Neighborhood(int t, const Sensing&, const List<Sensing>&);
+    void init(int t, const Sensing&, const List<Sensing>&);
     ~Neighborhood() { }
     void intersectionWith(const Neighborhood& n);
     int getTargetID() const { return targetID; }
     int getAgentID() const { return agentID; }
-    State getTargetState() const { return qTarget; }
-    List<State> getQList() const { return qList; }
-    List<Hypothesis> getHList() const { return hList; }
+    const Sensing& getTargetSensing() const {return sTarget;}
+    const List<Sensing>& getSList() const { return sList; }
     RepLevel getTargetReputation() const;
-    double measure() const;
+
+    const Neighborhood& operator=(const Neighborhood& n)
+      {
+	targetID = n.targetID;
+	agentID = n.agentID;
+	sTarget = n.sTarget;
+	sList = n.sList;
+
+	return *this;
+      }
 };
 
 #endif

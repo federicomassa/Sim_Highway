@@ -1,0 +1,23 @@
+Slide 2. fare un'altra slide in cui dico quali sono i dati di cui ho bisogno.
+Mettere la v e ho bisogno degli errori. Specifiche errori? Implementazione -> specifica
+
+Slide 3. Geometrical parameters metti immaginette. Nel caso dell'autostrada scrivi q.
+
+Slide 4. Spiegare che l'azione è in un intervallo di tempo con disegno. WE CAN ALSO IMAGINE. Nuances -> Nuove azioni. Metti travel per prima. In base a quanto precisi vogliamo essere possiamo definire a priori nuove azioni in base a quello che è importante per noi. Should -> must. Aggiungi DYNAMIC model. OBSERVER -> MONITOR --- MONITORED -> OBSERVED
+
+Slide 5. Finite time interval. Scriviamolo matematicamente. Anche ActionManager, dagli Phi.
+
+Slide 6. Save -> Action completed
+
+Slide 7. Cerchietto più grande per inactive e triggered. Grafico di 0 e 1 con attivo e inattivo nel tempo
+
+Slide 8. LeftAction listener. N-point senza S. DeltaY/N. Scrivere N-point
+
+Slide 10. Ultima immagine dove va dritto
+
+Slide 11. Observation -> Monitoring paradigm. Many behaviours are correct, only some are wrong. In practice -> \\ Quelli corretti sono quelli compatibili con le regole sociali. Ogni regola è formata da. Competence -> influence. Scrivere formuletta con e_i = s_i1 && s_i2. Evaluation mode = specifica quando la regola deve essere valutata.
+
+Slide 15. true, uncertain, false più schematico
+
+
+

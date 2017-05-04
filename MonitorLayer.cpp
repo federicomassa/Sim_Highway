@@ -268,20 +268,19 @@ void MonitorLayer::buildNeighborhoodList(List<Neighborhood>& nList) const
     
 }
 
-void MonitorLayer::buildKnowledge(Knowledge& k) const
+void MonitorLayer::buildKnowledge(Knowledge& k, const Area& obs) const
 {
   List<Neighborhood> nList;
-  List<std::pair<int, int> > monitoredVehicles;
   
   Iterator<Monitor*> i(monitorList);
   Monitor* m;
   while(i(m))
     {
       Neighborhood n;
-      /*      if(m->buildNeighborhood(n))
+      if(m->buildNeighborhood(n))
 	{
 	  nList.insHead(n);
-	  }*/
+	}
       
       /*      std::pair<int, int> p = std::make_pair(m->targetID, m->getTimeCount());
 	      monitoredVehicles.insHead(p);*/
@@ -289,5 +288,5 @@ void MonitorLayer::buildKnowledge(Knowledge& k) const
 
 
   k.nList = nList;
-  k.monitoredVehicles = monitoredVehicles;
+  k.visibleArea = obs;
 }

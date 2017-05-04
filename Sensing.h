@@ -21,6 +21,9 @@ public:
 
     /* if true, empty sensing */
     bool dummy;
+
+    friend int size(const Sensing& s) {return size(s.agentID) + size(s.x) + size(s.y) + size(s.theta) + size(s.v) +
+	size(s.desiredV) + size(s.vehicleType) + size(s.dummy);}
     
     Sensing() { agentID = -1; dummy = true;}
     Sensing(int tIdx, const State& tQ, const Parms& tP)
@@ -67,6 +70,8 @@ public:
 	dummy = s.dummy;
 	return *this;
       }
+
+    Vector<double, 2> toPoint() const;
     
 };
 

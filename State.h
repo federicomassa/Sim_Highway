@@ -18,6 +18,7 @@ class VehicleType
   std::string name;
  public:
   VehicleType() {width = -1; height = -1;}
+  friend int size(const VehicleType& vT) {return size(vT.width) + size(vT.height) + size(vT.name);}
   void setType(const std::string&);
   const double& getWidth() const {return width;}
   const double& getHeight() const {return height;}

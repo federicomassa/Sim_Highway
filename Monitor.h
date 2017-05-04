@@ -30,6 +30,7 @@ extern Logger monitorLog;
 class Monitor
 {
     friend class Image;
+    friend class ReputationManager;
     friend class MonitorLayer; //FIXME only debug
     /*!
      * \brief Redefinition of operator ==.
@@ -91,6 +92,9 @@ public:
     const RuleMonitor* getRuleMonitor() const {return &rMon;}
 
     const int& getLastRunTime() const {return lastRunTime;}
+
+    /* Build neighborhood object from monitor sList */
+    bool buildNeighborhood(Neighborhood& n);
     
 };
 

@@ -27,6 +27,11 @@ bool LeftOvertakeAction::triggerCondition()
   /* if there is no other vehicle do not trigger */
   if ((*neighStates)[0].count() == 0)
     return false;
+
+  if ((*neighStates)[0].count() != (*neighStates)[1].count() ||
+      (*neighStates)[0].count() != (*neighStates)[2].count())
+    return false;
+
   
   /* list of candidates to overtake */
   List<Sensing> candidates;

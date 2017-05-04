@@ -33,7 +33,7 @@ public:
 
     /* Evaluate events using the observable area */
     void evaluateWithArea(const Sensing& sSubj, const IntVars& vars,
-			  const List<Sensing>& sList, bool omniscient, const Area& obs);
+			  const List<Sensing>& sList, bool omniscient, const Area& obs, List<Area>&, Area&);
     
     /* re-evaluate the event after some subEvents changed their value */    
     void reEvaluate();

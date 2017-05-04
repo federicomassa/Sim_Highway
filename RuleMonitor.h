@@ -24,9 +24,11 @@ class RuleMonitor
   Area observableArea;
   SocialRules* rules;
   Reputation& rep;
+
   /* every record is an action and its associated rules */
   List<std::pair<Action*, List<Rule> > > processedActions;
 
+  
   void processActions();
   void registerNewAction(const Action*);
  public:
@@ -50,6 +52,7 @@ class RuleMonitor
   /* get pointer to the action manager */
   const ActionManager* getActionManager() {return &aMan;}
 
+  
   Reputation& getReputation() {return rep;}
   const Reputation& getReputation() const {return rep;}
   

@@ -13,6 +13,8 @@ void Rule::check(const Vector<Sensing, VEHICLE_MEMORY>& monitorStates, const Vec
 {
   Iterator<Event> eIt(eList);
   Event e;
+
+  checkResult = F;
   
   /* The evaluation of the event is on the current state. See comments to template addRule!
      If we want to do something more complicated for specific rules we need to derive from rule our version of check() */
@@ -21,11 +23,13 @@ void Rule::check(const Vector<Sensing, VEHICLE_MEMORY>& monitorStates, const Vec
       /* Debug */
       /*	e.evaluate(monitorStates[0], 0.0, neighStates[0], false);
 		std::cout << "Value before area: " << e.getValue() << std::endl;*/
-      e.evaluateWithArea(monitorStates[0], 0.0, neighStates[0], false, obs);
-      rep.addRecord(now, name, e.getValue().nonOmniscientValue);
+      List<Area> positiveArea;
+      Area negativeArea;
+      e.evaluateWithArea(monitorStates[0], 0.0, neighStates[0], false, obs, positiveArea, negativeArea);
+      rep.addRecord(now, name, e.getValue().nonOmniscientValue, positiveArea, negativeArea);
+      checkResult = checkResult || e.getValue().nonOmniscientValue;
+ 
     }
-  
-  
   
   lastCheckTime = now;
   

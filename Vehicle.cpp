@@ -35,6 +35,8 @@ const Vehicle& Vehicle::operator=(const Vehicle& v)
   std::pair<State, Parms> sp = std::make_pair(v.getQ(), v.getParms());
   setID(v.getID());
   init(sp);
+
+  return *this;
 }
 
 State Vehicle::getQ() const
@@ -58,8 +60,11 @@ void Vehicle::run()
   pLayer.updateQ();
 }
 
-void Vehicle::setRM()
+void Vehicle::setRM(const Area& obs)
 {
+  Knowledge k;
+  mLayer.buildKnowledge(k, obs);
+  repMan.setCurrentParams(pLayer.getQ(), k);
 }
 
 void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
@@ -79,10 +84,14 @@ void Vehicle::evolveMonitor(const Area& obs)
 {
   /* monitor layer evolution */
   if(mLayer.isActive())
-    mLayer.run(sList, pLayer.getQ(), getParms(), automaton.getManeuver(), obs);
+    {
+      mLayer.run(sList, pLayer.getQ(), getParms(), automaton.getManeuver(), obs);
+    }
   /* set reputation manager */
   if(repMan.isActive())
-    setRM(); 
+    {
+      setRM(obs);
+    }
 }
 
 void Vehicle::getHypothesis(List<Hypothesis>& hList)

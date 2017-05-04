@@ -67,7 +67,7 @@ Maneuver Environment::getManeuver(int index) const
  * this function returns i-th agent's observable area
  */
 void Environment::observableArea(int index, Area& obs, Area* hiddenArea, const double& visible_distance) const
-{
+{  
     /* error handling */
     if (index >= nV || index < 0)
         error("Environment", "vehicle index exceeded Environment bounds");
@@ -292,6 +292,9 @@ void Environment::observableArea(int index, Area& obs, Area* hiddenArea, const d
         LOG.s << "Observable area: " << obs << EndLine(EndLine::DEC);
         LOG.s << "END." << EndLine();
     }
+
+
+    
 }
 
 void Environment::run()
@@ -387,21 +390,19 @@ void Environment::omniscientNeighborhoodList(List<Neighborhood>& oNL)
 
 void Environment::consensusStep()
 {
-  std::cout << "consensus step" << std::endl;
-    for(int i = 0; i < nV; i++)
-        v[i].sendRM();
-    if(CONF.debug)
-        LOG.s << "Reputation channel:" << EndLine()
-            << repChannel << EndLine();
-    for(int i = 0; i < nV; i++)
-        v[i].recvRM();
-    repChannel.clearAll();
-
-    /* If a countdown was received, set other observers to wait for the desired time to sync */
-    for (int i = 0; i < nV; i++)
-      {
-	v[i].shareWaitingList();
-      }
+  for(int i = 0; i < nV; i++)
+    v[i].clearRM();
+  
+  
+  for(int i = 0; i < nV; i++)
+    v[i].sendRM();
+  if(CONF.debug)
+    LOG.s << "Reputation channel:" << EndLine()
+	  << repChannel << EndLine();
+  for(int i = 0; i < nV; i++)
+    v[i].recvRM();
+  repChannel.clearAll();
+  
 }
 
 void Environment::activateMonitorLayer(int index)
@@ -427,28 +428,6 @@ void Environment::getHypothesis(int index, List<Hypothesis>& hypList) const
     v[index].getHypothesis(hypList);
 }
 
-void Environment::outputNeighborhoodsMu(int cStep) const
-{
-    for(int i = 0; i < nV; i++)
-    {
-        if(!CONF.activeReputationManagers.belongs(i))
-            continue;
-        
-        List<Neighborhood> nList;
-        v[i].getNeighborhoodList(nList);
-        Iterator<Neighborhood> ni(nList);
-        Neighborhood n;
-        while(ni(n))
-        {
-            string fileName = "Mu-T" + toString(n.getTargetID(), 2);
-            Output out(fileName, 4);
-            out.insert(now);
-            out.insert(cStep);
-            out.insert(i);
-            out.insert(n.measure());
-        }
-    }
-}
 
 void Environment::outputTargetsReputation(int cStep) const
 {

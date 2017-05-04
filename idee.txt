@@ -1,22 +1,15 @@
-!!!! === Progettare sempre sul lungo termine prima di scrivere troppo === !!!!
+/* CONSENSO */
 
-Apprendimnto: sequenze di azioni ripetute possono portare alla creazione di una nuova azione?
+- Attualmente protocollo broadcast: i veicoli scrivono sul canale e ricevono dal canale lo stesso tipo di informazione che hanno inviato. In locale fanno un merging.
 
-Per il problema della proiezione in avanti della fermata: se uno decide di frenare all'ultimo non è un problema
-di regole sociali ma una bassa qualità di guida, che al limite influisce sulla reputazione. In generale il comportamento
-è sbagliato solo se si infrange la distanza di sicurezza, calcolata in modo leggermente migliore di prima, considerando non solo la tua velocità ma anche la sua? O prendere caso peggiore in cui lui si può fermare da un istante all'altro? Di fatto nessuno guida così ma utilizza la sua velocità.
+- Ora pensiamo ad un protocollo diverso, tipo richieste in broadcast "Io sono 0, sto monitorando 1. Mi serve sapere se c'è qualcuno in questa e quest'area". Tutti scaricano le richieste dal broadcast e rispondono "Nella prima area c'è qualcuno, nella seconda no". Ma questa risposta non deve andare in broadcast perché è una risposta personale che capisce solo 0. Allora il canale può fungere da 'smistatore'. Problema: in reti con tanti veicoli è probabile che chi risponde debba dare informazioni simili a più veicoli. Allora non è meglio cercare una soluzione simile alla precedente in cui si comunica un'info più complicata ma almeno va bene per tutti mantenendo il protocollo broadcast con merging locale?
 
-Mi preoccupa la questione del legame tra social rules e actions. Mi sembra limitante che le social rules parlino di actions specifiche.
-Preferirei piuttosto che le social rules parlassero di caratteristiche delle action. Ad esempio, LeftAction potrebbe avere le caratteristiche LeftLaneChange, StableVelocity... Le social rules potrebbero appunto parlare di tutte le action che prevedono una LeftLaneChange, dicendo che questo non si può fare nel caso in cui la corsia sinistra sia occupata eccetera...
-Nel caso dell'autostrada non credo ce ne sia tanto bisogno, però se vogliamo un sistema di monitoring che sia elastico rispetto alle regole sociali può essere una buona strada. In particolare per quanto riguarda la complicazione delle actions. Ad un certo punto potrei avere una specifica action che prevede una oscillazione (tipo platoon). Questo potrebbe essere riconosciuto dall'actionManager sia come TravelAction che come PlatoonAction. Se inseriamo anche un discorso di qualità in questo caso potrebbe essere una TravelAction con bassa qualità o una PlatoonAction nella media. Entrambe le azioni sono registrate alla feature "Andatura", Platoon è anche registrata a "Segui qualcuno"(?) e possono entrare in competizione. In questo caso vince Platoon. Come gestire la competizione? Quando due azioni possono entrare in competizione? In base alle features direi. Questo è un problema di identificazione delle action, non del monitor. Per quanto riguarda le regole sociali, non parlano di specifico tipo di andatura, parlano di andatura e basta. La reputazione è prima di tutto basata sul rispetto delle regole sociali. In un secondo momento potrebbero dipendere anche dalla qualità di guida.
+- Inoltre, una risposta semplice tipo sì/no per ogni area ti permette di dire se il veicolo viola o meno, però non permette cose più sofisticate tipo valutazione della gravità dell'infrazione. Però
+è anche vero che anziché un semplice sì/no potremmo far dire, sì c'è un veicolo a x/y metri di distanza.
 
-     ^
-     '
-     '
-     '
+- Se metto a disposizione il mio 'local env' e faccio il merging con quello che vedono gli altri, posso direttamente verificare le regole con quello che vedo. Problema: non è detto che io stia vedendo tutte le azioni possibili. Ad esempio, quello che per me è solo un travel magari è travel + right overtake --> sarebbe infrazione. Ma non fa nulla, il consenso credo serva solo per dissipare dubbi che già si hanno, non per metterne altri. In realtà dipende da quanto decidiamo di fidarci del giudizio degli altri. Potremmo addirittura usare le info per runnare il sistema di action manager...a quel punto sarebbe in tutto e per tutto come avere gli occhi di tutti i monitor.
 
-Aggiudicato. Ogni azione si registra ad una serie di stringhe rappresentanti le features. Le regole sociali parlano solo di features. In questo modo ho piena libertà sul come definire le azioni.
+- Il problema con l'approccio del valutare le regole con gli occhi di tutti è che vanno aggiornate anche le aree visibili e invisibili. Non è un gran problema, però oltre a comunicare la sList bisogna
+anche comunicare visibleArea. A quel punto hiddenArea -= consensusVisibleArea. hiddenArea->simplify().
 
-
-Attualmente le action hanno bisogno almeno di un trigger e un end condition. Per renderlo più elastico io vorrei che le azioni potessero essere triggerate dopo che sono realmente iniziate, magari perché devo monitorarle per un po' prima di capire che sono davvero quella azione (tipo platoon, all'inizio sembra un travel). Per fare questo una soluzione potrebbe essere predisporre un timeOffset per ogni azione. Se quella azione lo specifica, il triggerTime sarà now - offSet.
-
+- !!Dare la sList non va bene perché richiede SYNC!! 

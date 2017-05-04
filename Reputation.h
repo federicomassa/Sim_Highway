@@ -12,10 +12,11 @@
 #ifndef REPUTATION_H
 #define REPUTATION_H
 
-#include "State.h"
+#include "Sensing.h"
 #include "ExtValue.h"
 #include "List.h"
 #include "Logger.h"
+#include "Area.h"
 #include <string>
 
 
@@ -25,36 +26,55 @@ extern Logger ResultLog;
  */
 enum RepLevel { FAULTY, UNCERTAIN, CORRECT, UNSET };
 
+
+/* A RepRecord corresponds to a single event evaluation of a rule */
 struct RepRecord
 {
   int evalTime;
   std::string rule;
   ExtBool result;
-
+  List<Area> positiveArea;
+  Area negativeArea;
+  
   RepRecord()
   {
     evalTime = -1;
     rule = "";
     result = F;
   }
-
-  void init(const int& eT, const std::string& r, const ExtBool& res)
+  
+  void init(const int& eT, const std::string& r, const ExtBool& res, const List<Area>& pArea, const Area& nArea)
   {
     evalTime = eT;
     rule = r;
     result = res;
+    positiveArea = pArea;
+    negativeArea = nArea;
   }
 
   bool operator==(const RepRecord& rec)
   {
     return (evalTime == rec.evalTime &&
 	    rule == rec.rule &&
-	    result == rec.result);
+	    result == rec.result &&
+	    positiveArea == rec.positiveArea &&
+	    negativeArea == rec.negativeArea);
   }
 
   bool operator!=(const RepRecord& rec)
   {
     return !((*this) == rec);
+  }
+
+  const RepRecord& operator=(const RepRecord& rec)
+  {
+    evalTime = rec.evalTime;
+    rule = rec.rule;
+    result = rec.result;
+    positiveArea = rec.positiveArea;
+    negativeArea = rec.negativeArea;
+
+    return (*this);
   }
   
 };
@@ -68,27 +88,33 @@ class Reputation
 {
   List<RepRecord> history;
 public:
-    /*!
-     * \brief Target agent identifier.
-     */
-    int targetID;
-    /*!
+  /*!
+   * \brief Target agent identifier.
+   */
+  int targetID;
+  /*!
      * \brief Target's state.
      */
-    State qTarget;
-    /*!
-     * \brief Target reputation level.
-     */
-    RepLevel level;
-    /*!
-     * \brief Default constructor.
-     */
-    Reputation() { targetID = -1; level = UNSET;}
-    /*!
-     * \brief Destructor.
-     */
-    void addRecord(const int&, const std::string&, const ExtBool&);
-    ~Reputation() { }
+  Sensing sTarget;
+  /*!
+   * \brief Target reputation level.
+   */
+  RepLevel level;
+  /*!
+   * \brief Default constructor.
+   */
+  Reputation() { targetID = -1; level = UNSET;}
+  /*!
+   * \brief Destructor.
+   */
+  void addRecord(const int&, const std::string&, const ExtBool&, const List<Area>&, const Area&);
+  ~Reputation() { }
+  List<RepRecord>& getHistory() {return history;}
+  const int& getTargetID() const {return targetID;}
+
+  /* Re-evaluate reputation level after consensus */
+  void reEvaluateLevel();
+  
 };
 
 /*!

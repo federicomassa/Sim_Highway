@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2017.4.19)  24 APR 2017 15:30
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2017.4.19)  4 MAY 2017 02:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1106,155 +1106,191 @@ LaTeX Font Warning: Font shape `OT1/cmss/m/n' in size <4> not available
 
 ] [4
 
-] [5
-
 ]
-LaTeX Font Info:    Try loading font information for U+msa on input line 187.
+LaTeX Font Info:    Try loading font information for U+msa on input line 166.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 187.
+LaTeX Font Info:    Try loading font information for U+msb on input line 166.
+
 (/usr/local/texlive/2016/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Try loading font information for OT1+mathkerncmss on input 
-line 187.
+line 166.
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/sansmathaccent/ot1mathkerncmss.fd
 File: ot1mathkerncmss.fd 2013/03/27 Fontinst v1.933 font definitions for OT1/ma
 thkerncmss.
-) [6
+) <vehicletypes.png, id=87, 451.6875pt x 602.25pt>
+File: vehicletypes.png Graphic file (type png)
+ <use vehicletypes.png>
+Package pdftex.def Info: vehicletypes.png used on input line 166.
+(pdftex.def)             Requested size: 67.7502pt x 90.33359pt.
 
-] <ActionManager.png, id=97, 597.73312pt x 845.40843pt>
-File: ActionManager.png Graphic file (type png)
+<coordinates.png, id=89, 491.58656pt x 280.79906pt>
+File: coordinates.png Graphic file (type png)
+ <use coordinates.png>
+Package pdftex.def Info: coordinates.png used on input line 166.
+(pdftex.def)             Requested size: 136.91862pt x 78.20758pt.
 
-<use ActionManager.png>
-Package pdftex.def Info: ActionManager.png used on input line 199.
-(pdftex.def)             Requested size: 298.86583pt x 422.70317pt.
+<Automaton.png, id=90, 361.35pt x 344.03531pt>
+File: Automaton.png Graphic file (type png)
+ <use Automaton.png>
+Package pdftex.def Info: Automaton.png used on input line 166.
+(pdftex.def)             Requested size: 85.57382pt x 81.47299pt.
+ [5
 
-Overfull \vbox (270.2284pt too high) detected at line 199
- []
+ <./vehicletypes.png> <./coordinates.png> <./Automaton.png>]
+<actionsTimeline.png, id=104, 392.96812pt x 121.20282pt>
+File: actionsTimeline.png Graphic file (type png)
 
-[7
+<use actionsTimeline.png>
+Package pdftex.def Info: actionsTimeline.png used on input line 200.
+(pdftex.def)             Requested size: 157.18445pt x 48.48026pt.
+ [6
 
- <./ActionManager.png>]
-<ListeningCycle2.png, id=110, 514.17094pt x 312.41719pt>
-File: ListeningCycle2.png Graphic file (type png)
-
-<use ListeningCycle2.png>
-Package pdftex.def Info: ListeningCycle2.png used on input line 208.
-(pdftex.def)             Requested size: 308.50494pt x 187.45175pt.
- [8
-
- <./ListeningCycle2.png>] [9
+ <./actionsTimeline.png>] [7
 
 ]
-<leftActionVideo.png, id=133, 677.53125pt x 88.07906pt>
+<ActionManager.png, id=129, 597.73312pt x 845.40843pt>
+File: ActionManager.png Graphic file (type png)
+ <use ActionManager.png>
+Package pdftex.def Info: ActionManager.png used on input line 228.
+(pdftex.def)             Requested size: 298.86583pt x 422.70317pt.
+
+Overfull \vbox (256.62839pt too high) detected at line 228
+ []
+
+[8
+
+ <./ActionManager.png>]
+<ListeningCycle3.png, id=141, 530.73282pt x 312.41719pt>
+File: ListeningCycle3.png Graphic file (type png)
+
+<use ListeningCycle3.png>
+Package pdftex.def Info: ListeningCycle3.png used on input line 239.
+(pdftex.def)             Requested size: 318.44214pt x 187.45175pt.
+ [9
+
+ <./ListeningCycle3.png>]
+<ListeningSignal.png, id=153, 597.73312pt x 845.40843pt>
+File: ListeningSignal.png Graphic file (type png)
+
+<use ListeningSignal.png>
+Package pdftex.def Info: ListeningSignal.png used on input line 239.
+(pdftex.def)             Requested size: 239.089pt x 338.15738pt.
+
+Overfull \vbox (148.0826pt too high) detected at line 239
+ []
+
+[10
+
+ <./ListeningSignal.png>] [11
+
+]
+<leftActionVideo.png, id=178, 677.53125pt x 88.07906pt>
 File: leftActionVideo.png Graphic file (type png)
 
 <use leftActionVideo.png>
-Package pdftex.def Info: leftActionVideo.png used on input line 244.
+Package pdftex.def Info: leftActionVideo.png used on input line 275.
 (pdftex.def)             Requested size: 338.76479pt x 44.03941pt.
- [10
+ [12
 
  <./leftActionVideo.png (PNG copy)>]
-<ActionExample/F00000.png, id=144, 677.53125pt x 88.07906pt>
+<ActionExample/F00000.png, id=190, 677.53125pt x 88.07906pt>
 File: ActionExample/F00000.png Graphic file (type png)
 
 <use ActionExample/F00000.png>
-Package pdftex.def Info: ActionExample/F00000.png used on input line 264.
+Package pdftex.def Info: ActionExample/F00000.png used on input line 295.
 (pdftex.def)             Requested size: 338.76479pt x 44.03941pt.
- <Results.png, id=146, 441.65pt x 120.45pt>
+ <Results.png, id=192, 441.65pt x 120.45pt>
 File: Results.png Graphic file (type png)
 
 <use Results.png>
-Package pdftex.def Info: Results.png used on input line 264.
+Package pdftex.def Info: Results.png used on input line 295.
 (pdftex.def)             Requested size: 220.82445pt x 60.22484pt.
- [11
+ [13
 
  <./ActionExample/F00000.png (PNG copy)> <./Results.png>]
-<ActionExample/F00007.png, id=159, 677.53125pt x 88.07906pt>
+<ActionExample/F00007.png, id=206, 677.53125pt x 88.07906pt>
 File: ActionExample/F00007.png Graphic file (type png)
 
 <use ActionExample/F00007.png>
-Package pdftex.def Info: ActionExample/F00007.png used on input line 264.
+Package pdftex.def Info: ActionExample/F00007.png used on input line 295.
 (pdftex.def)             Requested size: 338.76479pt x 44.03941pt.
 File: Results.png Graphic file (type png)
  <use Results.png>
-Package pdftex.def Info: Results.png used on input line 264.
+Package pdftex.def Info: Results.png used on input line 295.
 (pdftex.def)             Requested size: 220.82445pt x 60.22484pt.
- [12
+ [14
 
- <./ActionExample/F00007.png (PNG copy)>] <ActionExample/F00030.png, id=170, 67
+ <./ActionExample/F00007.png (PNG copy)>] <ActionExample/F00030.png, id=218, 67
 7.53125pt x 88.07906pt>
 File: ActionExample/F00030.png Graphic file (type png)
 
 <use ActionExample/F00030.png>
-Package pdftex.def Info: ActionExample/F00030.png used on input line 264.
+Package pdftex.def Info: ActionExample/F00030.png used on input line 295.
 (pdftex.def)             Requested size: 338.76479pt x 44.03941pt.
 File: Results.png Graphic file (type png)
  <use Results.png>
-Package pdftex.def Info: Results.png used on input line 264.
+Package pdftex.def Info: Results.png used on input line 295.
 (pdftex.def)             Requested size: 220.82445pt x 60.22484pt.
- [13
+ [15
 
- <./ActionExample/F00030.png (PNG copy)>] <ActionExample/F00040.png, id=182, 67
+ <./ActionExample/F00030.png (PNG copy)>] <ActionExample/F00040.png, id=230, 67
 7.53125pt x 88.07906pt>
 File: ActionExample/F00040.png Graphic file (type png)
 
 <use ActionExample/F00040.png>
-Package pdftex.def Info: ActionExample/F00040.png used on input line 264.
+Package pdftex.def Info: ActionExample/F00040.png used on input line 295.
 (pdftex.def)             Requested size: 338.76479pt x 44.03941pt.
 File: Results.png Graphic file (type png)
  <use Results.png>
-Package pdftex.def Info: Results.png used on input line 264.
+Package pdftex.def Info: Results.png used on input line 295.
 (pdftex.def)             Requested size: 220.82445pt x 60.22484pt.
- [14
+ [16
 
- <./ActionExample/F00040.png (PNG copy)>] <ActionExample/F00080.png, id=193, 67
+ <./ActionExample/F00040.png (PNG copy)>] <ActionExample/F00080.png, id=242, 67
 7.53125pt x 88.07906pt>
 File: ActionExample/F00080.png Graphic file (type png)
 
 <use ActionExample/F00080.png>
-Package pdftex.def Info: ActionExample/F00080.png used on input line 264.
+Package pdftex.def Info: ActionExample/F00080.png used on input line 295.
 (pdftex.def)             Requested size: 338.76479pt x 44.03941pt.
 File: Results.png Graphic file (type png)
  <use Results.png>
-Package pdftex.def Info: Results.png used on input line 264.
+Package pdftex.def Info: Results.png used on input line 295.
 (pdftex.def)             Requested size: 220.82445pt x 60.22484pt.
- [15
+ [17
 
- <./ActionExample/F00080.png (PNG copy)>] <ActionExample/F00125.png, id=204, 67
+ <./ActionExample/F00080.png (PNG copy)>] <ActionExample/F00125.png, id=254, 67
 7.53125pt x 88.07906pt>
 File: ActionExample/F00125.png Graphic file (type png)
 
 <use ActionExample/F00125.png>
-Package pdftex.def Info: ActionExample/F00125.png used on input line 264.
+Package pdftex.def Info: ActionExample/F00125.png used on input line 295.
 (pdftex.def)             Requested size: 338.76479pt x 44.03941pt.
 File: Results.png Graphic file (type png)
  <use Results.png>
-Package pdftex.def Info: Results.png used on input line 264.
+Package pdftex.def Info: Results.png used on input line 295.
 (pdftex.def)             Requested size: 220.82445pt x 60.22484pt.
- [16
+ [18
 
- <./ActionExample/F00125.png (PNG copy)>] <ActionExample/F00148.png, id=215, 67
+ <./ActionExample/F00125.png (PNG copy)>] <ActionExample/F00148.png, id=266, 67
 7.53125pt x 88.07906pt>
 File: ActionExample/F00148.png Graphic file (type png)
 
 <use ActionExample/F00148.png>
-Package pdftex.def Info: ActionExample/F00148.png used on input line 264.
+Package pdftex.def Info: ActionExample/F00148.png used on input line 295.
 (pdftex.def)             Requested size: 338.76479pt x 44.03941pt.
 File: Results.png Graphic file (type png)
  <use Results.png>
-Package pdftex.def Info: Results.png used on input line 264.
+Package pdftex.def Info: Results.png used on input line 295.
 (pdftex.def)             Requested size: 220.82445pt x 60.22484pt.
- [17
+ [19
 
- <./ActionExample/F00148.png (PNG copy)>] [18
-
-] [19
-
-] [20
+ <./ActionExample/F00148.png (PNG copy)>] [20
 
 ] [21
 
@@ -1272,28 +1308,50 @@ Package pdftex.def Info: Results.png used on input line 264.
 
 ] [28
 
-] [29
+]
+Overfull \vbox (4.93362pt too high) detected at line 409
+ []
+
+[29
 
 ]
+Overfull \vbox (4.93362pt too high) detected at line 409
+ []
+
 [30
 
-] [31
+]
+Overfull \vbox (4.93362pt too high) detected at line 409
+ []
+
+[31
+
+]
+Overfull \vbox (4.93362pt too high) detected at line 409
+ []
+
+[32
+
+]
+Overfull \vbox (4.93362pt too high) detected at line 409
+ []
+
+[33
 
 ]
 File: leftActionVideo.png Graphic file (type png)
  <use leftActionVideo.png>
-Package pdftex.def Info: leftActionVideo.png used on input line 390.
+Package pdftex.def Info: leftActionVideo.png used on input line 423.
 (pdftex.def)             Requested size: 338.76479pt x 44.03941pt.
 File: leftActionVideo.png Graphic file (type png)
  <use leftActionVideo.png>
-Package pdftex.def Info: leftActionVideo.png used on input line 390.
+Package pdftex.def Info: leftActionVideo.png used on input line 423.
 (pdftex.def)             Requested size: 338.76479pt x 44.03941pt.
- [32
+ [34
 
-] [33
+] [35
 
-]
-[34
+] [36
 
 ]
 \tf@nav=\write8
@@ -1305,14 +1363,15 @@ Package pdftex.def Info: leftActionVideo.png used on input line 390.
 \tf@snm=\write10
 \openout10 = `Presentazione_28.03.17.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 436.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 436.
- (./Presentazione_28.03.17.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 436.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 436.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 470.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 470.
+
+(./Presentazione_28.03.17.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 470.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 470.
 Package rerunfilecheck Info: File `Presentazione_28.03.17.out' has not changed.
 
-(rerunfilecheck)             Checksum: 9C8A665006E327B44A7A035AD93761BC;158.
+(rerunfilecheck)             Checksum: BA8C0418507EFA11EABF598BC8BA769E;204.
 
 
 LaTeX Font Warning: Size substitutions with differences
@@ -1320,11 +1379,11 @@ LaTeX Font Warning: Size substitutions with differences
 
  ) 
 Here is how much of TeX's memory you used:
- 23918 strings out of 493013
- 487193 string characters out of 6133328
- 557616 words of memory out of 5000000
- 26819 multiletter control sequences out of 15000+600000
- 11345 words of font info for 41 fonts, out of 8000000 for 9000
+ 23958 strings out of 493013
+ 487862 string characters out of 6133328
+ 557594 words of memory out of 5000000
+ 26849 multiletter control sequences out of 15000+600000
+ 11933 words of font info for 43 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  56i,17n,75p,810b,777s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
@@ -1335,10 +1394,10 @@ sr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></
 usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></
 usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb></u
 sr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on Presentazione_28.03.17.pdf (34 pages, 358326 bytes).
+Output written on Presentazione_28.03.17.pdf (36 pages, 683950 bytes).
 PDF statistics:
- 435 PDF objects out of 1000 (max. 8388607)
- 356 compressed objects within 4 object streams
- 73 named destinations out of 1000 (max. 500000)
- 162 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 504 PDF objects out of 1000 (max. 8388607)
+ 411 compressed objects within 5 object streams
+ 78 named destinations out of 1000 (max. 500000)
+ 195 words of extra memory for PDF output out of 10000 (max. 10000000)
 

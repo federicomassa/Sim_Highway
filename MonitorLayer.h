@@ -102,7 +102,7 @@ public:
      * \brief Build a list of neighborhood.
      */
     void buildNeighborhoodList(List<Neighborhood>& nList) const;
-    void buildKnowledge(Knowledge& k) const;
+    void buildKnowledge(Knowledge& k, const Area&) const;
     List<Monitor*>& getMonitorList() {return monitorList;}
 
     /* get monitor with ID */

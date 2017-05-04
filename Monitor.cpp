@@ -53,5 +53,16 @@ void Monitor::run(const Sensing& targetQ, const List<Sensing>& targetSList, cons
   lastRunTime = now;
 }
 
+bool Monitor::buildNeighborhood(Neighborhood& n)
+{
+  if (neighStates[0].count() == 0)
+    return false;
 
+  if (monitorStates[0].dummy)
+    error("Monitor::buildNeighborhood", "Found dummy object on top of the vector");
+
+  n.init(targetID, monitorStates[0], neighStates[0]);
+
+  return true;
+}
 

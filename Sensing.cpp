@@ -45,3 +45,12 @@ bool operator<(const Sensing& s1, const Sensing& s2)
 
   return false;
 }
+
+Vector<double, 2> Sensing::toPoint() const
+{
+    Vector<double, 2> p;
+    p[0] = x;
+    p[1] = y;
+    
+    return p;
+}

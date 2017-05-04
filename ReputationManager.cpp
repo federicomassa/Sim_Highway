@@ -12,8 +12,7 @@
 #include "ReputationManager.h"
 #include <utility>
 
-void ReputationManager::
-    merge(const List<Message<Knowledge> >& msgList)
+void ReputationManager::merge(const List<Message<Knowledge> >& msgList)
 {
   Iterator<Message<Knowledge> > mi(msgList);
   Message<Knowledge> tmpMsg;
@@ -56,94 +55,225 @@ void ReputationManager::setCurrentParams(const State& s,
 
 void ReputationManager::singleMerge(const Knowledge& k)
 {
-  std::cout << "singlemerge of agent " << agentID << std::endl;
-  /*
-  std::cout << "My neighborhood list empty? " << knowledge.nList.isEmpty() << std::endl;
-  std::cout << "My mVehicles list empty? " << knowledge.monitoredVehicles.isEmpty() << std::endl;
+  const List<Neighborhood>& nList = k.nList;
+  const Area& recvObs = k.visibleArea;
+  
+  Iterator<Neighborhood> itr(nList);
+  Neighborhood n;
 
-  std::cout << "Recv neighborhood list empty? " << k.nList.isEmpty() << std::endl;
-  std::cout << "Recv mVehicles list empty? " << k.monitoredVehicles.isEmpty() << std::endl;*/
-
-  List<Neighborhood> nL = k.nList;
-  if (!nL.isEmpty())
+  while(itr(n))
     {
-      Iterator<Neighborhood> ni(nL);
-      Neighborhood tmpNeigh;
-      while(ni(tmpNeigh))
-	{
-	  Iterator<Neighborhood> myni(knowledge.nList);
-	  Neighborhood myTmpNeigh;
-	  bool targetFound = false;
-	  while(myni(myTmpNeigh))
-            if(myTmpNeigh == tmpNeigh)
-	      {
-                Neighborhood auxNeigh = myTmpNeigh; /* working on a copy */
-                auxNeigh.intersectionWith(tmpNeigh); /* merging */
-                knowledge.nList.updateInfo(myTmpNeigh, auxNeigh); /* updating */
-                /* target can be found one single time in a list: stop */
-                targetFound = true;
-                break;
-	      }
-	  // if(!targetFound) //FIXME... solo nel merge: treat the case "agent too far"
-	  //   nList.insHead(tmpNeigh); /* insert a ``new'' target */
-	}
-    }
-  /* nList is empty, maybe the vehicle was asked to wait for prediction? */
-  else if (!k.monitoredVehicles.isEmpty())
-    {
-      Iterator<std::pair<int, int> > kI(k.monitoredVehicles);
-      std::pair<int, int> p, myP;
-      
-      while (kI(p))
-	{
-	  Iterator<std::pair<int, int> > myI(knowledge.monitoredVehicles);
-	  while(myI(myP))
-	    {
-	      std::cout << "my and other's IDs: " << myP.first << " and " << p.first << std::endl;
-	      /* same target */
-	      if (p.first == myP.first)
-		{
-		  std::cout << "Found same target!" << std::endl;
-		  /* If you are idle */
-		  if (myP.second < 0)
-		    {
-		      std::cout << "myP.second < 0" << std::endl;
-		      int waitRequest;
+      Reputation* rep = findReputation(n.getTargetID());
+      if (rep == 0)
+	continue;
 
-		      /* Compute waiting time requested by other vehicle */
-		      if (p.second >= 0)
-			waitRequest = CONF.nTimeSteps - p.second + 1;
-		      else
-			waitRequest = -p.second;
-		      
-		      /* If someone is asking you to wait longer than you would otherwise, change your countdown 
-		       to sync with the other vehicles. */
-		      if (waitRequest > (-myP.second))
-			{
-			  knowledge.monitoredVehicles.updateInfo(myP, std::make_pair(myP.first, -waitRequest));
-			}
-		    }
-
-		  break;
-		}
-	    };
-	};
+      /* Now I need to see if in the received knowledge there is 
+       something about my uncertainty areas */
+      mergeReputation(rep, n, recvObs);
       
     }
 }
 
-void ReputationManager::getAgentsReputation(List<Reputation>& repList) const
+void ReputationManager::getAgentsReputation(List<Reputation>& repL) const
 {
-	Iterator<Neighborhood> myni(knowledge.nList);
-	Neighborhood myTmpNeigh;
+  repL.purge();
+  
+  Iterator<Neighborhood> myni(knowledge.nList);
+  Neighborhood myTmpNeigh;
+  
+  while(myni(myTmpNeigh))
+    {
+      Reputation r;
+      r.targetID = myTmpNeigh.getTargetID();
+      r.sTarget = myTmpNeigh.getTargetSensing();
+      r.level = myTmpNeigh.getTargetReputation();
+      
+      repL.insHead(r);
+    }
+}
 
-	while(myni(myTmpNeigh))
+Reputation* ReputationManager::findReputation(const int& id)
+{
+  Reputation* r = 0;
+
+  for (int i = 0; i < repList.count(); i++)
+    {
+      repList.getElem(r, i);
+
+      if (r == 0)
+	error("ReputationManager::findReputation", "Reputation list invalid");
+      
+      if (r->targetID != id)
+	continue;
+
+      /* if found matching ID */
+      break;
+    }
+
+  return r;
+  
+}
+
+const Reputation* ReputationManager::findReputation(const int& id) const
+{
+  const Reputation* r = 0;
+
+  for (int i = 0; i < repList.count(); i++)
+    {
+      repList.getElem(r, i);
+
+      if (r == 0)
+	error("ReputationManager::findReputation", "Reputation list invalid");
+      
+      if (r->targetID != id)
+	continue;
+
+      /* if found matching ID */
+      break;
+    }
+
+  return r;
+  
+}
+
+
+/* Helper function to modify our rep records with received knowledge */
+void ReputationManager::mergeReputation(Reputation* rep, const Neighborhood& n, const Area& recvObs)
+{
+  if (rep == 0)
+    error("ReputationManager::mergeReputation", "Reputation pointer argument cannot be null");
+
+  bool levelChanged = false;
+  
+  /* My history of reputation records */
+  List<RepRecord>& history = rep->getHistory();
+  RepRecord* record = 0;
+
+  /* received sList */
+  const List<Sensing>& sList = n.getSList(); 
+
+  /* for each rule processed */
+  for (int i = 0; i < history.count(); i++)
+    {
+      history.getElem(record, i);
+      
+      /* for now we only consider rules evaluated at this step */
+      if (record->evalTime < now)
+	break;
+
+      /* merging is useful only if we had an uncertainty */
+      if (record->result != U)
+	continue;
+      
+      /* these are the areas of the present rule */
+      const Area& neg = record->negativeArea;
+      const List<Area>& pos = record->positiveArea;
+
+      /* First check negative areas */
+      Iterator<Sensing> sItr(sList);
+      Sensing s;
+      
+      bool resultChanged = false;
+
+      /* ============= NEGATIVE AREAS HANDLING ================ */
+      
+      /* for each received sensor data entry */
+      while (sItr(s))
 	{
-		Reputation r;
-		r.targetID = myTmpNeigh.getTargetID();
-		r.qTarget = myTmpNeigh.getTargetState();
-		r.level = myTmpNeigh.getTargetReputation();
+	  Vector<double, 2> position;
+	  position[0] = s.x;
+	  position[1] = s.y;
 
-		repList.insHead(r);
+	  if (neg.contains(position))
+	    {
+	      record->result = F;
+	      resultChanged = true;
+	      levelChanged = true;
+	      break;
+	    }
+		  
+		
 	}
+
+      if (resultChanged)
+	continue;
+
+      /* if it gets here a vehicle was not found in the negative area */
+      Area negRemainder = neg - recvObs;
+      
+      /* if the sender was able to see everything in that area the negative condition holds true,
+	 whereas if he does not see everything it is still uncertain */
+      if (!negRemainder.isEmpty())
+	break;
+      
+      
+      /* ============ POSITIVE AREAS HANDLING ================== */
+      
+      Iterator<Area> posItr(pos);
+      Area posElement;
+
+      ExtBool isPositiveEventVerified = T;
+      while (posItr(posElement))
+	{
+	  Area posRemainder = posElement - recvObs;
+
+	  /* reset iterator */
+	  sItr.initialize(sList);
+	  	  
+	  ExtBool isVehiclePresentInPositiveArea = F;
+	  /* for each received sensor data entry */
+	  while (sItr(s))
+	    {
+	      Vector<double, 2> position;
+	      position[0] = s.x;
+	      position[1] = s.y;
+	      
+	      if (posElement.contains(position))
+		{
+		  isVehiclePresentInPositiveArea = T;
+		  break;
+		}
+	      
+		
+	      
+	      
+	    }
+
+	  if (isVehiclePresentInPositiveArea == F)
+	    {
+	      if (posRemainder.isEmpty())
+		{
+		  record->result = F;
+		  isPositiveEventVerified = F;
+		  resultChanged = true;
+		  levelChanged = true;
+		  break;
+		}
+	      else
+		isVehiclePresentInPositiveArea = U;
+	    }
+	  
+	  
+	  isPositiveEventVerified = isPositiveEventVerified && isVehiclePresentInPositiveArea;
+
+	  
+	  
+	}
+      
+      if (resultChanged)
+	continue;
+
+      if (!(isPositiveEventVerified == T))
+	break;
+      
+
+
+      record->result = T;
+      resultChanged = true;
+      levelChanged = true;
+    }
+
+  if (levelChanged)
+    rep->reEvaluateLevel();
+  
 }

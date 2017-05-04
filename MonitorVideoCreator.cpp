@@ -14,6 +14,7 @@ MonitorVideoCreator::MonitorVideoCreator(const int& obsID, const int& monID) : o
 /* This method creates a frame of the video */
 void MonitorVideoCreator::run()
 {
+  
   /* error handling */
   if (!isInitialized())
     error("MonitorVideoCreator::run", "Video is not initialized");
@@ -123,8 +124,8 @@ void MonitorVideoCreator::run()
 	}
     }
 
-  Vehicle* localVehicles = env->getVehicles();
-  Vehicle* globalVehicles = globalEnv->getVehicles();
+  const Vehicle* localVehicles = env->getVehicles();
+  const Vehicle* globalVehicles = globalEnv->getVehicles();
   Vehicle* noErrVehicles = noErrEnv.getVehicles();
   
   for (int i = 0; i < env->getNVehicles(); i++)
@@ -135,9 +136,10 @@ void MonitorVideoCreator::run()
 
 	noErrVehicles[i] = globalVehicles[j];
       }
-  
+
+  /* if you want errors place env instead of noErrEnv*/
   if (rMon)
-    img.addAllVehicles(*env, observerID, monitorID, rMon->getReputation().level);
+    img.addAllVehicles(noErrEnv, observerID, monitorID, rMon->getReputation().level);
   
   img.writeFrameNumber();
  
@@ -147,4 +149,5 @@ void MonitorVideoCreator::run()
 
   std::remove(fileName.c_str());
   delete hiddenObs;
+
 }

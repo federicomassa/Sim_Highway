@@ -17,6 +17,7 @@
 #include "Logger.h"
 #include "Neighborhood.h"
 #include "Knowledge.h"
+#include "MonitorLayer.h"
 
 extern Logger LOG;
 extern Logger monitorLog;
@@ -51,6 +52,8 @@ class ReputationManager
   
   /* Knowledge available to the vehicle */
   Knowledge knowledge;
+
+  List<Reputation> repList;
   
   /*!
    * \brief Merge my knowledge with information received from other agents.
@@ -58,6 +61,10 @@ class ReputationManager
    * @param msgList list containing neighborhood lists of my neighbors.
    */
   void merge(const List<Message<Knowledge> >& msgList);
+
+  /* see source for description */
+  void mergeReputation(Reputation*, const Neighborhood&, const Area&);
+  
 public:
     /*!
      * \brief Default constructor.
@@ -97,13 +104,29 @@ public:
      * This method receives information from other agents and then tries to
      * merge such information in order to refine my knowledge.
      */
-    void recvForConsensus()
+    void recvForConsensus(MonitorLayer& mLayer)
     {
-        /* message list that will contain neighborhood lists of my neighbors */
-        List<Message<Knowledge> >msgList;
-        repChan->recvBroadcast(agentID, q, msgList); /* receive information */
-        merge(msgList); /* try to improve my knowledge */
+      List<Monitor*>& mList = mLayer.getMonitorList();
+      Iterator<Monitor*> itr(mList);
+      Monitor* m;
+
+      while (itr(m))
+	{
+	  repList.insTail(m->rep); 
+	}
+      
+      /* message list that will contain neighborhood lists of my neighbors */
+      List<Message<Knowledge> >msgList;
+      repChan->recvBroadcast(agentID, q, msgList); /* receive information */
+      merge(msgList); /* try to improve my knowledge */
     }
+
+    /* clear from previous iterations */
+    void clearReputation()
+    {
+      repList.purge();
+    }
+      
     /*!
      * \brief Merge my knowledge with the knowledge received from another agent.
      *
@@ -134,6 +157,10 @@ public:
      * \brief Return active value.
      */
     bool isActive() const { return active; }
+
+    /* find matching ID vehicle in reputation list */
+    Reputation* findReputation(const int&);
+    const Reputation* findReputation(const int&) const;
 };
 
 #endif

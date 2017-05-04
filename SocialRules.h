@@ -41,13 +41,17 @@ class Rule {
   /* This is the name of the category that we want to set a rule on.
      This is very important as each rule set a list of situations in which
      this behaviour should not happen. An example of category could be "LeftLaneChange".
-     Each action, as recognized by the ActionManager, is possibly registered to several categories. */
+    Each action, as recognized by the ActionManager, is possibly registered to several categories. */
   std::string category;
   std::string name;
   CheckMode mode;
-  
+
+  ExtBool checkResult;
+  Area positiveArea;
+  Area negativeArea;
   
   void init(const std::string& cat, const List<Event>& eL, const std::string& n, const CheckMode& m);
+  
  public:
 
   Rule();

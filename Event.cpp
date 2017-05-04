@@ -63,7 +63,8 @@ void Event::evaluate(const Sensing& sSubj, const IntVars& vars,
 }
 
 void Event::evaluateWithArea(const Sensing& sSubj, const IntVars& vars,
-			     const List<Sensing>& sList, bool omniscient, const Area& obs)
+			     const List<Sensing>& sList, bool omniscient, const Area& obs,
+			     List<Area>& positiveArea, Area& negativeArea)
 {
   /* First normal evaluation */  
   evaluate(sSubj, vars, sList, omniscient);
@@ -99,6 +100,16 @@ void Event::evaluateWithArea(const Sensing& sSubj, const IntVars& vars,
 		  valueChanged = true;
 		  if(CONF.debug)
 		    LOG.s << EndLine() << "Value changed: " << se->getValue();
+		}
+	      else
+		{
+		  /* positive areas do not sum, in order for the event to be true,
+		   every OR subevent must contain a vehicle. In NOR subevents,
+		  instead, there mustn't be anyone in the whole area */
+		  if(se->getMode() == OR)
+		    positiveArea.insTail(indicator);
+		  else
+		    negativeArea += indicator;
 		}
 	    }
 	} 

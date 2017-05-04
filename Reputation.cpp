@@ -17,7 +17,7 @@ ostream& operator<<(ostream& os, const Reputation& r)
 {
     os << "Reputation {" << EndLine(EndLine::INC);
     os << "TargetID: " << r.targetID << EndLine();
-    os << "Target's state: " << r.qTarget << EndLine();
+    os << "Target's sensing: " << r.sTarget << EndLine();
     os << "Reputation level: ";
     switch(r.level)
     {
@@ -42,7 +42,7 @@ ostream& operator<<(ostream& os, const Reputation& r)
 
 bool operator==(const Reputation& r1, const Reputation& r2)
 {
-    return r1.targetID == r2.targetID && r1.qTarget == r2.qTarget;
+    return r1.targetID == r2.targetID && r1.sTarget == r2.sTarget;
 }
 
 bool operator!=(const Reputation& r1, const Reputation& r2)
@@ -50,10 +50,10 @@ bool operator!=(const Reputation& r1, const Reputation& r2)
     return !(r1 == r2);
 }
 
-void Reputation::addRecord(const int& eT, const std::string& r, const ExtBool& res)
+void Reputation::addRecord(const int& eT, const std::string& r, const ExtBool& res, const List<Area>& pArea, const Area& nArea)
 {
   RepRecord record;
-  record.init(eT, r, res);
+  record.init(eT, r, res, pArea, nArea);
   history.insHead(record);
 
   switch (res)
@@ -75,4 +75,33 @@ void Reputation::addRecord(const int& eT, const std::string& r, const ExtBool& r
   ResultLog.s << "Result: " << res << EndLine(ResultLog.decrementIndentation());
 
   
+}
+
+void Reputation::reEvaluateLevel()
+{
+  Iterator<RepRecord> recordItr(history);
+  RepRecord record;
+
+  ExtBool levelBool = T;
+  
+  while (recordItr(record))
+    {
+      if (record.evalTime < now)
+	break;
+
+      levelBool = levelBool && record.result;
+    }
+
+  switch (levelBool)
+    {
+    case F:
+      level = CORRECT;
+      break;
+    case U:
+      level = UNCERTAIN;
+      break;
+    case T:
+      level = FAULTY;
+      break;
+    }
 }

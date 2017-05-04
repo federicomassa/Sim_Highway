@@ -28,6 +28,10 @@ bool RightOvertakeAction::triggerCondition()
   if ((*neighStates)[0].count() == 0)
     return false;
 
+  if ((*neighStates)[0].count() != (*neighStates)[1].count() ||
+      (*neighStates)[0].count() != (*neighStates)[2].count())
+    return false;
+  
   /* list of candidates to overtake */
   List<Sensing> candidates;
   Sensing* s;
@@ -54,7 +58,7 @@ bool RightOvertakeAction::triggerCondition()
 	  target = s;
 	}
     }
-
+  
   /* if there is one suitable target */
   Sensing* currTargetState = 0, *lastTargetState = 0, *previousTargetState = 0;
   if (target)
@@ -64,7 +68,7 @@ bool RightOvertakeAction::triggerCondition()
     }
   else
     return false;
-
+  
   /* now look in the neighStates for the older states */
   for (int i = 0; i < (*neighStates)[1].count(); i++)
     {
@@ -75,7 +79,7 @@ bool RightOvertakeAction::triggerCondition()
 	  lastTargetState = s;
 	}
     }
-
+  
   for (int i = 0; i < (*neighStates)[0].count(); i++)
     {
       (*neighStates)[0].getElem(s, i);
@@ -85,7 +89,7 @@ bool RightOvertakeAction::triggerCondition()
 	  currTargetState = s;
 	}
     }
-
+  
   if (currTargetState && lastTargetState && previousTargetState)
     {
       if (previousTargetState->x - (*monitorStates)[2].x < OVERTAKE_TRIGGER_DISTANCE)

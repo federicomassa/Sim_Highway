@@ -105,6 +105,16 @@ public:
      * \brief Redefinition of operator -= for subtraction.
      */
     Area& operator-=(const Area& a2);
+
+    bool operator==(const Area& a2)
+    {
+      return (rectList == a2.rectList);
+    }
+
+    bool operator!=(const Area& a2)
+    {
+      return !((*this) == a2);
+    }
     /*!
      * \brief Add a rectangle to the list.
      *
