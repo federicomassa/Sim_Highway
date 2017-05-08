@@ -1,4 +1,6 @@
 #include "Automaton.h"
+#include "Configuration.h"
+
 
 using namespace std;
 /* Jammer failure makes automaton to switch between FAST and SLOW maneuver

@@ -10,10 +10,11 @@
 #include <sys/stat.h>
 #include <string>
 #include <iostream>
+#include <fstream>
 
-#include "Configuration.h"
 #include "definition.h"
 
+class Configuration;
 extern const Configuration CONF;
 extern int now;
 

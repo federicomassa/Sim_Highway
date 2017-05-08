@@ -704,7 +704,7 @@ void Image::drawNeighborhood(const Neighborhood& n, const State& q, Maneuver m,
 }
 
 void Image::saveConsensusImages(const Environment& env,
-				int cStep, const int& time)
+				int cStep, const int& timeMin, const int& timeMax)
 {
 
   
@@ -716,7 +716,10 @@ void Image::saveConsensusImages(const Environment& env,
      
   */
 
-  if (time != now && time != -1)
+  if (timeMin > now && timeMin != -1)
+    return;
+
+  if (timeMax < now && timeMax != -1)
     return;
   
   for(int i = 0; i < env.nV; i++)
@@ -753,14 +756,14 @@ void Image::saveConsensusImages(const Environment& env,
 		if (record.evalTime < now)
 		  break;
 		
-		drawArea(record.negativeArea, red);
+		drawArea(record.negativeArea, green);
 		
 		Iterator<Area> posItr(record.positiveArea);
 		Area pos;
 		
 		while (posItr(pos))
 		  {
-		    drawArea(pos, green);
+		    drawArea(pos, red);
 		  }
 		
 	      }
@@ -780,7 +783,7 @@ void Image::saveConsensusImages(const Environment& env,
 		  }
 		else
 		  {
-		    drawVehicleWithLabel(s, "M", UNSET);    
+		    drawVehicleWithLabel(s, "M", UNSET);
 		  }
 	      }
 	    
@@ -789,7 +792,6 @@ void Image::saveConsensusImages(const Environment& env,
 	      + toString(cStep, 2);
 	    
 	    save('C', suffix);
-
 	  }
 
     }

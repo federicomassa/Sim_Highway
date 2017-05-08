@@ -188,3 +188,27 @@ ostream& operator<<(ostream& os, const Rectangle& r)
     
     return os;
 }
+
+ostream& operator<<(Logger& log, const Rectangle& r)
+{
+    log.s << "Rectangle ( ";
+    for(int i = 0; i < Q_DIM; i++)
+    {
+        /* check if bounds collapse in a point */
+        if(r.bounds[i][0] == r.bounds[i][1])
+        {
+            log.s << 'q' << (i + 1) << " = ";
+            log.s << r.bounds[i][0];
+        }
+        else
+        {
+            log.s << r.bounds[i][0] << " < ";
+            log.s << 'q' << (i + 1) << " < " << r.bounds[i][1];
+        }
+        if (i < Q_DIM - 1)
+            log.s << "; ";
+    }
+    log.s << " )";
+    
+    return log.s;
+}

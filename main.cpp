@@ -221,7 +221,7 @@ int main (int argc, char* argv[])
                 if(CONF.saveConsensusImages)
                 {
 		  Image tmpImg;
-		  tmpImg.saveConsensusImages(env, 0, 7);
+		  tmpImg.saveConsensusImages(env, 0, CONF.saveConsensusTimeMin, CONF.saveConsensusTimeMax);
 		}
 		
                 const int totCSteps = 5;
@@ -243,7 +243,7 @@ int main (int argc, char* argv[])
                     if(CONF.saveConsensusImages)
                     {
                         Image tmpImg;
-                        tmpImg.saveConsensusImages(env, cStep + 1, 7);
+                        tmpImg.saveConsensusImages(env, cStep + 1, CONF.saveConsensusTimeMin, CONF.saveConsensusTimeMax);
                     }
                 }
                 if(CONF.debug)

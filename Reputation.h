@@ -103,11 +103,11 @@ public:
   /*!
    * \brief Default constructor.
    */
-  Reputation() { targetID = -1; level = UNSET;}
+  Reputation() { targetID = -1; level = FAULTY;}
   /*!
    * \brief Destructor.
    */
-  void addRecord(const int&, const std::string&, const ExtBool&, const List<Area>&, const Area&);
+  void addRecord(const int&, const std::string&, const ExtBool&, const Sensing&, const List<Area>&, const Area&);
   ~Reputation() { }
   List<RepRecord>& getHistory() {return history;}
   const List<RepRecord>& getHistory() const {return history;}

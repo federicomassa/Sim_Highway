@@ -25,6 +25,9 @@ class ActionManager {
 
   friend class RuleMonitor;
  private:
+  const int agentID;
+  const int targetID;
+  
   /* Keeps track of the states of the monitored vehicle across the prefixed time span FIXME where? */
   const Vector<Sensing, VEHICLE_MEMORY>& monitorStates;
   const Vector<List<Sensing>, VEHICLE_MEMORY>& neighStates;
@@ -51,7 +54,7 @@ class ActionManager {
   
  public:
   /* Constructor */
-  ActionManager(const Vector<Sensing, VEHICLE_MEMORY>&, const Vector<List<Sensing>, VEHICLE_MEMORY>&);
+  ActionManager(const int& aID, const int& tID, const Vector<Sensing, VEHICLE_MEMORY>&, const Vector<List<Sensing>, VEHICLE_MEMORY>&);
 
   /* clear memory */
   ~ActionManager();
@@ -76,6 +79,9 @@ class ActionManager {
 
   /* get active actions */
   List<const Action*> getActiveActions() const;
+
+  const int& getAgentID() const {return agentID;}
+  const int& getTargetID() const {return targetID;}
 };
 
 

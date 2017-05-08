@@ -23,7 +23,7 @@ void RuleMonitor::buildRules()
 }
 
 void RuleMonitor::run(const Area& obs) {
-  ResultLog.s << "Time: " << now << EndLine(ResultLog.incrementIndentation());
+  ResultLog.s << "Time: " << now << " --- Agent " << aMan.getAgentID() << " observing " << aMan.getTargetID() << EndLine(ResultLog.incrementIndentation());
   
   observableArea = obs;
   /* error handling */
@@ -61,6 +61,8 @@ void RuleMonitor::run(const Area& obs) {
 
   /* Now process actions taken by the register (processedActions list) */
   processActions();
+
+  ResultLog.s << EndLine(ResultLog.decrementIndentation());
   
 }
 

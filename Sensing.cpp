@@ -1,5 +1,6 @@
 #include "State.h"
 #include "Sensing.h"
+#include "Logger.h"
 
 using namespace std;
 
@@ -18,6 +19,23 @@ ostream& operator<<(ostream& os, const Sensing& s)
     
     return os;
 }
+
+ostream& operator<<(Logger& log, const Sensing& s)
+{
+  log.s << "Sensing {" << EndLine(log.incrementIndentation());
+    log.s << "AgentID: " << s.agentID << EndLine(log.getIndentation());
+    log.s << "State: { " << "x = " << s.x << EndLine(log.getIndentation());
+    log.s << "         y = " << s.y << EndLine(log.getIndentation());
+    log.s << "         theta = " << s.theta << EndLine(log.getIndentation());
+    log.s << "         v = " << s.v << " }" << EndLine(log.getIndentation());
+    log.s << "Parms: { " << "desiredV = " << s.desiredV << EndLine(log.getIndentation());
+    log.s << "         vehicleType = " << s.vehicleType.getName()  << " }" << EndLine(log.decrementIndentation());
+    log.s << '}';
+    log.s.flush();
+    
+    return log.s;
+}
+
 
 bool operator==(const Sensing& s1, const Sensing& s2)
 {

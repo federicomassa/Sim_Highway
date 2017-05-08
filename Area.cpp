@@ -270,3 +270,14 @@ ostream& operator<<(ostream& os, const Area& a)
     
     return os;
 }
+
+ostream& operator<<(Logger& log, const Area& a)
+{       
+  log.s << "Area {" << EndLine(log.incrementIndentation());
+  log.s << "Rectangles: ";
+  log << a.rectList;
+  log.s << EndLine(log.decrementIndentation());
+  log.s << '}';
+    
+    return log.s;
+}

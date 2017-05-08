@@ -50,31 +50,30 @@ bool operator!=(const Reputation& r1, const Reputation& r2)
     return !(r1 == r2);
 }
 
-void Reputation::addRecord(const int& eT, const std::string& r, const ExtBool& res, const List<Area>& pArea, const Area& nArea)
+void Reputation::addRecord(const int& eT, const std::string& r, const ExtBool& res, const Sensing& aState, const List<Area>& pArea, const Area& nArea)
 {
   RepRecord record;
   record.init(eT, r, res, pArea, nArea);
   history.insHead(record);
 
-  switch (res)
-    {
-    case T:
-      level = FAULTY;
-      break;
-    case U:
-      if (level == CORRECT || level == UNSET)
-	level = UNCERTAIN;
-      break;
-    case F:
-      if (level == UNSET)
-	level = CORRECT;
-      break;
-    }
-
-  ResultLog.s << "Evaluating rule: " << r << EndLine(ResultLog.incrementIndentation());
-  ResultLog.s << "Result: " << res << EndLine(ResultLog.decrementIndentation());
-
+  reEvaluateLevel();
   
+  ResultLog.s << "Evaluating rule: " << r << EndLine(ResultLog.incrementIndentation());
+  ResultLog.s << "Agent state: ";
+  ResultLog << aState;
+  ResultLog.s << "Negative Area: " << EndLine(ResultLog.getIndentation());
+  ResultLog << nArea;
+  ResultLog.s << "Positive Area: " << EndLine(ResultLog.getIndentation());
+
+  Iterator<Area> posItr(pArea);
+  Area pos;
+
+  while (posItr(pos))
+    {
+      ResultLog << pos;
+    }
+  
+  ResultLog.s << "Result: " << res << EndLine(ResultLog.decrementIndentation());  
 }
 
 void Reputation::reEvaluateLevel()
@@ -82,14 +81,14 @@ void Reputation::reEvaluateLevel()
   Iterator<RepRecord> recordItr(history);
   RepRecord record;
 
-  ExtBool levelBool = T;
+  ExtBool levelBool = F;
   
   while (recordItr(record))
     {
       if (record.evalTime < now)
 	break;
 
-      levelBool = levelBool && record.result;
+      levelBool = levelBool || record.result;
     }
 
   switch (levelBool)

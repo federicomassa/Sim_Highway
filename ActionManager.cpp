@@ -4,8 +4,9 @@
 #include <string>
 #include <cstdlib>
 
-ActionManager::ActionManager(const Vector<Sensing, VEHICLE_MEMORY>& mStates, const Vector<List<Sensing>, VEHICLE_MEMORY>& nStates) : monitorStates(mStates),
-													 neighStates(nStates)
+ActionManager::ActionManager(const int& aID, const int& tID, const Vector<Sensing, VEHICLE_MEMORY>& mStates, const Vector<List<Sensing>, VEHICLE_MEMORY>& nStates) : agentID(aID), targetID(tID),
+																				     monitorStates(mStates),
+																				     neighStates(nStates)
 {}
 
 ActionManager::~ActionManager()
@@ -155,7 +156,8 @@ void ActionManager::printHistory()
 {
   Iterator<Action*> iHistory(history);
   Action* a;
-  
+
+  ResultLog.s << EndLine(ResultLog.incrementIndentation());
   while (iHistory(a))
     {
       ResultLog.s << a->info() << EndLine(ResultLog.getIndentation());

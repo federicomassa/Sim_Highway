@@ -1,5 +1,7 @@
 #include "standardUnicycle.h"
 #include "rules.h"
+#include "Configuration.h"
+
 #include <iostream>
 
 Control standardUnicycle::computeControl(const Maneuver& sigma, const State& q, const Parms& p, const List<Sensing>& sList, int idx, bool debug)

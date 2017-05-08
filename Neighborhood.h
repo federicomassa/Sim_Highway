@@ -53,6 +53,8 @@ public:
     int getAgentID() const { return agentID; }
     const Sensing& getTargetSensing() const {return sTarget;}
     const List<Sensing>& getSList() const { return sList; }
+    List<Sensing>& getSList() { return sList; }
+    
     RepLevel getTargetReputation() const;
 
     const Neighborhood& operator=(const Neighborhood& n)

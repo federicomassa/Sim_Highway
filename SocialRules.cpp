@@ -23,7 +23,11 @@ void Rule::check(const Vector<Sensing, VEHICLE_MEMORY>& monitorStates, const Vec
       List<Area> positiveArea;
       Area negativeArea;
       e.evaluateWithArea(monitorStates[0], 0.0, neighStates[0], false, obs, positiveArea, negativeArea);
-      rep.addRecord(now, name, e.getValue().nonOmniscientValue, positiveArea, negativeArea);
+      rep.addRecord(now, name, e.getValue().nonOmniscientValue, monitorStates[0], positiveArea, negativeArea);
+
+      if (e.getValue().nonOmniscientValue != U && (!positiveArea.isEmpty() || !negativeArea.isEmpty()))
+	std::cout << "!!!" << std::endl;
+	
       checkResult = checkResult || e.getValue().nonOmniscientValue;
  
     }
@@ -75,7 +79,7 @@ List<Rule> SocialRules::createRulesList(const List<std::string>& ruleCategoryLis
 
   List<Rule> actionRules;
   
-  /* for each behaviour */
+  /* for each category */
   while (cIt(cat))
     {
       Iterator<Rule> rIt(rList);

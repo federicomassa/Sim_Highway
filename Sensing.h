@@ -6,6 +6,8 @@
 #include "State.h"
 #include "systemTypes.h"
 
+class Logger;
+
 class State;
 
 class Sensing
@@ -76,5 +78,6 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const Sensing& s);
+std::ostream& operator<<(Logger&, const Sensing& s);
 
 #endif

@@ -15,7 +15,7 @@
 
 #include <iostream>
 
-Monitor::Monitor(int a, int t) : aMan(monitorStates, neighStates), rMon(aMan, rep)
+Monitor::Monitor(int a, int t) : aMan(a, t, monitorStates, neighStates), rMon(aMan, rep)
 {
     agentID = a;
     targetID = t;
@@ -62,7 +62,7 @@ bool Monitor::buildNeighborhood(Neighborhood& n)
     error("Monitor::buildNeighborhood", "Found dummy object on top of the vector");
 
   n.init(targetID, monitorStates[0], neighStates[0]);
-
+  
   return true;
 }
 

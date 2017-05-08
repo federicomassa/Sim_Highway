@@ -27,6 +27,7 @@ class Area
      * \brief Redefinition of operator <<.
      */
     friend std::ostream& operator<<(std::ostream&, const Area&);
+    friend std::ostream& operator<<(Logger&, const Area&);
     /*!
      * \brief Redefinition of operator * for intersection.
      */

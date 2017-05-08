@@ -19,6 +19,7 @@ Configuration::Configuration(const string& fileName)
     allMonitorsActive = false;
     allReputationManagersActive = false;
     allTargetsActive = false;
+    allSendersActive = false;
     monitorsNeedLock = false;
     splitView = false;
     cRadius = 100;
@@ -32,6 +33,8 @@ Configuration::Configuration(const string& fileName)
     saveSubjectiveVisions = false;
     saveVideoImages = false;
     saveConsensusImages = false;
+    saveConsensusTimeMin = -1;
+    saveConsensusTimeMax = -1;
     savePredictionImages = false;
     saveTxtOutput = false;
     subjID = 0;
@@ -117,6 +120,15 @@ void Configuration::parseConf(const string& fileName)
             saveConsensusImages = (str == "ON");
             continue;
 	  }
+	if(tmpS == "save_consensus_time")
+	  {
+            token >> str;
+            saveConsensusTimeMin = atoi(str.c_str());
+	    token >> str;
+            saveConsensusTimeMax = atoi(str.c_str());
+            continue;
+	  }
+
 	if(tmpS == "save_prediction_images")
 	  {
 	    token >> str;
@@ -233,29 +245,54 @@ void Configuration::parseConf(const string& fileName)
             continue;
 		}
 	if(tmpS == "targets")
-		{
+	  {
             token >> tmpS;
             if(tmpS == "ALL")
-            {
+	      {
                 allTargetsActive = true;
                 activeTargets.purge();
                 continue;
-            }
+	      }
             while(!inFile.eof())
-            {
+	      {
                 getline(inFile, str, '\n');
                 line++;
                 if(str.empty())
-                    break;
+		  break;
                 if(str[0] == '#')
-                    continue;
+		  continue;
                 stringstream token(str);
                 int index;
                 token >> index;
                 activeTargets.insTail(index);
-            }
+	      }
             continue;
-		}
+	  }
+	if(tmpS == "senders")
+	  {
+            token >> tmpS;
+            if(tmpS == "ALL")
+	      {
+                allSendersActive = true;
+                activeSenders.purge();
+                continue;
+	      }
+            while(!inFile.eof())
+	      {
+                getline(inFile, str, '\n');
+                line++;
+                if(str.empty())
+		  break;
+                if(str[0] == '#')
+		  continue;
+                stringstream token(str);
+                int index;
+                token >> index;
+                activeSenders.insTail(index);
+	      }
+            continue;
+	  }
+
      	if(tmpS == "failures")
 	  {
             while(!inFile.eof())
@@ -332,6 +369,9 @@ ostream& operator<<(ostream& os, const Configuration& c)
         os << "Channel probability: " << c.cProb << EndLine();
         os << "Save consensus images: ";
         os << (c.saveConsensusImages ? "ON" : "OFF") << EndLine();
+	os << "Save consensus time: ";
+        os << c.saveConsensusTimeMin << " ==> " << c.saveConsensusTimeMax << EndLine();
+
     }
     os << "Prediction simulation steps: " << c.nTimeSteps << EndLine();
     os << "Video output: " << (c.makeVideo ? "ON" : "OFF") << EndLine();

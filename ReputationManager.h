@@ -64,6 +64,10 @@ class ReputationManager
 
   /* see source for description */
   void mergeReputation(Reputation*, const Neighborhood&, const Area&);
+  void mergeNeighborhood(const Neighborhood&);
+
+  /* find agent in nList */
+  bool foundAgent(const Sensing& s, const List<Sensing>&);
   
 public:
     /*!
@@ -170,6 +174,11 @@ public:
     /* find matching ID vehicle in reputation list */
     Reputation* findReputation(const int&);
     const Reputation* findReputation(const int&) const;
+
+    /* find matching ID vehicle in neighborhood list */
+    Neighborhood* findNeighborhood(const int&);
+    const Neighborhood* findNeighborhood(const int&) const;
+    
 };
 
 #endif

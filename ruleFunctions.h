@@ -28,6 +28,7 @@ namespace ruleFunctions
   bool forwardDangerous(const Sensing&, const IntVars&, const Sensing&);
   bool leftBlocking(const Sensing&, const IntVars&, const Sensing&);
   bool rightBlocking(const Sensing&, const IntVars&, const Sensing&);
+  bool rightReturn(const Sensing&, const IntVars&, const Sensing&);
   bool minLane(const Sensing&, const IntVars&, const Sensing&);
   bool trueFunction(const Sensing&, const IntVars&, const Sensing&);  
   
@@ -39,6 +40,7 @@ namespace ruleFunctions
   void forwardDangerousArea(const Sensing&, Area&);
   void leftArea(const Sensing&, Area&);
   void rightArea(const Sensing&, Area&);
+  void rightReturnArea(const Sensing&, Area&);
 }
   
 #endif

@@ -98,6 +98,16 @@ bool ruleFunctions::rightBlocking(const Sensing& s1, const IntVars& v1, const Se
     return false;
 }
 
+bool ruleFunctions::rightReturn(const Sensing& s1, const IntVars& v1, const Sensing& s2)
+{
+    if((s1.x - s2.x) < 1.5*D_BACK && (s2.x - s1.x) < 1.5*D_FORWARD &&
+       s2.y > (floor(s1.y) - 1) && s2.y < floor(s1.y))
+            return true;
+        
+    return false;
+}
+
+
 bool ruleFunctions::minLane(const Sensing& s1, const IntVars& v1, const Sensing& s2)
 {
     if(floor(s1.y) == (double)MIN_LANE)
@@ -170,6 +180,23 @@ void ruleFunctions::rightArea(const Sensing& s, Area& ind)
     
     bounds[0][0] = s.x - D_BACK;
     bounds[0][1] = s.x + D_FORWARD;
+    bounds[1][0] = floor(s.y) - 1;
+    bounds[1][1] = floor(s.y);
+    ind.addRect(bounds);
+}
+
+void ruleFunctions::rightReturnArea(const Sensing& s, Area& ind)
+{
+    if (!ind.isEmpty())
+        ind.purge();
+
+    if (floor(s.y) == MIN_LANE)
+      return;
+    
+    Matrix_2x2 bounds;
+    
+    bounds[0][0] = s.x - 1.5*D_BACK;
+    bounds[0][1] = s.x + 1.5*D_FORWARD;
     bounds[1][0] = floor(s.y) - 1;
     bounds[1][1] = floor(s.y);
     ind.addRect(bounds);

@@ -73,7 +73,7 @@ void Vehicle::run()
 void Vehicle::setRM(const Area& obs)
 {
   Knowledge k;
-  mLayer.buildKnowledge(k, obs);
+  buildKnowledge(k, obs);
   repMan.setCurrentParams(pLayer.getQ(), k);
   repMan.setReputations(mLayer);
 }
@@ -103,6 +103,41 @@ void Vehicle::evolveMonitor(const Area& obs)
     {
       setRM(obs);
     }
+}
+
+void Vehicle::buildKnowledge(Knowledge& k, const Area& obs)
+{
+  List<Neighborhood> nList;
+
+  Iterator<Sensing> sItr(sList);
+  Sensing s;
+  
+  while(sItr(s))
+    {
+      Iterator<Sensing> otherSItr(sList);
+      Sensing otherS;
+      
+      List<Sensing> neighSList;
+      neighSList.insTail(getS());
+
+      while (otherSItr(otherS))
+	{
+	  /* exclude itself */
+	  if (otherS.agentID == s.agentID)
+	    continue;
+
+	  neighSList.insTail(otherS);
+	  
+	}
+
+      Neighborhood n(s.agentID, s, neighSList);
+      nList.insTail(n);
+    }
+
+  k.agentID = idx;
+  k.nList = nList;
+  k.visibleArea = obs;
+
 }
 
 void Vehicle::getHypothesis(List<Hypothesis>& hList)

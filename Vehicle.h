@@ -36,10 +36,12 @@ class Vehicle
   void sendRM() { if(repMan.isActive()) repMan.sendForConsensus(); }
   /* clear RM*/
   void clearRM() { if(repMan.isActive()) repMan.clearReputation();}
-  /* execute the reputation manager's core-task */  
-  void recvRM() { if(repMan.isActive()) repMan.recvForConsensus(mLayer); }
+  /* execute the reputation manager's core-task. To receive it must have also monitored */  
+  void recvRM() { if(repMan.isActive() && mLayer.isActive()) repMan.recvForConsensus(mLayer); }
   /* get pointer to reputation manager */
   const ReputationManager& getRM() const {return repMan;}
+  /* build knowledge to send */
+  void buildKnowledge(Knowledge&, const Area&);
   /* get continuous state q */    
   State getQ() const;
   Sensing getS() const;

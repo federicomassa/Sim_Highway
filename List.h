@@ -15,6 +15,8 @@
 #include "EndLine.h"
 #include "Iterator.h"
 #include <iostream>
+#include "Logger.h"
+
 /*!
  * This template represents a list of elements of type T with several typical
  * methods implemented. Note that, in order to use this template, operators ==
@@ -55,6 +57,35 @@ class List
 
         return os;
     }
+
+    friend std::ostream& operator<<(Logger& log, const List<T>& il)
+    {
+        Elem* aux = il.head;
+        
+        /* check if the list is empty */
+        if(il.head == NULL)
+        {
+            log.s << "List { EMPTY }";
+            return log.s;
+        }
+
+	log.s << "List {" << EndLine(log.incrementIndentation());
+        while(aux)
+        {
+            log << aux->info;
+            aux = aux->next;
+            if(aux)
+	      log.s << EndLine(log.getIndentation());
+            else
+	      log.s << EndLine(log.decrementIndentation());
+        }
+        log.s << '}';
+
+        return log.s;
+    }
+
+
+    
     /*!
      * \brief Redefinition of operator ==.
      *

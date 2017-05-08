@@ -1,6 +1,9 @@
 #include "fastUnicycle.h"
 #include "rules.h"
+#include "Configuration.h"
+
 #include <iostream>
+
 
 const double angular_speed = MAX_ANGULAR_SPEED*1.5;
 

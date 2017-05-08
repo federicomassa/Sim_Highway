@@ -85,8 +85,7 @@ void TestRules::addLeftRules()
 }
 
 void TestRules::addRightRules()
-{
-
+{  
   List<SubEvent*> seList;
   List<Event> eList;
     
@@ -150,7 +149,7 @@ void TestRules::addCruiseRules()
   SubEvent* sRightFree = new SubEvent;
   SubEvent* sNotMinLane = new SubEvent;
 
-  sRightFree->init(rightBlocking, rightArea, NOR, "Nobody is on my right", 2);
+  sRightFree->init(rightReturn, rightReturnArea, NOR, "Nobody is on my right", 2);
   seList.insHead(sRightFree);
 
   sNotMinLane->init(minLane, NULL, NSINGLE, "I'm not on the minimum lane", 2);
@@ -160,7 +159,7 @@ void TestRules::addCruiseRules()
   eRightFree.init(seList, 0);
   eList.insHead(eRightFree);
 
-  addRule("Cruise", eList, "You should go to previous lane");
+  addRule("Cruise", eList, "You should go to previous lane", CONTINUOUS);
 
   /* clear for re-use */
   seList.purge();

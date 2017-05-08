@@ -1,4 +1,6 @@
 #include "standardRules.h"
+#include "Configuration.h"
+
 #include <iostream>
 // ---------------------------------------------------------------------------
 // Rules parameters
@@ -696,6 +698,7 @@ void standardRules::initStandardRules(DynVector<SubEvent>& se, DynVector<Event>&
 
     seList.insTail(&se[1]);
     seList.insTail(&se[4]);
+    seList.insTail(&se[19]);
     seList.insTail(&se[31]);
     e[k].init(seList, k);
     seList.purge();

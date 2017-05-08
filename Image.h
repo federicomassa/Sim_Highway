@@ -87,7 +87,7 @@ public:
     void drawNeighborhood(const Neighborhood& n,
                           const State& q, Maneuver m, int index);
     void saveConsensusImages(const Environment& env,
-                             int cStep = 0, const int& time = -1);
+                             int cStep = 0, const int& timeMin = -1, const int& timeMax = -1);
     void drawArc(const double&, const double&,
 		 const double&, const double&,
 		 const int&, const int&);

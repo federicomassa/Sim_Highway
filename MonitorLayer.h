@@ -74,11 +74,6 @@ public:
     ~MonitorLayer();
 
     /*!
-     * \brief Initialize ActionManager and RuleMonitor.
-     */
-    void init();
-
-    /*!
      * \brief Set Agent ID.
      */
     void setID(int i) { agentID = i; }

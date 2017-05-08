@@ -33,7 +33,11 @@ public:
     bool allReputationManagersActive;
     /* active target list */
     List<int> activeTargets;
+    /* active senders list */
+    List<int> activeSenders;
+    
     bool allTargetsActive;
+    bool allSendersActive;
     /* split view */
     bool splitView;
     /* communication is active */
@@ -52,6 +56,8 @@ public:
     bool makeMonitorVideo;
     bool saveVideoImages;
     bool saveConsensusImages;
+    int  saveConsensusTimeMin;
+    int  saveConsensusTimeMax;
     bool savePredictionImages;
     bool saveSubjectiveVisions;
     bool saveTxtOutput;

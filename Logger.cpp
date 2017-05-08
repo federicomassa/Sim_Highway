@@ -1,5 +1,6 @@
 
 #include "Logger.h"
+#include "Configuration.h"
 
 using namespace std;
 

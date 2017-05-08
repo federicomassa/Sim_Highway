@@ -27,6 +27,7 @@ void ReputationManager::merge(const List<Message<Knowledge> >& msgList)
       tmpMsg.getBody(tmpK); /* body extraction */
       singleMerge(tmpK);
     }
+  
 }
 
 void ReputationManager::init(Channel<Knowledge>* rC, int a)
@@ -60,24 +61,29 @@ void ReputationManager::setCurrentParams(const State& s,
 
 void ReputationManager::singleMerge(const Knowledge& k)
 {
+  
   const List<Neighborhood>& nList = k.nList;
   const Area& recvObs = k.visibleArea;
 
   
-  Iterator<Neighborhood> itr(nList);
+  Iterator<Neighborhood> nItr(nList);
   Neighborhood n;
-
-  while(itr(n))
+  
+  while (nItr(n))
     {
+      
       Reputation* rep = findReputation(n.getTargetID());
       if (rep == 0)
 	continue;
 
+      mergeNeighborhood(n); 
+      
       /* Now I need to see if in the received knowledge there is 
 	 something about my uncertainty areas */
       mergeReputation(rep, n, recvObs);
       
     }
+
 }
 
 void ReputationManager::getAgentsReputation(List<Reputation>& repL) const
@@ -98,10 +104,60 @@ void ReputationManager::getAgentsReputation(List<Reputation>& repL) const
     }
 }
 
+/* Add received sensor data to your set, so that you can also share it to others */
+void ReputationManager::mergeNeighborhood(const Neighborhood& n)
+{
+  
+  Neighborhood* myN = findNeighborhood(n.getTargetID());
+
+  /* if you did not know about a vehicle, do not add, you do not see it, you don't care. */
+  if (myN == 0)
+    return;
+
+  const List<Sensing>& sList = n.getSList();
+  List<Sensing>& mySList = myN->getSList();
+  
+  /* for each received vehicle data */
+  Iterator<Sensing> sItr(sList);
+  Sensing s;
+
+  while(sItr(s))
+    {
+      /* for each of my vehicle data, if you already have it nothing (TODO or improve measurements??) 
+       if you don't, add it to the list */
+      if (!foundAgent(s, mySList))
+	mySList.insTail(s);
+      
+    }
+ 
+}
+
+bool ReputationManager::foundAgent(const Sensing& s, const List<Sensing>& mySList)
+{
+  Iterator<Sensing> mySItr(mySList);
+  Sensing myS;
+
+  bool found = false;
+  
+  while (mySItr(myS))
+    {
+      if (s.agentID == myS.agentID)
+	{
+	  found = true;
+	  break;
+	}
+    }
+
+  return found;
+  
+}
+
 Reputation* ReputationManager::findReputation(const int& id)
 {
   Reputation* r = 0;
 
+  bool found = false;
+  
   for (int i = 0; i < repList.count(); i++)
     {
       repList.getElem(r, i);
@@ -113,10 +169,16 @@ Reputation* ReputationManager::findReputation(const int& id)
 	continue;
 
       /* if found matching ID */
+      found = true;
       break;
     }
 
-  return r;
+  if (found)
+    return r;
+  else
+    return 0;
+
+  return 0;
   
 }
 
@@ -124,6 +186,8 @@ const Reputation* ReputationManager::findReputation(const int& id) const
 {
   const Reputation* r = 0;
 
+  bool found = false;
+  
   for (int i = 0; i < repList.count(); i++)
     {
       repList.getElem(r, i);
@@ -135,10 +199,76 @@ const Reputation* ReputationManager::findReputation(const int& id) const
 	continue;
 
       /* if found matching ID */
+      found = true;
       break;
     }
 
-  return r;
+  if (found)
+    return r;
+  else
+    return 0;
+
+  return 0;
+  
+}
+
+Neighborhood* ReputationManager::findNeighborhood(const int& id)
+{
+  Neighborhood* n = 0;
+
+  bool found = false;
+  
+  for (int i = 0; i < knowledge.nList.count(); i++)
+    {
+      knowledge.nList.getElem(n, i);
+
+      if (n == 0)
+	error("ReputationManager::findNeighborhood", "Neighborhood list invalid");
+      
+      if (n->getTargetID() != id)
+	continue;
+
+      /* if found matching ID */
+      found = true;
+      break;
+    }
+
+  if (found)
+    return n;
+  else
+    return 0;
+
+  return 0;
+  
+}
+
+const Neighborhood* ReputationManager::findNeighborhood(const int& id) const
+{
+  const Neighborhood* n = 0;
+
+  bool found = false;
+  
+  for (int i = 0; i < knowledge.nList.count(); i++)
+    {
+      knowledge.nList.getElem(n, i);
+
+      if (n == 0)
+	error("ReputationManager::findNeighborhood", "Neighborhood list invalid");
+      
+      if (n->getTargetID() != id)
+	continue;
+
+      /* if found matching ID */
+      found = true;
+      break;
+    }
+
+  if (found)
+    return n;
+  else
+    return 0;
+
+  return 0;
   
 }
 
@@ -179,49 +309,17 @@ void ReputationManager::mergeReputation(Reputation* rep, const Neighborhood& n, 
       /* First check negative areas */
       Iterator<Sensing> sItr(sList);
       Sensing s;
-      
+
       bool resultChanged = false;
-
+      
       /* ============= NEGATIVE AREAS HANDLING ================ */
-      
-      /* for each received sensor data entry */
-      while (sItr(s))
+      ExtBool isNegativeEventVerified = U;
+
+      /* no negative subevents case */
+      if (neg.isEmpty())
+	isNegativeEventVerified = T;
+      else
 	{
-	  Vector<double, 2> position;
-	  position[0] = s.x;
-	  position[1] = s.y;
-
-	  if (neg.contains(position))
-	    {
-	      record->result = F;
-	      resultChanged = true;
-	      levelChanged = true;
-	      break;
-	    }
-		  
-		
-	}
-
-
-      /* if it gets here a vehicle was not found in the negative area */
-      neg = neg - recvObs;
-      
-      
-      /* ============ POSITIVE AREAS HANDLING ================== */
-      
-      Area* posElement = 0;
-
-      ExtBool isPositiveEventVerified = T;
-      for (int i = 0; i < pos.count(); i++)
-	{
-	  pos.getElem(posElement, i);
-	  
-	  *posElement = *posElement - recvObs;
-
-	  /* reset iterator */
-	  sItr.initialize(sList);
-	  	  
-	  ExtBool isVehiclePresentInPositiveArea = F;
 	  /* for each received sensor data entry */
 	  while (sItr(s))
 	    {
@@ -229,53 +327,123 @@ void ReputationManager::mergeReputation(Reputation* rep, const Neighborhood& n, 
 	      position[0] = s.x;
 	      position[1] = s.y;
 	      
-	      if (posElement->contains(position))
+	      if (neg.contains(position))
 		{
-		  isVehiclePresentInPositiveArea = T;
-		  break;
-		}
-	      
-		
-	      
-	      
-	    }
-
-	  if (isVehiclePresentInPositiveArea == F)
-	    {
-	      if ((*posElement).isEmpty())
-		{
+		  if (agentID == 0 && n.getTargetID() == 1)
+		    ResultLog.s << "!!! " << record->rule << EndLine(ResultLog.getIndentation());
+		    
+		  Area emptyArea;
+		  neg = emptyArea;
 		  record->result = F;
-		  isPositiveEventVerified = F;
+		  isNegativeEventVerified = F;
 		  resultChanged = true;
-		  levelChanged = true;
 		  break;
 		}
-	      else
-		isVehiclePresentInPositiveArea = U;
+	      
+	      
 	    }
 	  
-	  
-	  isPositiveEventVerified = isPositiveEventVerified && isVehiclePresentInPositiveArea;
+	  if (isNegativeEventVerified == U)
+	    {
+	      neg = neg - recvObs;
+	      
+	      /* received data does not contain vehicle in negative area and it sees it all */
+	      if (neg.isEmpty())
+		{
+		  isNegativeEventVerified = T;
+		}
+	    }
 
+	}
+      /* ============ POSITIVE AREAS HANDLING ================== */
+
+      ExtBool isPositiveEventVerified = T;
+      
+      if (pos.count() == 0)
+	isPositiveEventVerified = T;
+      else
+	{
+	  Area* posElement = 0;
 	  
 	  
+	  for (int i = 0; i < pos.count(); i++)
+	    {
+	      pos.getElem(posElement, i);
+	      
+	      
+	      
+	      /* reset iterator */
+	      sItr.initialize(sList);
+	      
+	      ExtBool isVehiclePresentInPositiveArea = F;
+	      /* for each received sensor data entry */
+	      while (sItr(s))
+		{
+		  Vector<double, 2> position;
+		  position[0] = s.x;
+		  position[1] = s.y;
+		  
+		  if (posElement->contains(position))
+		    {
+		      isVehiclePresentInPositiveArea = T;
+		      break;
+		    }
+		  
+		  
+		  
+		  
+		}
+	      
+	      (*posElement) = (*posElement) - recvObs;
+	      
+	      if (isVehiclePresentInPositiveArea == F)
+		{
+		  if (posElement->isEmpty())
+		    {
+		      Area emptyArea;
+		      (*posElement) = emptyArea; 
+		      record->result = F;
+		      isPositiveEventVerified = F;
+		      resultChanged = true;
+		    }
+		  else
+		    isVehiclePresentInPositiveArea = U;
+		}
+	      
+	      
+	      isPositiveEventVerified = isPositiveEventVerified && isVehiclePresentInPositiveArea;
+	      
+	  
+	  
+	    }
 	}
       
-      /* if the sender was able to see everything in that area the negative condition holds true,
-	 whereas if he does not see everything it is still uncertain */
-      if (!neg.isEmpty())
-	break;      
+      if (isPositiveEventVerified == T && isNegativeEventVerified == T)
+	{
+	  record->result = T;
+	  resultChanged = true;
+	}
 
-      if (!(isPositiveEventVerified == T))
-	break;
+      if(resultChanged)
+	{
+	  levelChanged = true;
+	  
+	  Area emptyArea;
+	  neg = emptyArea;
+	  
+	  Area* posElement = 0;
+	  for (int i = 0; i < pos.count(); i++)
+	    {
+	      pos.getElem(posElement, i);
+	      (*posElement) = emptyArea;
+	    }
+		 
+	}
+
       
-
-
-      record->result = T;
-      resultChanged = true;
-      levelChanged = true;
     }
 
+  
   if (levelChanged)
     rep->reEvaluateLevel();
   
