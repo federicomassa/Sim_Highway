@@ -1,4 +1,4 @@
 \beamer@sectionintoc {1}{Introduction}{2}{0}{1}
-\beamer@sectionintoc {2}{Action recognition}{6}{0}{2}
-\beamer@sectionintoc {3}{Social rules monitoring}{20}{0}{3}
-\beamer@sectionintoc {4}{Conclusions}{35}{0}{4}
+\beamer@sectionintoc {2}{Action recognition}{5}{0}{2}
+\beamer@sectionintoc {3}{Social rules monitoring}{19}{0}{3}
+\beamer@sectionintoc {4}{Conclusions}{34}{0}{4}

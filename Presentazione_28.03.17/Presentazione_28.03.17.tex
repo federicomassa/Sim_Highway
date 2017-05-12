@@ -78,46 +78,32 @@ Monitoring update}
 \addtocounter{framenumber}{-1}
 
 \section{Introduction}
-\begin{frame}
-\frametitle{Why we needed an update}
-\textbf{What we were doing}
-\begin{itemize}
-	\item We were trying to monitor the behaviour of a vehicle
-		  with a discrete states automaton running different
-		  controllers.
- 	\item The recognition of the discrete state was made via 
- 		  a forward prediction of the vehicle's continuous state,
- 		  that was compared with the controller model that we
- 		  supposed to know (first mayor problem)
-  	\item The monitoring itself was achieved by evaluating the
-  		  rules (that we also supposed to know from the constructor, second 
-  		  mayor problem) that determined the transition between
-  		  discrete states. Uncertain cases were due to the 
-  		  partial vision of the observer with respect to the 
-  		  monitored vehicle's surroundings.
-\end{itemize}
-\end{frame}
 
 \begin{frame}
-\frametitle{Why we needed an update}
-\textbf{What we do now}
+\frametitle{Objectives}
+
+\textbf{Build a software that runs on a vehicle ({\color{dred}Monitor}):}
+
+\begin{itemize}
+\item[-] that is capable to detect high-level behaviours of the neighboring vehicles based on the study of their trajectory;
+\item[-] without requiring any non-trivial knowledge on the observed vehicles' dynamic model;
+\item[-] able to evaluate the compliance of this behaviour with a set of
+\textbf{social rules}
+\end{itemize}
+
+How?\\
+
 \begin{itemize}
 	\item We monitor the behaviour of a vehicle based on the
-		  abstract features of its movements. This way, we can
-		  monitor a vehicle regardless of the dynamic model 
-		  (it could also be manually-driven)
- 	\item Instead of the recognition of the discrete state,
- 		  we try to recognize the abstract \textbf{action} 
- 		  that the vehicle is pursuing. 
-  	\item The monitoring is now based on the definition
-  		  of some basic \textbf{social rules}, that 
+		  abstract features of its movements (\emph{actions})
+  	\item The \emph{social rules} 
   		  are defined in an abstract way as the list of
   		  conditions that make a certain action forbidden.
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Requirements}
+\frametitle{Monitor requirements}
 
 To achieve this, we only need:
 \begin{itemize}
@@ -132,9 +118,10 @@ To achieve this, we only need:
 \end{frame}
 
 \begin{frame}
-\frametitle{Configuration}
+\frametitle{Simulator}
 
-In the configuration file it is possible to choose, for every vehicle in the environment:
+To study this algorithm, we use a C++ simulator that instantiates several vehicles in a highway-like environment. 
+In the configuration file it is possible to choose, for every vehicle:
 \begin{columns}
 \begin{column}{0.6\textwidth}
 \begin{itemize}
@@ -155,11 +142,11 @@ In the configuration file it is possible to choose, for every vehicle in the env
 \begin{columns}[c]
 \begin{column}{0.5\textwidth}
 \centering
-\includegraphics[width=.8\linewidth]{coordinates}
+\includegraphics[width=.6\linewidth]{coordinates}
 \end{column}
 \begin{column}{0.5\textwidth}
 \flushleft
-\includegraphics[width=.5\linewidth]{Automaton}
+\includegraphics[width=.4\linewidth]{Automaton}
 \end{column}
 \end{columns}
 
@@ -338,8 +325,7 @@ following features:
 \item 1 event: ``Right lane is free'';
 \end{itemize}
 
-\textbf{Left overtake} allowed, \textbf{Right overtake} forbidden.
-
+\textbf{Left/Right overtake} allowed.
 \end{frame}
 
 \begin{frame}
@@ -384,7 +370,7 @@ $\rightarrow$ This also allows to make complex action managers without changing 
 \multirow{2}{*}{LeftOvertakeAction} & Safety \\ 
 	& Cruise \\ \hline 
 \multirow{2}{*}{RightOvertakeAction} & Safety \\ 
-	& Right Overtake \\ \hline 
+	& Cruise \\ \hline 
 \end{tabular}
 \end{frame}
 
@@ -410,6 +396,8 @@ if a rule is verified or not due to hidden areas (no events are true, at least o
 
 \begin{frame}
 \frametitle{LeftAction example}
+
+***Specific left action rules are evaluated at trigger time. For graphical simplicity only the areas are, instead, shown continuously.
 
 Without sensor errors:\\
 \movie[externalviewer]{\includegraphics[scale=0.5]{leftActionVideo2.png}}{monitorLeftActionVideoNoErrors2.avi}
