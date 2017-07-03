@@ -22,6 +22,7 @@ class Environment
 public:
     /* constructor */
     Environment(int n, double r, double p);
+    Environment(const Environment&);
     /* destructor */
     ~Environment() { delete[] v; }
     /* vehicles initialization */
@@ -29,9 +30,11 @@ public:
     /* get vehicle state q */
     State getQ(int index) const;
     /* get number of vehicles */
-    int getNVehicles() {return nV;}
+    int getNVehicles() const {return nV;}
     /* get vehicle vector v */
     Vehicle* getVehicles() {return v;}
+    const Vehicle* getVehicles() const {return v;}
+
     /* get vehicle maneuver m */
     Maneuver getManeuver(int index) const;
     /* returns i-th agent's observable area */
@@ -56,6 +59,8 @@ public:
     void outputNeighborhoodsOverhead(int cStep) const;
     /* output vehicles states and maneuvers */
     void outputVehiclesStates() const;
+    // accessor
+    const Channel<Knowledge>& getChannel() const {return repChannel;}
 };
 
 #endif

@@ -143,6 +143,7 @@ public:
      * @param p probability.
      */
     Channel(double r, double p);
+    Channel(const Channel&);
     /*!
      * \brief Destructor.
      */
@@ -187,6 +188,10 @@ Channel<T>::Channel(double r, double p)
     radius = r;
     prob = p;
 }
+
+template<typename T>
+Channel<T>::Channel(const Channel& ch) : radius(ch.radius), prob(ch.prob)
+{}
 
 template<typename T>
 void Channel<T>::recvBroadcast(int a, const State& qReceiver,

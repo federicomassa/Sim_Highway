@@ -52,6 +52,7 @@ public:
     Parms getParms() const { return pLayer.getParms(); }
     Maneuver getManeuver() const { return automaton.getManeuver(); }
     List<Sensing>& getSList() {return sList;}
+    const List<Sensing>& getSList() const {return sList;}
     /* check if (part of) the vehicle state q belongs to the Area */
     bool inArea(const Area& a) const
     {
@@ -79,6 +80,7 @@ public:
     {
       return repMan.getKnowledge();
     }
+    const Vehicle& operator=(const Vehicle&);
 };
 
 #endif

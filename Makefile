@@ -1,6 +1,6 @@
 CC=g++
 
-CXXFLAGS=-O3 -Wall -Wuninitialized -Wunused -pedantic -fpermissive
+CXXFLAGS=-g -O3 -Wall -Wuninitialized -Wunused -pedantic -fpermissive -std=c++11
 
 LDFLAGS= -L/usr/lib/x86_64-linux-gnu -lgd -lopencv_core -lopencv_imgproc -lopencv_calib3d -lopencv_video -lopencv_features2d -lopencv_ml -lopencv_highgui -lopencv_objdetect -lopencv_contrib -lopencv_legacy 
 
@@ -25,6 +25,9 @@ clean:
 
 clean2:
 	rm -rf Output 
+
+depMaker:
+	g++ -std=c++11 -o dependencyMaker DepMaker/dependencyMaker.cpp -lboost_filesystem -lboost_system
 
 .PHONY: tar
 

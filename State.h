@@ -20,7 +20,7 @@ class State
 
     
     /* initialize state's members */
-    void init(double qX, double qY, double qTheta, double qV, double qDesiredV, std::string qInitManeuver);
+    void init(double qX, double qY, double qTheta, double qV, double qDesiredV = 0.0, std::string qInitManeuver = "FAST");
 public:
 	double x;
 	double y;
@@ -32,11 +32,10 @@ public:
 	std::string initManeuver;
 	
 	/* constructor */
-	State(double qX = 0, double qY = 0, double qTheta = 0, double qV = 0, double qDesiredV = 0, std::string qInitManeuver = "FAST")
-    {
-      init(qX, qY, qTheta, qV, qDesiredV, qInitManeuver);
-    }
+	State() {};
+	State(double qX, double qY, double qTheta, double qV, double qDesiredV = 0.0, std::string qInitManeuver = "FAST");
     State(const std::string& str);
+    State(const State&);
 	/* destructor */
 	~State() { }
 	/* calculate the distance from another state */
@@ -46,10 +45,16 @@ public:
 	}
 	/* conversion from State to double[Q_DIM] */
 	Vector<double, 2> toPoint() const;
+
+	double& operator[](const int&);
 };
 
 std::ostream& operator<<(std::ostream&, const State&);
 bool operator==(const State&, const State&);
 bool operator!=(const State&, const State&);
+State operator+(const State&, const State&);
+State operator-(const State&, const State&);
+State operator/(const State&, const double&);
+
 
 #endif

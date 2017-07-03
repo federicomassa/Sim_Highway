@@ -15,6 +15,7 @@
 #include "Automaton.h"
 #include "Neighborhood.h"
 #include "PhysicalLayer.h"
+#include "Predictor.h"
 #include "Sensing.h"
 #include "systemTypes.h"
 #include "Tensor5.h"
@@ -56,7 +57,7 @@ class Monitor
      */
     State targetQ;
 
-    
+    Sensing targetS;
     /*!
      * \brief Last observed state of the monitored agent.
      */
@@ -87,6 +88,10 @@ class Monitor
      * \brief Predicted states of the monitored agent.
      */
     Vector<State, N_MANEUVER> possibleStates;
+
+    // Predictor object
+    Predictor predictor;
+
     /*!
      * \brief Predicted maneuvers of the monitored agent.
      */

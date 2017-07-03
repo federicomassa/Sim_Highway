@@ -280,6 +280,7 @@ public:
      * Get a pointer to a specific element of the list
      */
     void getElem(const T*&, const int&) const;
+    void getElem(T*&, const int&) const;
     
 };
 
@@ -577,6 +578,26 @@ int List<T>::count() const
 
 template<typename T>
 void List<T>::getElem(const T*& elem, const int& index) const
+{
+  /* error handling */
+  if (index >= count())
+    {
+      elem = NULL;
+      return;
+    }
+  
+  Elem* aux = head;
+  
+  for (int i = 0; i < index; i++)
+    {
+      aux = aux->next;
+    }
+
+  elem = &(aux->info);
+}
+
+template<typename T>
+void List<T>::getElem(T*& elem, const int& index) const
 {
   /* error handling */
   if (index >= count())

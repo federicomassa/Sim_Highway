@@ -17,27 +17,31 @@ public:
     State q;
     Maneuver sigma;
     Parms p;
-    
-    
+
+
     Sensing() { agentID = -1; }
     Sensing(int tIdx, const State& tQ, const Parms& tP, const Maneuver& tSigma)
+    {
+        init(tIdx, tQ, tP, tSigma);
+    }
+
+    void init(int tIdx, const State& tQ, const Parms& tP, const Maneuver& tSigma)
     {
         agentID = tIdx;
         q = tQ;
         p = tP;
-	sigma = tSigma;
+        sigma = tSigma;
+    }
+    const Sensing& operator=(const Sensing& s)
+    {
+        agentID = s.agentID;
+        q = s.q;
+        p = s.p;
+        sigma = s.sigma;
+
+        return *this;
     }
 
-    const Sensing& operator=(const Sensing& s)
-      {
-	agentID = s.agentID;
-	q = s.q;
-	p = s.p;
-	sigma = s.sigma;
-
-	return *this;
-      }
-    
 };
 
 #endif

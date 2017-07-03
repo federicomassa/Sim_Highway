@@ -53,7 +53,7 @@ bool MonitorLayer::removeMonitor(int t)
 }
 
 void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Maneuver& agentManeuver,
-                       const Area& obs)
+const Area& obs)
 {
 
   
@@ -164,7 +164,6 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
 	monitorLog.s << "Vehicle " << agentID << " observing vehicle " << m->getTargetID() << " BEGIN..." << EndLine(EndLine::INC);
 	
 	m->increaseCounter();
-	std::cout << "Time..." << m->getTimeCount() << std::endl;
 	if (m->getTimeCount() >= 0)
 	  monitorLog.s << "Busy for " << m->getCountdown() << " steps..." << EndLine();
 	else

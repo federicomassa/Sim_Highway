@@ -51,7 +51,7 @@ class MonitorLayer
      */
     Monitor* lookFor(int t);
 
-    
+
 public:
     /*!
      * \brief Default constructor.
@@ -87,6 +87,8 @@ public:
     void buildNeighborhoodList(List<Neighborhood>& nList) const;
     void buildKnowledge(Knowledge& k) const;
     List<Monitor*>& getMonitorList() {return monitorList;}
+    const List<Monitor*>& getMonitorList() const {return monitorList;}
+
 };
 
 #endif

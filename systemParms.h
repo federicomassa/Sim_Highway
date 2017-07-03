@@ -7,7 +7,7 @@
 #define MAX_THETA 0.9
 #define MAX_ANGULAR_SPEED 0.06
 #define LOOP_GAIN_CONSTANT 1.9
-#define MAX_SPEED 0.06
+#define MAX_SPEED 0.13
 //#define MAX_SPEED 0.08
 #define ACCELERATION 0.005
 #define ERROR_ACC ACCELERATION/2.0
@@ -37,5 +37,20 @@
 //#define V_REF 0.5*MAX_SPEED
 #define V_TOLERANCE 0.1
 
+
+// Sensing errors
+
+#define SIGMA_X 0.01
+#define SIGMA_Y 0.05
+#define RELATIVE_SIGMA_V 0.05
+#define RELATIVE_SIGMA_THETA 0.05
+
+
+/*
+#define SIGMA_X 0
+#define SIGMA_Y 0
+#define RELATIVE_SIGMA_THETA 0
+#define RELATIVE_SIGMA_V 0
+*/
 
 #endif

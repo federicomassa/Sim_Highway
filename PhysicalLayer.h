@@ -1,4 +1,3 @@
-
 #ifndef PHYSICALLAYER_H
 #define PHYSICALLAYER_H
 
@@ -20,8 +19,8 @@ public:
     PhysicalLayer() { maxV = 0; }
     /* destructor */
     ~PhysicalLayer() { }
-    /* initialization */
-    void init(const State& s, const Parms& p)
+    /* initialization, parms is now dummy */
+    void init(const State& s, const Parms& p = 0.0)
     {
         q = nextQ = s;
         // maxV = p; IT WAS LIKE THIS, BUT p is the initial speed, not the MAX_SPEED??? CHECK??

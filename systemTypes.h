@@ -15,7 +15,7 @@ typedef IntVars (*ResetFunction)(const State&);
 typedef double Parms; /* max speed */
 
 /* vehicle automaton states */
-enum Maneuver { FAST, SLOW, LEFT, RIGHT, PLATOON, UNKNOWN };
+enum Maneuver { FAST = 0, SLOW = 1, LEFT = 2, RIGHT = 3, PLATOON = 4, UNKNOWN = 5};
 
 /* function to pass from std::string to maneuver */
 Maneuver strToManeuver(const std::string& str);

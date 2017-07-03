@@ -83,6 +83,8 @@ public:
      * @param nL my current knowledge -- i.e. according to the vision of the
      *           monitor layer.
      */
+    Channel<Knowledge>* const getChannel() const {return repChan;}
+
     void setCurrentParams(const State& s, const Knowledge& k);
     /*!
      * \brief Broadcast information every communication round.

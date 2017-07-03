@@ -16,31 +16,29 @@
 #include "PhysicalLayer.h"
 #include "DynVector.h"
 #include "Tensor5.h"
+#include "SensorErrorSimulator.h"
 
-/* FIXME debug */
-#include <iostream>
+extern Logger monitorLog;
 
 class Predictor
 {
   // ID of agent
   const int agentID;
   // state of observer at current time
-  const State iAgentState;
+  State iAgentState;
   // sigma of observer at current time
-  const Maneuver agentManeuver;
+  Maneuver agentManeuver;
   // initial state of monitor
   //  const Sensing iMonitorState;
   // states as seen from the observer
-  const List<Sensing> sList;
+  List<Sensing> sList;
   // ID of monitor
   const int monitorID;
   // number of time steps to simulate. DUMMY for now
   const int nTimeSteps;
 
   static const double compatibilityCut;
-  // stores the current simulated time step. When currentStep == nTimeSteps, stop simulation
-  int currentStep;
-
+ 
   /* vector containing the possible outcomes of the vehicles at current time, for the different monitor maneuvers
      External vector is for different monitor maneuvers, second vector is for vehicles, list
      is for the hidden area rectangles, internal tensor is for different point on a grid.   */
@@ -61,6 +59,9 @@ class Predictor
    monitored and observer) */
   Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER> uniformErrors;
   
+  // Errors due to forward propagation of initial sensor errors
+  Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER> forwardSensorErrors;
+  
   /* List of rectangles containing a tensor that contains all the possible hidden vehicle states in that rect, in the order x, y, theta, v */
   /* Unlike the other vehicles' vectors, this does NOT contain a prediction, but only a hypothesis. */
   Vector<List<Tensor5<Sensing> >, N_MANEUVER> hiddenState;
@@ -72,10 +73,13 @@ class Predictor
 
   double deltaX, deltaY, deltaTheta, deltaV, deltaDesiredV;
   
- public:
-  // Arguments: agent index, agent state, agent maneuver, list of sensor measurements, monitor index, simulation steps (now dummy)
-  Predictor(const int&, const State&, const Maneuver&, const List<Sensing>&, const int&, const int&);
+  SensorErrorSimulator sensorSimul;
 
+ public:
+  // Arguments: agent index, agent state, agent maneuver, list of sensor measurements, monitor index, simulation steps
+  Predictor(const int&, const int&, const int&);
+  void init(const State&, const Maneuver&, const List<Sensing>&);
+  
   /*  // delta of bins and low/high range of x, y, theta, v 
   setGridRange(const double&, const double&, const double&,
 	       const double&, const double&, const double&,
@@ -90,7 +94,7 @@ class Predictor
   //Accessors
   void getHidden(Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {v = hiddenState;}
   void getMonitor(Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {v = monitorState;}
-  void getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err);
+  void getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err, const Sensing& monitorS);
   
   
   /* Computes the error propagation from the hidden vehicle to the monitor, err[n] contains the error of the n-th variable, listIndex 
@@ -128,15 +132,15 @@ class Predictor
   /* Takes the compatibility vector as input and computes the most compatible prediction (point in the state space) 
    for each monitor maneuver, which is stored into the coordinates bestList, iV, jV, ... 
   Also, stores the best compatibility value for each maneuver */
-  static void chooseBestPrediction(const Vector<List<Tensor5<double> >, N_MANEUVER>& compatibility, Vector<double, N_MANEUVER>& bestCompatibility,
-			    Vector<int, N_MANEUVER>& bestList, Vector<int, N_MANEUVER>& iV, Vector<int, N_MANEUVER>& jV,
-			    Vector<int, N_MANEUVER>& kV, Vector<int, N_MANEUVER>& lV, Vector<int, N_MANEUVER>& mV);
+  static void chooseBestPredictions(const Vector<List<Tensor5<double> >, N_MANEUVER>& compatibility,
+			    Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibilityUnderThreshold);
   
   /* Checks if the most compatible prediction pass a compatibility cut. If only one does, return true, and detects a maneuver */
   static bool detectManeuver(const Sensing& measure, const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& monitorPrediction,
 			     const Vector<List<Tensor5<Vector<double,4> > >, N_MANEUVER>& errV,
-			     Maneuver& detectedManeuver);
+			     Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibilityUnderThreshold);
 
+  static List<Maneuver> projectToManeuver(const Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibilityUnderThreshold);
   
 };
 
