@@ -147,7 +147,7 @@ void Monitor::detectManeuver(const State& agentQ, const State& q)
     /* now Neighborhood object can be build */
 
 
-
+    // hypothesisList should be dummy by now. Only using complete possibleHypLists
     hypothesisList = possibleHypLists[(int)targetManeuver];
   }
 

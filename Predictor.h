@@ -71,6 +71,10 @@ class Predictor
   PhysicalLayer agentPLayer;
   PhysicalLayer monitorPLayer;
 
+  // result of the compatibilities of the predictions
+  Vector<List<Tensor5<double> >, N_MANEUVER> compatibility;
+
+
   double deltaX, deltaY, deltaTheta, deltaV, deltaDesiredV;
   
   SensorErrorSimulator sensorSimul;
@@ -136,7 +140,7 @@ class Predictor
 			    Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibilityUnderThreshold);
   
   /* Checks if the most compatible prediction pass a compatibility cut. If only one does, return true, and detects a maneuver */
-  static bool detectManeuver(const Sensing& measure, const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& monitorPrediction,
+  bool detectManeuver(const Sensing& measure, const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& monitorPrediction,
 			     const Vector<List<Tensor5<Vector<double,4> > >, N_MANEUVER>& errV,
 			     Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibilityUnderThreshold);
 

@@ -765,9 +765,9 @@ double Predictor::getCompatibility(const Sensing& measure, const Vector<List<Ten
 	errV[monitorSigma].getElem(errTens, listIndex);
 	Vector<double, 4> err = (*errTens)(i, j, k, l, m);
 
-	double compatibility = 0;
+	double compValue = 0;
 
-	/* Definition of compatibility of a point with the measurement: sqrt of sum of squares of (x_i - x_meas)/errX + ... */
+	/* Definition of compValue of a point with the measurement: sqrt of sum of squares of (x_i - x_meas)/errX + ... */
 
 	/* Special case: if error is 0 and the distance from the measurement is != 0 => not compatible (large number) */
 	if (err[0] < 1E-10)
@@ -781,7 +781,7 @@ double Predictor::getCompatibility(const Sensing& measure, const Vector<List<Ten
 		    std::cout << "DiffX: " << fabs((*monitor)(i,j,k,l,m).q.x - measure.q.x) << std::endl;*/
 	}
 	else
-		compatibility += pow(((*monitor)(i, j, k, l, m).q.x - measure.q.x) / err[0], 2);
+		compValue += pow(((*monitor)(i, j, k, l, m).q.x - measure.q.x) / err[0], 2);
 
 	if (err[1] < 1E-10)
 	{
@@ -792,7 +792,7 @@ double Predictor::getCompatibility(const Sensing& measure, const Vector<List<Ten
 		    std::cout << "DiffY: " << fabs((*monitor)(i,j,k,l,m).q.y - measure.q.y) << std::endl;*/
 	}
 	else
-		compatibility += pow(((*monitor)(i, j, k, l, m).q.y - measure.q.y) / err[1], 2);
+		compValue += pow(((*monitor)(i, j, k, l, m).q.y - measure.q.y) / err[1], 2);
 
 
 	if (err[2] < 1E-10)
@@ -804,7 +804,7 @@ double Predictor::getCompatibility(const Sensing& measure, const Vector<List<Ten
 		    std::cout << "DiffT: " << fabs((*monitor)(i,j,k,l,m).q.theta - measure.q.theta) << std::endl;*/
 	}
 	else
-		compatibility += pow(((*monitor)(i, j, k, l, m).q.theta - measure.q.theta) / err[2], 2);
+		compValue += pow(((*monitor)(i, j, k, l, m).q.theta - measure.q.theta) / err[2], 2);
 
 	if (err[3] < 1E-10)
 	{
@@ -814,12 +814,12 @@ double Predictor::getCompatibility(const Sensing& measure, const Vector<List<Ten
 		    std::cout << "DiffV: " << fabs((*monitor)(i,j,k,l,m).q.v - measure.q.v) << std::endl;*/
 	}
 	else
-		compatibility += pow(((*monitor)(i, j, k, l, m).q.v - measure.q.v) / err[3], 2);
+		compValue += pow(((*monitor)(i, j, k, l, m).q.v - measure.q.v) / err[3], 2);
 
 
-	compatibility = sqrt(compatibility);
+	compValue = sqrt(compValue);
 
-	return compatibility;
+	return compValue;
 
 
 }
@@ -827,7 +827,7 @@ double Predictor::getCompatibility(const Sensing& measure, const Vector<List<Ten
 
 void Predictor::compareWithMeasure(const Sensing& measure, const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& monitorPrediction,
                                    const Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& errV,
-                                   Vector<List<Tensor5<double> >, N_MANEUVER>& compatibility)
+                                   Vector<List<Tensor5<double> >, N_MANEUVER>& compatibilityV)
 {
 
 	for (int sigma = 0; sigma < N_MANEUVER; sigma++)
@@ -854,7 +854,7 @@ void Predictor::compareWithMeasure(const Sensing& measure, const Vector<List<Ten
 			compList.insTail(compTens);
 		}
 
-		compatibility[sigma] = compList;
+		compatibilityV[sigma] = compList;
 
 	}
 
@@ -862,7 +862,7 @@ void Predictor::compareWithMeasure(const Sensing& measure, const Vector<List<Ten
 
 // In this function we implement what in the paper is the epsilon cut: sigma_aposteriori = projector(L bowtie_epsilon q_bar)
 /* the output, compatbilityUnderThreshold, contains 1s on each entry that passed the cut, 0s on each entry that didn't. */
-void Predictor::chooseBestPredictions(const Vector<List<Tensor5<double> >, N_MANEUVER>& compatibility,
+void Predictor::chooseBestPredictions(const Vector<List<Tensor5<double> >, N_MANEUVER>& compatibilityV,
                                       Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibilityUnderThreshold)
 {
 	for (int sigma = 0; sigma < N_MANEUVER; sigma++)
@@ -870,10 +870,10 @@ void Predictor::chooseBestPredictions(const Vector<List<Tensor5<double> >, N_MAN
 		// Purge list before filling
 		compatibilityUnderThreshold[sigma].purge();
 
-		for (int list = 0; list < compatibility[sigma].count(); list++)
+		for (int list = 0; list < compatibilityV[sigma].count(); list++)
 		{
 			const Tensor5<double>* comp;
-			compatibility[sigma].getElem(comp, list);
+			compatibilityV[sigma].getElem(comp, list);
 
 			compatibilityUnderThreshold[sigma].insTail(Tensor5<bool>(comp->Dim1, comp->Dim2, comp->Dim3, comp->Dim4, comp->Dim5));
 
@@ -990,7 +990,6 @@ bool Predictor::detectManeuver(const Sensing& measure, const Vector<List<Tensor5
                                const Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& errV,
                                Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibilityUnderThreshold)
 {
-	Vector<List<Tensor5<double> >, N_MANEUVER> compatibility;
 	compareWithMeasure(measure, monitorPrediction, errV, compatibility);
 
 	// compatibilityUnderThreshold is purged inside method
@@ -1096,6 +1095,8 @@ List<Maneuver> Predictor::projectToManeuver(const Vector<List<Tensor5<bool> >, N
 		if (foundManeuver)
 			maneuversLeft.insTail((Maneuver)sigma);
 	}
+
+	
 
 	return maneuversLeft;
 
