@@ -78,6 +78,7 @@ void Predictor::run()
 		monitorState[i].purge();
 		discrErrors[i].purge();
 		uniformErrors[i].purge();
+		forwardSensorErrors[i].purge();
 		hiddenState[i].purge();
 	}
 
@@ -99,28 +100,40 @@ void Predictor::run()
 
 	List<Parms> tmpPList;
 	State iMonitorState;
+	int nCounter = 0;
+	int nMonitor = -1;
 	//need q and p list to initialize vehicles
 	while (iSensing(tmpS))
 	{
 		tmpQList.insTail(tmpS.q);
 		tmpPList.insTail(tmpS.q.v);
 		if (tmpS.agentID == monitorID)
+		{
 			iMonitorState = tmpS.q;
+			nMonitor = nCounter;
+		}
+		nCounter++;
 	}
 
 	tmpEnv.initVehicles(tmpQList, tmpPList);
 	Area obs;
 	Area* hidden = new Area;
-
+	Area predictionArea;
+	Area beginningMonitorObs;
 	// NB agent is the first, so index 0
 	tmpEnv.observableArea(0, obs, hidden);
-
+	tmpEnv.observableArea(nMonitor, beginningMonitorObs);
 	/* Hidden area is calculated based on the visibility of
 	 the agent. But we want to add the part hidden to the agent
 	that is visible to the monitored vehicle */
+
+	// We map the hidden vehicle in the area visible to the monitored but invisible to the observer
+	predictionArea = beginningMonitorObs - obs;
+	predictionArea.simplify();
+/*
+	// case monitored ahead 
 	Vector<Vector<double, 2>, 2> newRect;
 
-	/* case monitored ahead */
 	if (iAgentState.x < iMonitorState.x)
 	{
 		newRect[0][0] = iAgentState.x + VISIBLE_DISTANCE;
@@ -137,12 +150,15 @@ void Predictor::run()
 	}
 	hidden->addRect(newRect);
 	hidden->simplify();
+*/
 
 	// Get list of rectangles forming the area to
 	// compute x,y segmentation
 
 	List<Rectangle> rList;
-	hidden->getRectList(rList);
+
+//	hidden->getRectList(rList);
+	predictionArea.getRectList(rList);
 
 	/* Add an empty rectangle to the TOP OF THE LIST (important for error computation?), that represents the hypothesis
 	 with no hidden vehicles -> tensor(1,1,1,1,1) */
@@ -160,7 +176,6 @@ void Predictor::run()
 		while (iRect(tmpRect))
 		{
 			rCount++;
-
 			bool noHiddenVehicle = false;
 
 			if (tmpRect.isDummy)
@@ -913,6 +928,14 @@ void Predictor::getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>
 
 		Tensor5<Sensing>* currMonitorState;
 
+		if (discrErrors[sigma].count() != uniformErrors[sigma].count() ||
+		        discrErrors[sigma].count() != forwardSensorErrors[sigma].count())
+			error("Predictor::getTotalError", "List size mismatch at sigma " +
+			      maneuverToStr((Maneuver)sigma) + ": " +
+			      toString(discrErrors[sigma].count()) + " --- " +
+			      toString(uniformErrors[sigma].count()) + " --- " +
+			      toString(forwardSensorErrors[sigma].count()));
+
 		for (int n = 0; n < discrErrors[sigma].count(); n++)
 		{
 
@@ -933,8 +956,19 @@ void Predictor::getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>
 			        (*discrTens).Dim2 != (*uniformTens).Dim2 ||
 			        (*discrTens).Dim3 != (*uniformTens).Dim3 ||
 			        (*discrTens).Dim4 != (*uniformTens).Dim4 ||
-			        (*discrTens).Dim5 != (*uniformTens).Dim5)
-				error("Predictor::getTotalError", "Uniform and discrete errors size mismatch");
+			        (*discrTens).Dim5 != (*uniformTens).Dim5 ||
+			        (*discrTens).Dim1 != (*sensorErrTens).Dim1 ||
+			        (*discrTens).Dim2 != (*sensorErrTens).Dim2 ||
+			        (*discrTens).Dim3 != (*sensorErrTens).Dim3 ||
+			        (*discrTens).Dim4 != (*sensorErrTens).Dim4 ||
+			        (*discrTens).Dim5 != (*sensorErrTens).Dim5)
+				error("Predictor::getTotalError", std::string("Uniform, discrete, sensor errors size mismatch: ") +
+				      '(' + toString(discrTens->Dim1) + ", " + toString(discrTens->Dim2) + ", " + toString(discrTens->Dim3) + ", " +
+				      toString(discrTens->Dim4) + ", " + toString(discrTens->Dim5) + ") --- " +
+				      '(' + toString(uniformTens->Dim1) + ", " + toString(uniformTens->Dim2) + ", " + toString(uniformTens->Dim3) + ", " +
+				      toString(uniformTens->Dim4) + ", " + toString(uniformTens->Dim5) + ") --- " +
+				      '(' + toString(sensorErrTens->Dim1) + ", " + toString(sensorErrTens->Dim2) + ", " + toString(sensorErrTens->Dim3) + ", " +
+				      toString(sensorErrTens->Dim4) + ", " + toString(sensorErrTens->Dim5) + ')');
 
 			Tensor5<Vector<double, 4> > tmpTens(discrTens->Dim1, discrTens->Dim2, discrTens->Dim3, discrTens->Dim4, discrTens->Dim5);
 
@@ -1028,7 +1062,7 @@ bool Predictor::detectManeuver(const Sensing& measure, const Vector<List<Tensor5
 								{
 									returnVal = true;
 									monitorLog.s << (Maneuver)sigma << '\t' << (*comp)(i, j, k, l, m) << '\t' << (*pred)(i, j, k, l, m).q << EndLine();
-									monitorLog.s << "Errors: " << "X = " << (*currErr)(i,j,k,l,m)[0] << " Y = " << (*currErr)(i,j,k,l,m)[1] << " THETA = " << (*currErr)(i,j,k,l,m)[2] << " V = " << (*currErr)(i,j,k,l,m)[3] << EndLine();
+									monitorLog.s << "Errors: " << "X = " << (*currErr)(i, j, k, l, m)[0] << " Y = " << (*currErr)(i, j, k, l, m)[1] << " THETA = " << (*currErr)(i, j, k, l, m)[2] << " V = " << (*currErr)(i, j, k, l, m)[3] << EndLine();
 								}
 							}
 
@@ -1096,7 +1130,7 @@ List<Maneuver> Predictor::projectToManeuver(const Vector<List<Tensor5<bool> >, N
 			maneuversLeft.insTail((Maneuver)sigma);
 	}
 
-	
+
 
 	return maneuversLeft;
 

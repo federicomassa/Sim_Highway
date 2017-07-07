@@ -160,7 +160,7 @@ double Rectangle::measure() const
     double m = 1;
     for(int i = 0; i < Q_DIM; i++)
     {
-        m *= bounds[i][1] - bounds[i][0];
+        m *= (bounds[i][1] - bounds[i][0]);
     }
     return m;
 }

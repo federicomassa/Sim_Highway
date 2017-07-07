@@ -36,7 +36,7 @@ void Vehicle::setRM()
   repMan.setCurrentParams(pLayer.getQ(), k);
 }
 
-void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
+void Vehicle::preRun(const List<Sensing>& sList)
 {
   (*this).sList = sList;
   Sensing tmpS;
@@ -54,11 +54,11 @@ void Vehicle::preRun(const List<Sensing>& sList, const Area& obs)
   pLayer.computeNextQ(automaton.getManeuver(), /* For platoon controller */qList);
 }
 
-void Vehicle::evolveMonitor(const Area& obs)
+void Vehicle::evolveMonitor()
 {
   /* monitor layer evolution */
   if (mLayer.isActive())
-    mLayer.run(sList, pLayer.getQ(), automaton.getManeuver(), obs);
+    mLayer.run(sList, pLayer.getQ(), automaton.getManeuver());
   /* set reputation manager */
   if (repMan.isActive())
     setRM();

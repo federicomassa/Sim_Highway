@@ -350,7 +350,7 @@ void Environment::run()
                 State errQ(x, y, theta, vel, v[j].getQ().desiredV);
 
                 // Sensing has the right maneuver but it doesn't use it for monitoring, only for debug, CHECK if true
-                Sensing tmpS(v[j].getID(), errQ, v[j].getQ().v, v[j].getManeuver());
+                Sensing tmpS(v[j].getID(), errQ, vel, v[j].getManeuver());
                 sList.insHead(tmpS);
 
             }
@@ -368,7 +368,7 @@ void Environment::run()
     for (int i = 0; i < nV; i++)
     {
         /* stimulate vehicle */
-        v[i].preRun(sLists[i], obsAreas[i]);
+        v[i].preRun(sLists[i]);
     }
 
     /* Now maneuvers have possibly changed -> update sList */
@@ -399,7 +399,7 @@ void Environment::run()
     for (int i = 0; i < nV; i++)
     {
         /* After each vehicle has evolved, run monitor (needs updated maneuvers of all vehicles) */
-        v[i].evolveMonitor(obsAreas[i]);
+        v[i].evolveMonitor();
     }
 
     delete[] sLists;
@@ -407,15 +407,18 @@ void Environment::run()
 
 }
 
+// dummy now
 void Environment::omniscientNeighborhoodList(List<Neighborhood>& oNL)
 {
-    ReputationManager oRM; /* omniscient reputation manager */
+    /*
+    // omniscient reputation manager
+    ReputationManager oRM; 
     for (int i = 0; i < nV; i++)
     {
         Knowledge k = v[i].getKnowledge();
         oRM.singleMerge(k);
     }
-    oRM.getNeighborhoodList(oNL);
+    oRM.getNeighborhoodList(oNL);*/
 }
 
 void Environment::consensusStep()
@@ -483,6 +486,7 @@ void Environment::outputNeighborhoodsMu(int cStep) const
     }
 }
 
+// Almost dummy now
 void Environment::outputTargetsReputation(int cStep) const
 {
     for (int i = 0; i < nV; i++)
@@ -501,8 +505,8 @@ void Environment::outputTargetsReputation(int cStep) const
             out.insert(now);
             out.insert(cStep);
             out.insert(i);
-            double l = (double)r.level / 2.0;
-            out.insert(l);
+            //double l = (double)r.level / 2.0;
+            //out.insert(l);
         }
     }
 }

@@ -13,6 +13,7 @@
 #define REPUTATION_H
 
 #include "State.h"
+#include <map>
 
 /*!
  * \brief Reputation level of an agent may be correct, faulty or uncertain.
@@ -36,9 +37,9 @@ public:
      */
     State qTarget;
     /*!
-     * \brief Target reputation level.
+     * \brief Target reputation level --- one for each target maneuver detected.
      */
-    RepLevel level;
+    std::map<std::pair<Maneuver, Maneuver>, RepLevel> level;
     /*!
      * \brief Default constructor.
      */

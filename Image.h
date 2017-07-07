@@ -67,9 +67,9 @@ public:
     /* add vehicle hypothesis */
     void addHypothesis(int index, const Environment& env);
     /* draw neighborhood */
-    void drawNeighborhood(const Neighborhood& n);
+    void drawNeighborhood(const Neighborhood& n, const std::pair<Maneuver, Maneuver>& trans = std::make_pair(UNKNOWN, UNKNOWN));
     void drawNeighborhood(const Neighborhood& n,
-                          const State& q, Maneuver m, int index);
+                          const State& q, Maneuver m, int index, const std::pair<Maneuver, Maneuver>& trans = std::make_pair(UNKNOWN, UNKNOWN));
     void saveConsensusImages(const Environment& env, const State lastStates[],
                              int cStep = 0);
 };

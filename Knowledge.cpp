@@ -16,7 +16,7 @@ ostream& operator<<(ostream& os, const Knowledge& k)
       os << "Neighborhood {" << EndLine(EndLine::INC);
       os << "Target ID: " << n.getTargetID() << EndLine();
       os << "Target's state: " << n.getTargetState() << EndLine();
-      os << "State list: " << n.getQList() << EndLine();
+      os << "State list: " << n.getSList() << EndLine();
       os << "Hypothesis list: " << n.getHList() << EndLine();
       os << "Measure (Mu): " << n.measure() << EndLine();
       os << '}';

@@ -8,6 +8,11 @@
 
 class Sensing
 {
+    friend int size(Sensing s)
+    {
+        return size(s.q.x) + size(s.q.y) + size(s.q.theta) + size(s.q.v);
+    }
+
     friend std::ostream& operator<<(std::ostream& os, const Sensing& s);
     friend bool operator==(const Sensing& s1, const Sensing& s2);
     friend bool operator!=(const Sensing& s1, const Sensing& s2);

@@ -13,7 +13,7 @@
 #include "Grid.h"
 #include "Logger.h"
 
-Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<State>& qList) : predictor(a, t, CONF.nTimeSteps)
+Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<Sensing>& sList) : predictor(a, t, CONF.nTimeSteps)
 {
   agentID = a;
   targetID = t;
@@ -26,19 +26,19 @@ Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver&
   realInitialManeuver = UNKNOWN;
   realFinalManeuver = UNKNOWN;
   targetLastManeuver = UNKNOWN;
-  automaton.setManeuver(tSigma, targetQ);
+  automaton.setManeuver(tSigma, tQ);
   //build starting neighborhood
   /* compute active area for target agent */
   Area active;
-  activeArea(targetQ, active);
+  activeArea(tQ, active);
 
   /* determine list of ``active'' agents */
-  Iterator<State> i(qList);
-  State tmpQ;
-  List<State> activeList;
-  while (i(tmpQ))
-    if (active.contains(tmpQ.toPoint()))
-      activeList.insHead(tmpQ);
+  Iterator<Sensing> i(sList);
+  Sensing tmpS;
+  List<Sensing> activeList;
+  while (i(tmpS))
+    if (active.contains(tmpS.q.toPoint()))
+      activeList.insHead(tmpS);
 
   neighbors = activeList;
 
@@ -54,7 +54,6 @@ void Monitor::predictStates(const List<Sensing>& sList, const State& agentQ, con
 
 
   monitorLog.s << "Real initial Monitor maneuver: " << realInitialManeuver << EndLine();
-
   monitorLog.s << "Prediction started..." << EndLine();
 
   /* reset value */
@@ -85,6 +84,7 @@ void Monitor::detectManeuver(const State& agentQ, const State& q)
   hypothesisList.purge();
 
   targetLastManeuver = targetManeuver;
+  lastManeuversLeft = maneuversLeft;
 
   lastPredictionAgentQ = predictionAgentQ;
   predictionAgentQ = agentQ;
@@ -106,9 +106,9 @@ void Monitor::detectManeuver(const State& agentQ, const State& q)
   predictor.getErrors(errors, monitorS);
 
 
-  if (Predictor::detectManeuver(monitorS, monitorPrediction, errors, hypothesesLeft))
+  if (predictor.detectManeuver(monitorS, monitorPrediction, errors, hypothesesLeft))
   {
-    List<Maneuver> maneuversLeft = Predictor::projectToManeuver(hypothesesLeft);
+    maneuversLeft = Predictor::projectToManeuver(hypothesesLeft);
     monitorLog.s << "Detected Maneuvers: " << EndLine();
 
     for (int i = 0; i < maneuversLeft.count(); i++)
@@ -148,10 +148,10 @@ void Monitor::detectManeuver(const State& agentQ, const State& q)
 
 
     // hypothesisList should be dummy by now. Only using complete possibleHypLists
-    hypothesisList = possibleHypLists[(int)targetManeuver];
+    //hypothesisList = possibleHypLists[(int)targetManeuver];
   }
 
-  automaton.setManeuver(targetManeuver, targetQ);
+  //automaton.setManeuver(targetManeuver, targetQ);
 
   if (targetManeuver != targetLastManeuver)
   {
@@ -182,7 +182,7 @@ void Monitor::detectManeuver(const State& agentQ, const State& q)
 
 }
 
-void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
+void Monitor::predictManeuvers(const State& tQ, const List<Sensing>& sList, const Area& obs, const Area& monitorObs)
 {
   /* error handling */
   if (!hypReady)
@@ -196,32 +196,97 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
     LOG.s << " BEGIN..." << EndLine(EndLine::INC);
   }
 
-
+  targetQ = tQ;
   /* compute active area for target agent */
   Area active;
   activeArea(targetQ, active);
 
   /* determine list of ``active'' agents */
-  Iterator<State> i(qList);
-  State tmpQ;
-  List<State> activeList;
-  while (i(tmpQ))
-    if (active.contains(tmpQ.toPoint()))
-      activeList.insHead(tmpQ);
+  Iterator<Sensing> i(sList);
+  Sensing tmpS;
+  List<Sensing> activeList;
+  List<State> activeListQ;
+
+  while (i(tmpS))
+    if (active.contains(tmpS.q.toPoint()))
+    {
+      activeList.insHead(tmpS);
+      activeListQ.insHead(tmpS.q);
+    }
+
+  if (agentID == 0 && targetID == 1)
+  {
+    std::cout << "Monitor sees " << activeListQ << std::endl;
+    std::cout << "Monitor obs " << monitorObs << std::endl;
+  }
 
   /* updating neighbors state list */
   /*  lastNeighbors = neighbors;*/
   neighbors = activeList;
 
 
-  /* estimate events for target agent - non omniscient */
-  automaton.detectEvents(targetQ, activeList, false);
+
+  /* Purge and re-init previously filled lists */
+  possibleHypLists.clear();
+  for (int manLeftCount = 0; manLeftCount < maneuversLeft.count(); manLeftCount++)
+  {
+    const Maneuver* man;
+    maneuversLeft.getElem(man, manLeftCount);
+
+    // map::operator[] creates key if non-existent
+    possibleHypLists[*man];
+
+    // First evaluation of events - without considering visible areas
+    automaton.setManeuver(*man, targetQ);
+    automaton.detectEvents(targetQ, activeListQ, false);
+  }
+
+  //DEBUG
+  if (agentID == 0 && targetID == 1)
+  {
+    List<Event*> eL = automaton.transitions[FAST][SLOW].eventList;
+    Event* suspectEvent = NULL;
+    Event* e;
+    Iterator<Event*> eItr(eL);
+
+    while (eItr(e))
+    {
+      if (e->getID() == 0)
+      {
+        suspectEvent = e;
+        break;
+      }
+    }
+
+    if (suspectEvent == NULL)
+      error("WTF", "WTF");
+
+    List<SubEvent*> seL = suspectEvent->subEventList;
+    Iterator<SubEvent*> seItr(seL);
+    SubEvent* suspectSubEvent = NULL;
+    SubEvent* se;
+    while (seItr(se))
+    {
+      if (se->getID() == 19)
+      {
+        suspectSubEvent = se;
+        break;
+      }
+    }
+
+    if (suspectSubEvent == NULL)
+      error("WTFSUB", "WTFSUB");
+
+    std::cout << "Found in automaton: " << suspectSubEvent->value << std::endl;
+
+  }
+
 
   for (int i = 0; i < N_MANEUVER; i++)
   {
     possibleManeuvers[i] = false;
-    possibleHypLists[i].purge();
   }
+
 
   /* compute sub-events indicator areas */
   bool valueChanged = false;
@@ -249,6 +314,21 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
         se.areaFunc(targetQ, indicator);
         /* subtract observable area */
         indicator -= obs;
+
+        if (agentID == 0 && targetID == 1 && se.getID() == 19)
+        {
+          std::cout << "Before cross " << indicator << std::endl;
+        }
+        // Addition: we do not care if there are doubts in areas that the monitor cannot see, right?
+        indicator *= monitorObs;
+        indicator.simplify();
+
+        if (agentID == 0 && targetID == 1 && se.getID() == 19)
+        {
+          std::cout << "After cross " << indicator << std::endl;
+        }
+
+
         if (indicator.isEmpty())
         {
           if (se.mode == OR)
@@ -281,117 +361,133 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
     if (CONF.debug)
       LOG.s << "SubEvents second pass:" << EndLine();
     for (int i = 0; i < N_MANEUVER; i++)
-      automaton.transitions[targetManeuver][i].reEvaluate();
+      for (int j = 0; j < N_MANEUVER; j++)
+        automaton.transitions[i][j].reEvaluate();
   }
-  /* check for certain events */
-  bool certainEventDetected = false;
-  // if all transitions are false, then vehicle should keep the same maneuver
-  ExtBool sameManeuverDetected = F;
-  for (int i = 0; i < N_MANEUVER; i++)
+
+
+  for (auto hypItr = possibleHypLists.begin(); hypItr != possibleHypLists.end(); hypItr++)
   {
-    if (targetManeuver == (Maneuver)i)
-      continue;
+    /* check for certain events */
+    bool certainEventDetected = false;
+    // if all transitions are false, then vehicle should keep the same maneuver
+    ExtBool sameManeuverDetected = F;
 
-    Transition& t = automaton.transitions[targetManeuver][i];
-    sameManeuverDetected = sameManeuverDetected || t.getValue().nonOmniscientValue;
-    if (t.getValue().nonOmniscientValue == T)
-    {
-      possibleManeuvers[i] = true;
-      Iterator<Event*> ei(t.eventList);
-      Event* e;
-      while (ei(e))
-        if (e->getValue().nonOmniscientValue == T)
-        {
-          /* build Hypothesis without uncertainty */
-          LOG.s << "Added sure hypothesis on transition: " << targetManeuver << " => " << (Maneuver)i << ", event " << e->idx << EndLine();
+    targetManeuver = (*hypItr).first;
 
-          Hypothesis h;
-          h.eventID = e->idx;
-          possibleHypLists[i].insHead(h);
-          break;
-        }
-      certainEventDetected = true;
-      break;
-    }
+    Vector<List<Hypothesis>, N_MANEUVER>& possibleHyp = (*hypItr).second;
 
-  }
-
-  // NOR
-  sameManeuverDetected = !sameManeuverDetected;
-
-
-  if (sameManeuverDetected == T)
-  {
-    // SIGMA => SIGMA detected: build hypothesis without uncertainty
-    LOG.s << "Added sure hypothesis on transition: " << targetManeuver << " => " << targetManeuver << EndLine();
-
-    Hypothesis h;
-    possibleHypLists[(int)targetManeuver].insHead(h);
-    certainEventDetected = true;
-  }
-
-  if (!certainEventDetected)
-    /* hypothesis construction */
     for (int i = 0; i < N_MANEUVER; i++)
     {
-
-      possibleHypLists[i].purge();
-
       if (targetManeuver == (Maneuver)i)
-      {
-        if (sameManeuverDetected == U)
-        {
-          LOG.s << "Added hypothesis on transition: " << targetManeuver << " => " << targetManeuver << EndLine();
-
-          Hypothesis h;
-          h.isSameManeuverUncertain = true;
-          possibleHypLists[i].insHead(h);
-        }
         continue;
-      }
 
       Transition& t = automaton.transitions[targetManeuver][i];
-      if (t.getValue().nonOmniscientValue == U)
+      sameManeuverDetected = sameManeuverDetected || t.getValue().nonOmniscientValue;
+      if (t.getValue().nonOmniscientValue == T)
       {
         possibleManeuvers[i] = true;
-        Iterator<Event*> ie(t.eventList);
+        Iterator<Event*> ei(t.eventList);
         Event* e;
-        while (ie(e))
-          if (e->value.nonOmniscientValue == U)
+        while (ei(e))
+          if (e->getValue().nonOmniscientValue == T)
           {
+            /* build Hypothesis without uncertainty */
+            LOG.s << "Added sure hypothesis on transition: " << targetManeuver << " => " << (Maneuver)i << ", event " << e->idx << EndLine();
+
             Hypothesis h;
             h.eventID = e->idx;
-            Iterator<SubEvent*> ise(e->subEventList);
-            SubEvent* se;
-            while (ise(se))
-              if (se->value.nonOmniscientValue == U)
-              {
-                int j = se->idx;
-                if (areaSign[j] == 1)
-                {
-                  Hypothesis::SubHypothesis sh;
-                  sh.subEventID = j; //!!!! Changed from i to j
-                  sh.positive = subEventArea[j];
-                  h.subHypList.insHead(sh);
-                }
-                else /* areaSign[j] == -1 */
-                {
-                  h.negative += subEventArea[j];
-                }
-              }
-            /* add generated hypothesis */
-            possibleHypLists[i].insHead(h);
-            LOG.s << "Added hypothesis on transition: " << targetManeuver << " => " << (Maneuver)i;
-            if (!h.subHypList.isEmpty())
-              LOG.s << " with subhypotheses...";
-            if (!h.negative.isEmpty())
-              LOG.s << " with negative area...";
-
-            LOG.s << ", event " << e->idx;
-            LOG.s << EndLine();
+            possibleHyp[i].insHead(h);
+            break;
           }
+        certainEventDetected = true;
+        break;
       }
+
     }
+
+    // NOR
+    sameManeuverDetected = !sameManeuverDetected;
+
+
+    if (sameManeuverDetected == T)
+    {
+      // SIGMA => SIGMA detected: build hypothesis without uncertainty
+      LOG.s << "Added sure hypothesis on transition: " << targetManeuver << " => " << targetManeuver << EndLine();
+
+      Hypothesis h;
+      possibleHyp[(int)targetManeuver].insHead(h);
+      certainEventDetected = true;
+    }
+
+    if (!certainEventDetected)
+      /* hypothesis construction */
+      for (int i = 0; i < N_MANEUVER; i++)
+      {
+
+        possibleHyp[i].purge();
+
+        if (targetManeuver == (Maneuver)i)
+        {
+          if (sameManeuverDetected == U)
+          {
+            LOG.s << "Added hypothesis on transition: " << targetManeuver << " => " << targetManeuver << EndLine();
+
+            Hypothesis h;
+            h.isSameManeuverUncertain = true;
+            possibleHyp[i].insHead(h);
+          }
+          continue;
+        }
+
+        Transition& t = automaton.transitions[targetManeuver][i];
+        if (t.getValue().nonOmniscientValue == U)
+        {
+          possibleManeuvers[i] = true;
+          Iterator<Event*> ie(t.eventList);
+          Event* e;
+          while (ie(e))
+            if (e->value.nonOmniscientValue == U)
+            {
+              Hypothesis h;
+              h.eventID = e->idx;
+              Iterator<SubEvent*> ise(e->subEventList);
+              SubEvent* se;
+              while (ise(se))
+                if (se->value.nonOmniscientValue == U)
+                {
+                  int j = se->idx;
+                  if (areaSign[j] == 1)
+                  {
+                    Hypothesis::SubHypothesis sh;
+                    sh.subEventID = j; //!!!! Changed from i to j
+                    sh.positive = subEventArea[j];
+
+                    h.subHypList.insHead(sh);
+                  }
+                  else /* areaSign[j] == -1 */
+                  {
+                    if (j == 19 && agentID == 0 && targetID == 1 && targetManeuver == FAST && (Maneuver)i == SLOW)
+                      std::cout << "Found in monitor: " << subEventArea[j] << std::endl;
+
+                    h.negative += subEventArea[j];
+                  }
+                }
+              /* add generated hypothesis */
+              possibleHyp[i].insHead(h);
+              LOG.s << "Added hypothesis on transition: " << targetManeuver << " => " << (Maneuver)i;
+              if (!h.subHypList.isEmpty())
+                LOG.s << " with subhypotheses...";
+              if (!h.negative.isEmpty())
+                LOG.s << " with negative area...";
+
+              LOG.s << ", event " << e->idx;
+              LOG.s << EndLine();
+            }
+        }
+      }
+  }
+
   if (CONF.debug)
   {
     LOG.s << EndLine(EndLine::DEC);
@@ -400,7 +496,7 @@ void Monitor::predictManeuvers(const List<State>& qList, const Area& obs)
   }
 }
 
-void Monitor::preDetectManeuver(const State& q, const Maneuver& sigma)
+void Monitor::preDetectManeuver(const State & q, const Maneuver & sigma)
 {
   //do not call the first time
   /*  if (!targetLocked)
@@ -412,6 +508,8 @@ void Monitor::preDetectManeuver(const State& q, const Maneuver& sigma)
   /* reset hypothesis */
 
   /* If sigma was not detected do nothing */
+
+  /*
   if (sigma == UNKNOWN)
     return;
 
@@ -422,39 +520,40 @@ void Monitor::preDetectManeuver(const State& q, const Maneuver& sigma)
   if (CONF.debug)
     LOG.s << "Detected maneuver " << sigma << EndLine();
   if (targetLocked)
-  {
-    /* now Neighborhood object can be build */
-    hypothesisList = possibleHypLists[(int)sigma];
-    hypReady = true;
-  }
+  {*/
+  /* now Neighborhood object can be build */
+  /*   hypothesisList = possibleHypLists[(int)sigma];
+     hypReady = true;
+   }
 
-  automaton.setManeuver(sigma, q);
+   automaton.setManeuver(sigma, q);
 
-  if (sigma != targetManeuver || !CONF.monitorsNeedLock)
-  {
-    if (CONF.debug && CONF.monitorsNeedLock)
-      LOG.s << "Transition detected (target locked)" << EndLine();
-    /* transition detected */
-    targetManeuver = sigma;
+   if (sigma != targetManeuver || !CONF.monitorsNeedLock)
+   {
+     if (CONF.debug && CONF.monitorsNeedLock)
+       LOG.s << "Transition detected (target locked)" << EndLine(); */
+  /* transition detected */
 
-    /* got a good estimation of target xi */
-    targetLocked = true;
-  }
+  //  targetManeuver = sigma;
 
-  hypothesisList.sort();
-  targetLastQ = targetQ;
-  targetQ = q;
+  /* got a good estimation of target xi */
+  //  targetLocked = true;
+// }
+  /*
+    hypothesisList.sort();
+    targetLastQ = targetQ;
+    targetQ = q;
 
-  lastHypLists = possibleHypLists;
-
+    lastHypLists = possibleHypLists;
+  */
 }
 
-bool Monitor::getFirstHypothesis(Hypothesis& hyp) const
+bool Monitor::getFirstHypothesis(Hypothesis & hyp) const
 {
   return hypothesisList.getFirst(hyp);
 }
 
-bool Monitor::buildNeighborhood(Neighborhood& n) const
+bool Monitor::buildNeighborhood(Neighborhood & n) const
 {
   if (!hypReady)
     return false;
@@ -462,11 +561,14 @@ bool Monitor::buildNeighborhood(Neighborhood& n) const
   n.targetID = targetID;
   n.agentID = agentID;
   n.qTarget = targetLastQ;
-  n.qList = lastNeighbors;
+  n.sList = lastNeighbors;
+  n.maneuversLeft = maneuversLeft;
+  n.lastManeuversLeft = lastManeuversLeft;
   n.targetManeuver = targetManeuver;
   n.targetLastManeuver = targetLastManeuver;
   n.hList = hypothesisList;
-  n.lastHypLists = lastHypLists;
+  n.lastHypLists.clear();
+  n.lastHypLists.insert(lastHypLists.begin(), lastHypLists.end());
 
 
   return true;

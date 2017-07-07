@@ -58,8 +58,8 @@ public:
     {
         return a.contains(pLayer.getQ().toPoint());
     }
-    void preRun(const List<Sensing>& sList, const Area& obs);
-    void evolveMonitor(const Area& obs);
+    void preRun(const List<Sensing>& sList);
+    void evolveMonitor();
     void run() { pLayer.updateQ(); }
     void activateMonitorLayer() { mLayer.activate(); }
     void activateReputationManager() { repMan.activate(); }

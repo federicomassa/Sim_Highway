@@ -264,12 +264,15 @@ void leftArea(const State& s, Area& ind)
     bounds[1][0] = floor(s.y) + 1;
     bounds[1][1] = floor(s.y) + 2;
     ind.addRect(bounds);
-    
+   
+   /* This is graphically problematic. If this area missing results in some
+   // problems, then you should add a backBlock/backArea function, add the subevents and the appropriate events
     bounds[0][0] = s.x - D_BACK;
     bounds[0][1] = s.x;
     bounds[1][0] = floor(s.y);
     bounds[1][1] = floor(s.y) + 1;
     ind.addRect(bounds);
+    */
 }
 
 void rightArea(const State& s, Area& ind)
@@ -402,16 +405,20 @@ void activeArea(const State& s, Area& active)
         LOG.s << "Computing active area for state " << s << ":" << EndLine();
     if (!active.isEmpty())
         active.purge();
-    double upperBound;
-    if (floor(s.y) == MAX_LANE)
-        upperBound = MAX_LANE + 1;
-    else
-        upperBound = MAX_LANE + 2;
-    double lowerBound;
-    if (floor(s.y) == MIN_LANE)
-        lowerBound = MIN_LANE;
-    else
-        lowerBound = MIN_LANE - 1;
+    double lowerBound, upperBound;
+    // if (floor(s.y) == MAX_LANE)
+    //     upperBound = MAX_LANE + 1;
+    // else
+    //     upperBound = MAX_LANE + 2;
+    // 
+    // if (floor(s.y) == MIN_LANE)
+    //     lowerBound = MIN_LANE;
+    // else
+    //     lowerBound = MIN_LANE - 1;
+
+    lowerBound = MIN_LANE;
+    upperBound = MAX_LANE + 1;
+
     Matrix_2x2 bounds;
     bounds[0][0] = s.x - VISIBLE_DISTANCE; //It was -D_BACK : +D_FORWARD
     bounds[0][1] = s.x + VISIBLE_DISTANCE;

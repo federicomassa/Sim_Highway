@@ -20,6 +20,8 @@
 #include "systemTypes.h"
 #include "Tensor5.h"
 
+#include <map>
+
 extern Logger monitorLog;
 
 /*!
@@ -65,20 +67,23 @@ class Monitor
     /*!
      * \brief Measured neighbors of target agent.
      */
-    List<State> neighbors;
+    List<Sensing> neighbors;
     /*!
      * \brief Last measured neighbors of target agent.
      */
-    List<State> lastNeighbors;
+    List<Sensing> lastNeighbors;
     /*!
      * \brief Monitored agent parameters -- we suppose to be able to measure
      *        them.
      */
     Parms targetParms;
     /*!
-     * \brief Estimated maneuver of the monitored agent.
+     * \brief Estimated maneuver of the monitored agent. --- now replaced by maneuversLeft
      */
     Maneuver targetManeuver;
+    List<Maneuver> maneuversLeft;
+    List<Maneuver> lastManeuversLeft;
+
     Maneuver targetLastManeuver;
 
     /* Store real maneuver at the beginning and at the end of the prediction time span */
@@ -99,14 +104,14 @@ class Monitor
 
     /* Time steps since beginning of prediction */
     int timeStepsCount;
-    
+
     /* Predicted states with different maneuvers and hypotheses on hidden vehicle */
     Vector<List<Tensor5<Sensing> >, N_MANEUVER> monitorPrediction;
 
     /* Errors on prediction */
     Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER> errors;
-    
-    
+
+
     /*!
      * \brief Possible hypothesis associated to the predicted maneuvers and
      *        states.
@@ -115,8 +120,8 @@ class Monitor
     /*!
      * \brief Hypothesis associated to the predicted maneuvers and states.
      */
-    Vector<List<Hypothesis>, N_MANEUVER> possibleHypLists;
-    Vector<List<Hypothesis>, N_MANEUVER> lastHypLists;
+    std::map<Maneuver, Vector<List<Hypothesis>, N_MANEUVER> > possibleHypLists;
+    std::map<Maneuver, Vector<List<Hypothesis>, N_MANEUVER> > lastHypLists;
     /*!
      * \brief A prototype of vehicle's automaton.
      */
@@ -135,7 +140,7 @@ public:
     /*!
      * \brief Constructor.
      */
-    Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<State>&);
+    Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<Sensing>&);
     /*!
      * \brief Destructor.
      */
@@ -145,7 +150,7 @@ public:
     State lastPredictionAgentQ;
     State predictionAgentQ;
 
-    
+
     /*!
      * \brief Predict possible states for monitored agent.
      */
@@ -155,29 +160,29 @@ public:
      *        monitored agent.
      */
     void preDetectManeuver(const State& q, const Maneuver& sigma);
-    void predictManeuvers(const List<State>& qList, const Area& obs);
-    
+    void predictManeuvers(const State& tQ, const List<Sensing>& sList, const Area& obs, const Area& monitorObs);
+
     void increaseCounter() {
-      if (timeStepsCount < CONF.nTimeSteps)
-	timeStepsCount++;
-      else
-	timeStepsCount = 0;
+        if (timeStepsCount < CONF.nTimeSteps)
+            timeStepsCount++;
+        else
+            timeStepsCount = 0;
     }
 
     int getCountdown()
     {
-      /* +1 because after detection it does not predict right away, but waits for 1 step */
-      if (timeStepsCount >= 0)
-	return (CONF.nTimeSteps - timeStepsCount + 1);
-      else
-	return (-timeStepsCount);
+        /* +1 because after detection it does not predict right away, but waits for 1 step */
+        if (timeStepsCount >= 0)
+            return (CONF.nTimeSteps - timeStepsCount + 1);
+        else
+            return (-timeStepsCount);
     }
 
     int getTimeCount() {return timeStepsCount;}
 
     void setTimeCount(const int& cnt)
     {
-      timeStepsCount = cnt;
+        timeStepsCount = cnt;
     }
 
     /*!
@@ -215,7 +220,7 @@ public:
 
     void getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err) {err = errors;}
     void setErrors(const Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err) {errors = err;}
-    
+
     void getTargetQ(State& q) {q = targetQ;}
 
     /* set real maneuver, useful for comparisons */

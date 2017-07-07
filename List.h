@@ -279,6 +279,8 @@ public:
      *
      * Get a pointer to a specific element of the list
      */
+    T* getHead();
+    T* getTail();
     void getElem(const T*&, const int&) const;
     void getElem(T*&, const int&) const;
     
@@ -452,6 +454,28 @@ bool List<T>::extrTail(T& i)
     return true;
 }
 
+template<typename T>
+T* List<T>::getTail()
+{
+    if (head == NULL)
+        return NULL;
+
+    int length = count();
+
+    Elem* elem = head;
+    for (int i = 0; i < length - 1; i++)
+    {
+        elem = elem->next;
+    }
+
+    return elem;
+}
+
+template<typename T>
+T* List<T>::getHead()
+{
+    return head;
+}
 
 template<typename T>
 bool List<T>::getFirst(T& i) const

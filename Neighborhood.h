@@ -15,6 +15,9 @@
 #include "List.h"
 #include "Hypothesis.h"
 #include "Reputation.h"
+#include "Sensing.h"
+
+#include <map>
 
 class Neighborhood
 {
@@ -25,7 +28,7 @@ class Neighborhood
     friend std::ostream& operator<<(std::ostream& os, const Neighborhood& n);
     friend bool operator==(const Neighborhood& n1, const Neighborhood& n2)
     {
-        return n1.targetID == n2.targetID && n1.qTarget == n2.qTarget;
+        return n1.targetID == n2.targetID;
     }
     friend bool operator!=(const Neighborhood& n1, const Neighborhood& n2)
     {
@@ -33,33 +36,43 @@ class Neighborhood
     }
     friend int size(Neighborhood n)
     {
-        return size(n.targetID) + size(n.qTarget) + size(n.qList) + size(n.hList);
+        return size(n.targetID) + size(n.qTarget) + size(n.sList) + size(n.hList);
     }
     int targetID, agentID;
     State qTarget;
     
     //contains all information about the vehicles 
-    List<State> qList;
+    List<Sensing> sList;
     
     List<Hypothesis> hList;
-    Vector<List<Hypothesis>, N_MANEUVER> lastHypLists;
+    std::map<Maneuver, Vector<List<Hypothesis>, N_MANEUVER> > lastHypLists;
 
-    // Needed to merge hypotheses
+    // Needed to merge hypotheses --- now dummy?
     Maneuver targetManeuver;
     Maneuver targetLastManeuver;
+
+    List<Maneuver> maneuversLeft;
+    List<Maneuver> lastManeuversLeft;
+
+
     
 public:
     Neighborhood() { targetID = -1; }
-    Neighborhood(int t, const State& qT, const List<State>& qL,
-                 const List<Hypothesis>& hL, const Vector<List<Hypothesis>, N_MANEUVER>& possibleHL);
+    Neighborhood(int t, const State& qT, const List<Sensing>& sL,
+                 const List<Hypothesis>& hL, const std::map<Maneuver, Vector<List<Hypothesis>, N_MANEUVER> >& possibleHL);
     ~Neighborhood() { }
     void intersectionWith(const Neighborhood& n);
     int getTargetID() const { return targetID; }
     int getAgentID() const { return agentID; }
     State getTargetState() const { return qTarget; }
-    List<State> getQList() const { return qList; }
+    List<Sensing> getSList() const { return sList; }
     List<Hypothesis> getHList() const { return hList; }
-    RepLevel getTargetReputation() const;
+
+    List<Maneuver>& getLastManeuversLeft() {return lastManeuversLeft;}
+    List<Maneuver>& getManeuversLeft() {return maneuversLeft;}
+    std::map<Maneuver, Vector<List<Hypothesis>, N_MANEUVER> >& getLastHypotheses() {return lastHypLists;}
+    // One target reputation for each targetManeuver detected at the previous instant
+    std::map<std::pair<Maneuver, Maneuver>, RepLevel> getTargetReputation() const;
     double measure() const;
 };
 

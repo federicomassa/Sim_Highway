@@ -41,7 +41,7 @@ class MonitorLayer
     /*!
      * \brief Add a monitor for an agent.
      */
-    Monitor* addMonitor(int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<State>& qList);
+    Monitor* addMonitor(int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<Sensing>& sList);
     /*!
      * \brief Remove a monitor.
      */
@@ -76,7 +76,7 @@ public:
     /*!
      * \brief Run a single simulation step.
      */
-    void run(const List<Sensing>& sList, const State& agentQ, const Maneuver& agentManeuver, const Area& obs);
+    void run(const List<Sensing>& sList, const State& agentQ, const Maneuver& agentManeuver);
     /*!
      * \brief Get all monitor's simpler hypothesis.
      */

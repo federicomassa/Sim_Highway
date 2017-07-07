@@ -19,8 +19,12 @@ ostream& operator<<(ostream& os, const Reputation& r)
     os << "TargetID: " << r.targetID << EndLine();
     os << "Target's state: " << r.qTarget << EndLine();
     os << "Reputation level: ";
-    switch(r.level)
+
+    for (auto hypItr = r.level.begin(); hypItr != r.level.end(); hypItr++)
     {
+        os << "Transition: " << (*hypItr).first.first << " => " << (*hypItr).first.second << '\t';
+        switch ((*hypItr).second)
+        {
         case CORRECT:
             os << "CORRECT";
             break;
@@ -33,8 +37,11 @@ ostream& operator<<(ostream& os, const Reputation& r)
         case UNSET:
             os << "UNSET";
             break;
+        }
+
+        os << EndLine();
     }
-    os << EndLine();
+
     os << '}' << EndLine(EndLine::DEC);
 
     return os;

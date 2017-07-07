@@ -1,4 +1,3 @@
-
 #include "Failure.h"
 
 using namespace std;
