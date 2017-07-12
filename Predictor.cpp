@@ -130,27 +130,27 @@ void Predictor::run()
 	// We map the hidden vehicle in the area visible to the monitored but invisible to the observer
 	predictionArea = beginningMonitorObs - obs;
 	predictionArea.simplify();
-/*
-	// case monitored ahead 
-	Vector<Vector<double, 2>, 2> newRect;
+	/*
+		// case monitored ahead
+		Vector<Vector<double, 2>, 2> newRect;
 
-	if (iAgentState.x < iMonitorState.x)
-	{
-		newRect[0][0] = iAgentState.x + VISIBLE_DISTANCE;
-		newRect[0][1] = iMonitorState.x + VISIBLE_DISTANCE;
-		newRect[1][0] = MIN_LANE;
-		newRect[1][1] = MAX_LANE + 1;
-	}
-	else
-	{
-		newRect[0][0] = iMonitorState.x - VISIBLE_DISTANCE;
-		newRect[0][1] = iAgentState.x - VISIBLE_DISTANCE;
-		newRect[1][0] = MIN_LANE;
-		newRect[1][1] = MAX_LANE + 1;
-	}
-	hidden->addRect(newRect);
-	hidden->simplify();
-*/
+		if (iAgentState.x < iMonitorState.x)
+		{
+			newRect[0][0] = iAgentState.x + VISIBLE_DISTANCE;
+			newRect[0][1] = iMonitorState.x + VISIBLE_DISTANCE;
+			newRect[1][0] = MIN_LANE;
+			newRect[1][1] = MAX_LANE + 1;
+		}
+		else
+		{
+			newRect[0][0] = iMonitorState.x - VISIBLE_DISTANCE;
+			newRect[0][1] = iAgentState.x - VISIBLE_DISTANCE;
+			newRect[1][0] = MIN_LANE;
+			newRect[1][1] = MAX_LANE + 1;
+		}
+		hidden->addRect(newRect);
+		hidden->simplify();
+	*/
 
 	// Get list of rectangles forming the area to
 	// compute x,y segmentation
@@ -168,7 +168,6 @@ void Predictor::run()
 	// loop on the possible monitor maneuvers
 	for (int sigma = 0; sigma < N_MANEUVER; sigma++)
 	{
-
 		Iterator<Rectangle> iRect(rList);
 		Rectangle tmpRect;
 
@@ -567,6 +566,7 @@ void Predictor::run()
 
 								// Now compute errors due to initial sensor inaccuracy
 								sensorErrorTens(xi, yi, thetai, vi, desiredVi) = sensorSimul.estimateDifferential();
+								//sensorErrorTens(xi, yi, thetai, vi, desiredVi) = Vector<double, 4>();
 
 								/* Now compute errors due to non uniform speed */
 								int counter = 0;
@@ -761,7 +761,6 @@ double Predictor::getCompatibility(const Sensing& measure, const Vector<List<Ten
                                    const int& i, const int& j, const int& k, const int& l, const int& m,
                                    const Maneuver& monitorSigma)
 {
-
 	/* Get tensor from the list */
 	const Tensor5<Sensing>* monitor;
 	monitorPrediction[monitorSigma].getElem(monitor, listIndex);
@@ -779,6 +778,7 @@ double Predictor::getCompatibility(const Sensing& measure, const Vector<List<Ten
 	const Tensor5<Vector<double, 4> >* errTens;
 	errV[monitorSigma].getElem(errTens, listIndex);
 	Vector<double, 4> err = (*errTens)(i, j, k, l, m);
+
 
 	double compValue = 0;
 
@@ -833,6 +833,17 @@ double Predictor::getCompatibility(const Sensing& measure, const Vector<List<Ten
 
 
 	compValue = sqrt(compValue);
+
+	if (monitorSigma == FAST && compValue > 10)
+	{
+		std::cout << ((*monitor)(i, j, k, l, m).q.x - measure.q.x) << '\t' <<
+		          ((*monitor)(i, j, k, l, m).q.y - measure.q.y) << '\t' <<
+		          ((*monitor)(i, j, k, l, m).q.theta - measure.q.theta) << '\t' <<
+		          ((*monitor)(i, j, k, l, m).q.v - measure.q.v) << '\t' << std::endl;
+
+		std::cout << "Err: " << err[0] << '\t' << err[1] << '\t' << err[2] << '\t' << err[3] << std::endl;
+
+	}
 
 	return compValue;
 

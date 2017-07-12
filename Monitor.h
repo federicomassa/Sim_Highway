@@ -72,10 +72,11 @@ class Monitor
      * \brief Last measured neighbors of target agent.
      */
     List<Sensing> lastNeighbors;
-    /*!
-     * \brief Monitored agent parameters -- we suppose to be able to measure
-     *        them.
-     */
+
+    /*
+         * \brief Monitored agent parameters -- we suppose to be able to measure
+         *        them.
+         */
     Parms targetParms;
     /*!
      * \brief Estimated maneuver of the monitored agent. --- now replaced by maneuversLeft
@@ -134,6 +135,10 @@ class Monitor
      * \brief Indicate if it's possible to build some knowledge about target
      *        agent.
      */
+
+    // Updated at detection. Each element is true if that hypothesis is compatible with the measure
+    Vector<List<Tensor5<bool> >, N_MANEUVER> hypothesesLeft;
+
     bool targetLocked;
     bool hypReady;
 public:
@@ -226,6 +231,9 @@ public:
     /* set real maneuver, useful for comparisons */
     void setRealInitialManeuver(const Maneuver& sigma) {realInitialManeuver = sigma;}
     void setRealFinalManeuver(const Maneuver& sigma) {realFinalManeuver = sigma;}
+
+    Vector<List<Tensor5<bool> >, N_MANEUVER>& getHypothesesLeft() {return hypothesesLeft;}
+    const Predictor* getPredictor() {return &predictor;}
 };
 
 #endif

@@ -97,9 +97,15 @@ class Predictor
 
   //Accessors
   void getHidden(Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {v = hiddenState;}
+  void getHidden(const Vector<List<Tensor5<Sensing> >, N_MANEUVER>* v) const {v = &hiddenState;}
+
   void getMonitor(Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {v = monitorState;}
   void getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err, const Sensing& monitorS);
-  
+  const double& getDeltaX() const {return deltaX;}
+  const double& getDeltaY() const {return deltaY;}
+  const double& getDeltaTheta() const {return deltaTheta;}
+  const double& getDeltaV() const {return deltaV;}
+  const double& getDeltaDesiredV() const {return deltaDesiredV;}
   
   /* Computes the error propagation from the hidden vehicle to the monitor, err[n] contains the error of the n-th variable, listIndex 
      is the index of the current rectangle (from 0), tensor index (i,j,k,l,m), 

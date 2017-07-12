@@ -12,12 +12,15 @@ class Failure
 {
 public:
     /* automaton failure */
-  enum AutomFailure { NORIGHT, JAMMER, NOPLATOON, STAYPLATOON };
+  enum AutomFailure : int { NORIGHT, JAMMER, NOPLATOON, STAYPLATOON };
+  // controller failure
+  enum ControlFailure : int {MIMICPLATOON};
   /* communication failure */
-  enum CommFailure { DUMMY };
+  enum CommFailure : int { DUMMY };
   
   int idx;
   List<AutomFailure> aFailures;
+  List<ControlFailure> ctrlFailures;
   List<CommFailure> cFailures;
   
   Failure() { idx = -1; }
@@ -27,7 +30,7 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const Failure::AutomFailure& aF);
-
+std::ostream& operator<<(std::ostream& os, const Failure::ControlFailure& ctrlF);
 std::ostream& operator<<(std::ostream& os, const Failure::CommFailure& cF);
 
 std::ostream& operator<<(std::ostream& os, const Failure& f);

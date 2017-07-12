@@ -12,6 +12,10 @@
 
 extern Logger LOG;
 
+class Failure;
+enum ControlFailure : int;
+
+Control computeControl(Maneuver, const State&, /* For platoon */ List<State>, const Failure::ControlFailure& fail, bool& tooClose, int idx = -1, bool debug = false);
 Control computeControl(Maneuver, const State&, /* For platoon */ List<State>, int idx = -1, bool debug = false);
 
 #endif

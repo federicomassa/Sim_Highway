@@ -49,8 +49,8 @@ State::State(double qX, double qY, double qTheta, double qV, double qDesiredV, s
 void State::init(double qX, double qY, double qTheta, double qV, double qDesiredV, string qInitManeuver)
 {
   /* error handling */
-  if (qV > MAX_SPEED || qV < 0 || qDesiredV > 1 || qDesiredV < 0)
-    error("State::init", "v MUST be between 0 and 1");
+  //if (qV > MAX_SPEED || qV < 0 || qDesiredV > 1 || qDesiredV < 0)
+  //  error("State::init", "v MUST be between 0 and 1");
 
   x = qX;
   y = qY;

@@ -40,17 +40,18 @@
 
 // Sensing errors
 
-#define SIGMA_X 0.01
-#define SIGMA_Y 0.05
-#define RELATIVE_SIGMA_V 0.05
-#define RELATIVE_SIGMA_THETA 0.05
-
-
 /*
+#define SIGMA_X 0.0001
+#define SIGMA_Y 0.0005
+#define RELATIVE_SIGMA_V 0.0005
+#define RELATIVE_SIGMA_THETA 0.0005
+*/
+
+
 #define SIGMA_X 0
 #define SIGMA_Y 0
 #define RELATIVE_SIGMA_THETA 0
 #define RELATIVE_SIGMA_V 0
-*/
+
 
 #endif

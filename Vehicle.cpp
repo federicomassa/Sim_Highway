@@ -24,7 +24,7 @@ const Vehicle& Vehicle::operator=(const Vehicle& veh)
   mLayer.setID(idx);
   // WARNING: mLayer is not yet initialized with all monitors. They will be automatically if mLayer is run.
 
-  repMan.init(veh.repMan.getChannel(), veh.getID());
+  repMan.init(veh.repMan.getChannel(), veh.getID(), this);
 
   return *this;
 }

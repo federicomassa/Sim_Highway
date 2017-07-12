@@ -8,12 +8,19 @@
 
 extern Logger LOG;
 
+class Failure;
+enum ControlFailure : int;
+
 class PhysicalLayer
 {
     State q;
     State nextQ;
     Parms maxV;
     int idx;
+    //for mimic platoon
+    bool tooClose;
+    bool tooFar;
+
 public:
     /* constructor */
     PhysicalLayer() { maxV = 0; }
@@ -24,7 +31,9 @@ public:
     {
         q = nextQ = s;
         // maxV = p; IT WAS LIKE THIS, BUT p is the initial speed, not the MAX_SPEED??? CHECK??
-	maxV = MAX_SPEED;
+        maxV = MAX_SPEED;
+
+        tooClose = true;
         //q.v = 0;
         //nextQ.v = 0;
     }

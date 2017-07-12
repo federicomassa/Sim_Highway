@@ -40,6 +40,12 @@ double setPrecision(const double& x, const int& precision);
 double floorPrecision(const double& x, const int& precision);
 double ceilPrecision(const double& x, const int& precision);
 
+template<typename T> void check(T* pointer)
+{
+  if (pointer == NULL)
+    error("utility::check", "Found null pointer");
+}
+
 inline int size(int i) { return sizeof(i); }
 
 inline int size(double d) { return sizeof(d); }

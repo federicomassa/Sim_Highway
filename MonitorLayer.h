@@ -46,10 +46,7 @@ class MonitorLayer
      * \brief Remove a monitor.
      */
     bool removeMonitor(int t);
-    /*!
-     * \brief Search for a Monitor.
-     */
-    Monitor* lookFor(int t);
+  
 
 
 public:
@@ -61,6 +58,10 @@ public:
      * \brief Destructor.
      */
     ~MonitorLayer();
+      /*!
+     * \brief Search for a Monitor.
+     */
+    Monitor* lookFor(int t);
     /*!
      * \brief Set Agent ID.
      */

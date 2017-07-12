@@ -540,7 +540,7 @@ void Image::drawNeighborhood(const Neighborhood& n, const pair<Maneuver, Maneuve
                     while (otherHI(otherH))
                     {
                         Image tmpImg = copyImg;
-                        tmpImg.addHypothesis(otherH, true);
+                        tmpImg.addHypothesis(otherH);
                         tmpImg.writeFrameNumber(now - 1);
                         tmpImg.writeTransition(trans.first, (Maneuver)i);
                         joinWith(tmpImg);

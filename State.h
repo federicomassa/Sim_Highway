@@ -12,15 +12,14 @@
 
 class State
 {
-    friend int size(State s)
-    {
-        return size(s.x) + size(s.y) + size(s.theta) + size(s.v);
-    }
+	friend int size(State s)
+	{
+		return size(s.x) + size(s.y) + size(s.theta) + size(s.v);
+	}
 
 
-    
-    /* initialize state's members */
-    void init(double qX, double qY, double qTheta, double qV, double qDesiredV = 0.0, std::string qInitManeuver = "FAST");
+
+	/* initialize state's members */
 public:
 	double x;
 	double y;
@@ -30,12 +29,13 @@ public:
 	//Mainly for platoon --- Added by Federico Massa
 	double desiredV;
 	std::string initManeuver;
-	
+
 	/* constructor */
 	State() {};
 	State(double qX, double qY, double qTheta, double qV, double qDesiredV = 0.0, std::string qInitManeuver = "FAST");
-    State(const std::string& str);
-    State(const State&);
+	State(const std::string& str);
+	void init(double qX, double qY, double qTheta, double qV, double qDesiredV = 0.0, std::string qInitManeuver = "FAST");
+	State(const State&);
 	/* destructor */
 	~State() { }
 	/* calculate the distance from another state */

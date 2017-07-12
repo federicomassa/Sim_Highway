@@ -35,8 +35,8 @@ void SensorErrorSimulator::init(const State& q)
 	}
 
 
-	if (sensorErrors[0] < 1E-10 || sensorErrors[1] < 1E-10 || sensorErrors[2] < 1E-10 || sensorErrors[3] < 1E-10)
-		error("SensorErrorSimulator::init", "Errors cannot be zero");
+//	if (sensorErrors[0] < 1E-10 || sensorErrors[1] < 1E-10 || sensorErrors[2] < 1E-10 || sensorErrors[3] < 1E-10)
+//		error("SensorErrorSimulator::init", "Errors cannot be zero");
 }
 
 void SensorErrorSimulator::predictionStep(const Maneuver& sigma, const List<State>& qList)

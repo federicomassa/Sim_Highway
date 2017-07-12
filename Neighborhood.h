@@ -61,7 +61,7 @@ public:
     Neighborhood(int t, const State& qT, const List<Sensing>& sL,
                  const List<Hypothesis>& hL, const std::map<Maneuver, Vector<List<Hypothesis>, N_MANEUVER> >& possibleHL);
     ~Neighborhood() { }
-    void intersectionWith(const Neighborhood& n);
+    void intersectionWith(const Neighborhood& n, Sensing* foundNewVehicle = NULL);
     int getTargetID() const { return targetID; }
     int getAgentID() const { return agentID; }
     State getTargetState() const { return qTarget; }

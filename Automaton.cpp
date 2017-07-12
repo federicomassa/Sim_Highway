@@ -91,6 +91,9 @@ void Automaton::run(const State& qSubj, const List<State>& qList)
                     if ((Maneuver)sigma == PLATOON &&
                             fail.aFailures.belongs(Failure::STAYPLATOON))
                         break;
+                    else if ((Maneuver)sigma == PLATOON &&
+                        fail.ctrlFailures.belongs(Failure::MIMICPLATOON))
+                        break;
                     else if ((Maneuver)i == RIGHT
                              && fail.aFailures.belongs(Failure::NORIGHT))
                         break;

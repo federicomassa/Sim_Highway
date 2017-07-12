@@ -98,8 +98,6 @@ void Monitor::detectManeuver(const State& agentQ, const State& q)
 
   targetManeuver = UNKNOWN;
 
-  Vector<List<Tensor5<bool> >, N_MANEUVER> hypothesesLeft;
-
   Sensing monitorS(targetID, targetQ, targetQ.v, FAST);
   //std::cout << "Monitor measure: " << monitorS << std::endl;
 
@@ -163,6 +161,7 @@ void Monitor::detectManeuver(const State& agentQ, const State& q)
 
   lastHypLists = possibleHypLists;
   lastNeighbors = neighbors;
+
 
   /*  Iterator<State> iter(lastNeighbors);
   State tmpState;

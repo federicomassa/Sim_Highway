@@ -70,7 +70,7 @@ Neighborhood::Neighborhood(int t, const State& qT, const List<Sensing>& sL,
   lastHypLists.insert(lastHL.begin(), lastHL.end());
 }
 
-void Neighborhood::intersectionWith(const Neighborhood& n)
+void Neighborhood::intersectionWith(const Neighborhood& n, Sensing* foundNewVehicle)
 {
   /* error handling */
   if (targetID != n.targetID)
@@ -196,7 +196,34 @@ void Neighborhood::intersectionWith(const Neighborhood& n)
   // Joining the sList is not trivial, because of sensor error measurements.
   // We could use the communication to improve the state estimation, but for now
   // we limit to ignore the vehicles with same ID --- see template specialization on top
+  List<Sensing> preIntersectNeighbors = sList;
   sList.join(n.sList);
+  List<Sensing> postIntersectNeighbors = sList;
+
+  if (postIntersectNeighbors.count() - preIntersectNeighbors.count() > 0)
+  {
+    if (postIntersectNeighbors.count() - preIntersectNeighbors.count() == 1)
+    {
+      // handle hypotheses merging
+      Iterator<Sensing> postItr(postIntersectNeighbors);
+      Sensing postS;
+
+      while (postItr(postS))
+      {
+        Sensing preS;
+        if (!preIntersectNeighbors.find(postS, preS))
+        {
+          foundNewVehicle = new Sensing(postS);
+        }
+      }
+    }
+    else
+    {
+      // more than one hidden agent case, what do we do?
+      error("Neighborhood::intersectionWith", "Found more than one hidden agent. How do we handle this?");
+    }
+  }
+
 
   /*
   // Now look for pairs with same state and different maneuver: merging
