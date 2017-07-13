@@ -32,10 +32,10 @@ public:
 	SensorErrorSimulator();
 	void init(const State&);
 
-	// Runs the physicalLayer of the monitored vehicle for each error hypothesis
+	//! \brief Runs the physicalLayer of the monitored vehicle for each error hypothesis
 	void predictionStep(const Maneuver&, const List<State>&);
 
-	// Estimate differential once the prediction is over
+	//! \brief Estimate differential once the prediction is over
 	Vector<double, 4> estimateDifferential();
 
 	State changeStateAtIndex(const int& varIndex, const int& signIndex, const State& iState);

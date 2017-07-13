@@ -13,6 +13,7 @@
 #include "Sensing.h"
 #include "State.h"
 #include "List.h"
+#include "Area.h"
 #include "PhysicalLayer.h"
 #include "DynVector.h"
 #include "Tensor5.h"
@@ -47,7 +48,7 @@ class Predictor
   /* Vector containing the possible outcomes of the agent and monitor at current time, for the different monitor maneuvers */
   Vector<Tensor5<State>, N_MANEUVER> agentState;
   Vector<List<Tensor5<Sensing> >, N_MANEUVER> monitorState;
-
+  Sensing initialMonitorState;
   /* Error due to the discretization of the hidden vehicle state space */
   /* External vector = monitor maneuvers 
      List: rectangles of hidden area 
@@ -71,6 +72,8 @@ class Predictor
   PhysicalLayer agentPLayer;
   PhysicalLayer monitorPLayer;
 
+  //Area in which hidden vehicle is mapped
+  Area mappingArea;
   // result of the compatibilities of the predictions
   Vector<List<Tensor5<double> >, N_MANEUVER> compatibility;
 
@@ -97,9 +100,11 @@ class Predictor
 
   //Accessors
   void getHidden(Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {v = hiddenState;}
-  void getHidden(const Vector<List<Tensor5<Sensing> >, N_MANEUVER>* v) const {v = &hiddenState;}
+  void getHidden(const Vector<List<Tensor5<Sensing> >, N_MANEUVER>*& v) const {v = &hiddenState;}
 
   void getMonitor(Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {v = monitorState;}
+  const Area& getMappingArea() const {return mappingArea;}
+  const Sensing& getInitialMonitorState() const {return initialMonitorState;}
   void getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err, const Sensing& monitorS);
   const double& getDeltaX() const {return deltaX;}
   const double& getDeltaY() const {return deltaY;}

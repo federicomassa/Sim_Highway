@@ -34,6 +34,8 @@ class MonitorLayer
      * \brief The ID of the agent containig this module.
      */
     int agentID;
+    // Visible area
+    Area obs;
     /*!
      * \brief Monitor list.
      */
@@ -61,7 +63,7 @@ public:
       /*!
      * \brief Search for a Monitor.
      */
-    Monitor* lookFor(int t);
+    Monitor* lookFor(int t, bool debug = false);
     /*!
      * \brief Set Agent ID.
      */

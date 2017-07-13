@@ -19,7 +19,10 @@ MonitorLayer::~MonitorLayer()
     Iterator<Monitor*> i(monitorList);
     Monitor* mon;
     while (i(mon))
+    {
         delete mon;
+        mon = nullptr;
+    };
 }
 
 Monitor* MonitorLayer::addMonitor(int t, const State& tQ, const Parms& tP, const Maneuver& tSigma, const List<Sensing>& sList)
@@ -29,9 +32,12 @@ Monitor* MonitorLayer::addMonitor(int t, const State& tQ, const Parms& tP, const
     return mon;
 }
 
-Monitor* MonitorLayer::lookFor(int t)
+Monitor* MonitorLayer::lookFor(int t, bool debug)
 {
-    Iterator<Monitor*> i(monitorList);
+    if (debug)
+        std::cout << monitorList.count() << std::endl;
+
+    Iterator<Monitor*> i(monitorList, debug);
     Monitor* mon;
     while (i(mon))
         if (mon->getTargetID() == t)
@@ -48,6 +54,7 @@ bool MonitorLayer::removeMonitor(int t)
 
     monitorList.delInfo(m);
     delete m;
+    m = nullptr;
 
     return true;
 }
@@ -131,7 +138,6 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
         List<Sensing> subjSList;
 
         Area monitorObs;
-        Area obs;
         env.observableArea(monitorIndex, monitorObs);
         env.observableArea(agentIndex, obs);
 
@@ -224,6 +230,7 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
                 LOG.s << m->getAgentID() << ' ';
             monitorList.delInfo(m);
             delete m;
+            m = nullptr;
         }
     if (CONF.debug)
     {
@@ -290,7 +297,8 @@ void MonitorLayer::buildKnowledge(Knowledge& k) const
         monitoredVehicles.insHead(p);
     }
 
-
+    k.obs = obs;
+    k.agentID = agentID;
     k.nList = nList;
     k.monitoredVehicles = monitoredVehicles;
 }

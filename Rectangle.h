@@ -8,7 +8,7 @@
  *              Gianni Valenti <posta@gianni.valenti.name>
  * DATE:        January 1, 2000
  */
- 
+
 #ifndef RECTANGLE_H
 #define RECTANGLE_H
 
@@ -75,7 +75,15 @@ public:
     /*!
      * \brief Default constructor.
      */
-    Rectangle() { isDummy = true;}
+    Rectangle()
+    {
+        isDummy = true;
+
+        // Initialization of dummy rectangle for hiddenS. (should not affect any calculation)
+        for (int i = 0; i < 2; i++)
+            for (int j = 0; j < 2; j++)
+                bounds[i][j] = -100.0;
+    }
     /*!
      * \brief Alternative constructor.
      *

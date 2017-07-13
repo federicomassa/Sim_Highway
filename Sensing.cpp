@@ -16,7 +16,7 @@ ostream& operator<<(ostream& os, const Sensing& s)
 
 bool operator==(const Sensing& s1, const Sensing& s2)
 {
-    return (s1.agentID == s2.agentID) && (s1.q == s2.q) && (s1.p == s2.p);
+    return (s1.agentID == s2.agentID);
 }
 
 bool operator!=(const Sensing& s1, const Sensing& s2)

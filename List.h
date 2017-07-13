@@ -35,7 +35,7 @@ class List
         Elem* aux = il.head;
         
         /* check if the list is empty */
-        if(il.head == NULL)
+        if(il.head == nullptr)
         {
             os << "List { EMPTY }";
             return os;
@@ -66,7 +66,7 @@ class List
     {
         Elem* p = l1.head;
         Elem* q = l2.head;
-        while(p != NULL && q != NULL)
+        while(p != nullptr && q != nullptr)
         {
             if(p->info != q->info)
                 return false;
@@ -75,7 +75,7 @@ class List
             q = q->next;
         }
         
-        if(p != NULL || q != NULL)
+        if(p != nullptr || q != nullptr)
             return false;
         
         return true;
@@ -123,7 +123,7 @@ class List
      *
      * @param i information to look for.
      * @return A pointer to the first element containing information i
-     * or a NULL pointer if there isn't information i.
+     * or a nullptr pointer if there isn't information i.
      */
     Elem* lookFor(const T& i) const;
     /*!
@@ -140,7 +140,7 @@ public:
     /*!
      * \brief Default constructor.
      */
-    List() { head = NULL; }
+    List() { head = nullptr; }
     /*!
      * \brief Copy constructor.
      */
@@ -161,7 +161,7 @@ public:
      */
     bool belongs(const T& i) const
     {
-        return (lookFor(i) == NULL) ? false : true;
+        return (lookFor(i) == nullptr) ? false : true;
     }
     /*!
      * \brief Check if a specific information belongs to the list and return it.
@@ -265,7 +265,7 @@ public:
      *
      * @return True if the list is empty, otherwise false.
      */
-    bool isEmpty() const { return head == NULL; }
+    bool isEmpty() const { return head == nullptr; }
     /*!
      * \brief Sorting function.
      *
@@ -292,7 +292,7 @@ typename List<T>::Elem* List<T>::lookFor(const T& i) const
     Elem* aux;
 
     /* search */
-    for(aux = head; aux != NULL && aux->info != i; aux = aux->next);
+    for(aux = head; aux != nullptr && aux->info != i; aux = aux->next);
 
     return aux;
 }
@@ -300,23 +300,23 @@ typename List<T>::Elem* List<T>::lookFor(const T& i) const
 template<typename T>
 void List<T>::cp(const List<T>& d)
 {
-    head = NULL;
+    head = nullptr;
 
     /* copy */
-    if(d.head != NULL)
+    if(d.head != nullptr)
     {
         head = new Elem;
         head->info = d.head->info;
         Elem* aux = d.head->next;
         Elem* tmp = head;
-        while(aux != NULL)
+        while(aux != nullptr)
         {
             tmp->next = new Elem;
             tmp = tmp->next;
             tmp->info = aux->info;
             aux = aux->next;
         }
-        tmp->next = NULL;
+        tmp->next = nullptr;
     }
 }
 
@@ -326,7 +326,7 @@ void List<T>::del()
     Elem* aux = head;
 
     /* deletion */
-    while(head != NULL)
+    while(head != nullptr)
     {
         head = head->next;
         delete aux;
@@ -340,7 +340,7 @@ bool List<T>::find(const T& i, T& c) const
     Elem* p = lookFor(i);
     
     /* i not found */
-    if(p == NULL)
+    if(p == nullptr)
         return false;
     
     /* copy */
@@ -409,7 +409,7 @@ bool List<T>::insHead(const T& i, bool unique)
 template<typename T>
 bool List<T>::extrHead(T& i)
 {   
-    if(head == NULL)
+    if(head == nullptr)
         return false;
     
     /* extraction from the top of the list */
@@ -424,7 +424,7 @@ bool List<T>::extrHead(T& i)
 template<typename T>
 bool List<T>::extrTail(T& i)
 {   
-    if(head == NULL)
+    if(head == nullptr)
         return false;
 
     
@@ -445,7 +445,7 @@ bool List<T>::extrTail(T& i)
     Elem* last = penultimate->next;
 
     //penultimate will become last
-    penultimate->next = NULL;
+    penultimate->next = nullptr;
 
     
     i = last->info;
@@ -457,8 +457,8 @@ bool List<T>::extrTail(T& i)
 template<typename T>
 T* List<T>::getTail()
 {
-    if (head == NULL)
-        return NULL;
+    if (head == nullptr)
+        return nullptr;
 
     int length = count();
 
@@ -480,7 +480,7 @@ T* List<T>::getHead()
 template<typename T>
 bool List<T>::getFirst(T& i) const
 {   
-    if(head == NULL)
+    if(head == nullptr)
         return false;
     
     /* retur/n the top of the list */
@@ -500,14 +500,14 @@ bool List<T>::insTail(const T& i, bool unique)
 
     /* insertion at the bottom of list */
     newE->info = i;
-    newE->next = NULL;
+    newE->next = nullptr;
     
-    if(head == NULL)
+    if(head == nullptr)
         head = newE;
     else
     {
         Elem* aux;
-        for(aux = head; aux->next != NULL; aux = aux->next);
+        for(aux = head; aux->next != nullptr; aux = aux->next);
         aux->next = newE;
     }
     
@@ -521,30 +521,30 @@ void List<T>::append(const List<T>& l)
     List<T> tmpList = l;
 
     /* appending */
-    if(head == NULL)
+    if(head == nullptr)
         head = tmpList.head;
     else
     {
         Elem* aux;
-        for(aux = head; aux->next != NULL; aux = aux->next);
+        for(aux = head; aux->next != nullptr; aux = aux->next);
         aux->next = tmpList.head;
     }
 
     /* deleting all references to tmpList's items */
-    tmpList.head = NULL;
+    tmpList.head = nullptr;
 }
 
 template<typename T>
 bool List<T>::join(const List<T>& l)
 {
     /* chek if the list l is empty */
-    if(l.head == NULL)
+    if(l.head == nullptr)
         return true;
 
     /* join */
     bool result = false;
     Elem* aux;
-    for(aux = l.head; aux != NULL; aux = aux->next)
+    for(aux = l.head; aux != nullptr; aux = aux->next)
     {
         bool tmp = insHead(aux->info, true);
         result = result || tmp;
@@ -556,13 +556,13 @@ bool List<T>::join(const List<T>& l)
 template<typename T>
 bool List<T>::delInfo(const T& i)
 {
-    Elem* p = NULL;
+    Elem* p = nullptr;
     Elem* q;
 
-    for(q = head; q != NULL && q->info != i; q = q->next)
+    for(q = head; q != nullptr && q->info != i; q = q->next)
         p = q;
 
-    if(q == NULL)
+    if(q == nullptr)
         return false;
 
     /* deletion */
@@ -580,7 +580,7 @@ bool List<T>::updateInfo(const T& oldInfo, const T& newInfo)
 {
     Elem* aux = lookFor(oldInfo);
 
-    if(aux == NULL) /* info doesn't belong to the list */
+    if(aux == nullptr) /* info doesn't belong to the list */
         return false;
     /* info belongs to the list */
     aux->info = newInfo; /* updating */
@@ -594,7 +594,7 @@ int List<T>::count() const
     int n = 0;
     Elem* aux;
 
-    for(aux = head; aux != NULL; aux = aux->next)
+    for(aux = head; aux != nullptr; aux = aux->next)
         n++;
 
     return n;
@@ -606,7 +606,7 @@ void List<T>::getElem(const T*& elem, const int& index) const
   /* error handling */
   if (index >= count())
     {
-      elem = NULL;
+      elem = nullptr;
       return;
     }
   
@@ -626,7 +626,7 @@ void List<T>::getElem(T*& elem, const int& index) const
   /* error handling */
   if (index >= count())
     {
-      elem = NULL;
+      elem = nullptr;
       return;
     }
   

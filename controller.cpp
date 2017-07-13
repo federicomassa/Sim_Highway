@@ -205,13 +205,8 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<State> qList, const Failure::ControlFailure& fail, bool& tooClose, int idx, bool debug)
 {
 	Control c;
-	std::cout << "In computeControl fail" << std::endl;
-	std::cout << "Too close: " << ((tooClose) ? "True" : "False") << std::endl;
-	std::cout << q << std::endl;
-	std::cout << qList << std::endl;
 	if (fail == Failure::MIMICPLATOON && sigma == PLATOON)
 	{
-		std::cout << "Found fail" << std::endl;
 		// Mimics a forward vehicle, compatible desiredV, that makes it oscillate.
 		Iterator<State> is(qList);
 		State tmpQ(0, 0, 0, 0);
@@ -230,7 +225,6 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 				{
 					behindQ = tmpQ;
 					if (fabs(tmpQ.desiredV - q.desiredV) < V_TOLERANCE * q.desiredV) {
-						std::cout << "compatible" << std::endl;
 						isVehicleBehindCompatible = true;
 						continue;
 					}
@@ -241,11 +235,11 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 		// Mimic aheadQ: jamming-like. Vehicle mimicked is
 		State aheadQ;
 
-		if (q.x - behindQ.x < (D_REF - 0.3 * D_REF))
+		if (q.x - behindQ.x < (D_REF - 0.2 * D_REF))
 		{
 			tooClose = true;
 		}
-		else if (q.x - behindQ.x > (D_REF + 0.3 * D_REF))
+		else if (q.x - behindQ.x > (D_REF + 0.2 * D_REF))
 		{
 			tooClose = false;
 		}
@@ -258,7 +252,6 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 
 		if (isVehicleBehindCompatible)
 		{
-			std::cout << "Comp!" << std::endl;
 			c.a = -B_BACK * (q.x - behindQ.x) - B_FORWARD * (q.x - aheadQ.x) - GAMMA * (B_BACK * (q.v - behindQ.v) + B_FORWARD * (q.v - aheadQ.v));
 		}
 		else

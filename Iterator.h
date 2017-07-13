@@ -12,6 +12,8 @@
 #ifndef ITERATOR_H
 #define ITERATOR_H
 
+#include <iostream>
+
 /* pre-declaration */
 template<typename T> class List;
 
@@ -37,7 +39,16 @@ public:
      * in order to initialize member p correctly.
      * @param pi List<T> object.
      */
-    Iterator(const List<T>& pi) { p = pi.head; }
+    Iterator(const List<T>& pi, bool debug = false)
+    {
+        if (debug)
+            std::cout << "Pre constr" << std::endl;
+        
+        p = pi.head;
+
+        if (debug)
+            std::cout << "Post constr" << std::endl;
+    }
     /*!
      * \brief Destructor.
      */
@@ -64,13 +75,13 @@ public:
      *
      * @return True if the end-of-list has been reached, false otherwise.
      */
-    bool eol() { return p == NULL; }
+    bool eol() { return p == nullptr; }
 };
 
 template<typename T>
 bool Iterator<T>::operator()(T& i)
 {
-    if(p == NULL) /* the end of the list */
+    if (p == nullptr) /* the end of the list */
         return false;
     /* iteration */
     i = p->info;

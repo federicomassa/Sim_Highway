@@ -559,6 +559,7 @@ bool Monitor::buildNeighborhood(Neighborhood & n) const
 
   n.targetID = targetID;
   n.agentID = agentID;
+  n.predictionArea = predictor.getMappingArea();
   n.qTarget = targetLastQ;
   n.sList = lastNeighbors;
   n.maneuversLeft = maneuversLeft;

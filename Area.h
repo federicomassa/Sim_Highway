@@ -105,6 +105,12 @@ public:
      * \brief Redefinition of operator -= for subtraction.
      */
     Area& operator-=(const Area& a2);
+
+    bool operator==(const Area& a2) const;
+    bool operator!=(const Area& a2) const
+    {
+        return !((*this) == a2);
+    }
     /*!
      * \brief Add a rectangle to the list.
      *

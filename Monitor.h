@@ -16,6 +16,7 @@
 #include "Neighborhood.h"
 #include "PhysicalLayer.h"
 #include "Predictor.h"
+#include "Area.h"
 #include "Sensing.h"
 #include "systemTypes.h"
 #include "Tensor5.h"
@@ -72,7 +73,6 @@ class Monitor
      * \brief Last measured neighbors of target agent.
      */
     List<Sensing> lastNeighbors;
-
     /*
          * \brief Monitored agent parameters -- we suppose to be able to measure
          *        them.
@@ -233,7 +233,7 @@ public:
     void setRealFinalManeuver(const Maneuver& sigma) {realFinalManeuver = sigma;}
 
     Vector<List<Tensor5<bool> >, N_MANEUVER>& getHypothesesLeft() {return hypothesesLeft;}
-    const Predictor* getPredictor() {return &predictor;}
+    const Predictor* getPredictor() const {return &predictor;}
 };
 
 #endif

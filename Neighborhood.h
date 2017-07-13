@@ -15,6 +15,7 @@
 #include "List.h"
 #include "Hypothesis.h"
 #include "Reputation.h"
+#include "Area.h"
 #include "Sensing.h"
 
 #include <map>
@@ -40,7 +41,7 @@ class Neighborhood
     }
     int targetID, agentID;
     State qTarget;
-    
+    Area predictionArea;
     //contains all information about the vehicles 
     List<Sensing> sList;
     
@@ -61,13 +62,13 @@ public:
     Neighborhood(int t, const State& qT, const List<Sensing>& sL,
                  const List<Hypothesis>& hL, const std::map<Maneuver, Vector<List<Hypothesis>, N_MANEUVER> >& possibleHL);
     ~Neighborhood() { }
-    void intersectionWith(const Neighborhood& n, Sensing* foundNewVehicle = NULL);
+    void intersectionWith(const Neighborhood& n, Sensing*& foundNewVehicle);
     int getTargetID() const { return targetID; }
     int getAgentID() const { return agentID; }
     State getTargetState() const { return qTarget; }
     List<Sensing> getSList() const { return sList; }
     List<Hypothesis> getHList() const { return hList; }
-
+    const Area& getMappingArea() const {return predictionArea;}
     List<Maneuver>& getLastManeuversLeft() {return lastManeuversLeft;}
     List<Maneuver>& getManeuversLeft() {return maneuversLeft;}
     std::map<Maneuver, Vector<List<Hypothesis>, N_MANEUVER> >& getLastHypotheses() {return lastHypLists;}

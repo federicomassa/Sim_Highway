@@ -9,6 +9,7 @@
 #define KNOWLEDGE_H
 
 #include "Neighborhood.h"
+#include "Area.h"
 #include <utility>
 #include <iostream>
 
@@ -22,11 +23,14 @@ class Knowledge
   Knowledge();
   /* pairs containing monitored vehicle's ID and a countdown indicating how long it will take to attempt to measure the 
    discrete state. */
+  int agentID;
+  Area obs;
   List<std::pair<int, int> > monitoredVehicles;
 
   /* Neighborhood list: sent only when the discrete state measurement is complete */
   List<Neighborhood> nList;
   
+  const int& getTargetID() const {return agentID;}
 };
 
 #endif

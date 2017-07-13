@@ -70,7 +70,7 @@ Neighborhood::Neighborhood(int t, const State& qT, const List<Sensing>& sL,
   lastHypLists.insert(lastHL.begin(), lastHL.end());
 }
 
-void Neighborhood::intersectionWith(const Neighborhood& n, Sensing* foundNewVehicle)
+void Neighborhood::intersectionWith(const Neighborhood& n, Sensing*& foundNewVehicle)
 {
   /* error handling */
   if (targetID != n.targetID)
@@ -200,6 +200,8 @@ void Neighborhood::intersectionWith(const Neighborhood& n, Sensing* foundNewVehi
   sList.join(n.sList);
   List<Sensing> postIntersectNeighbors = sList;
 
+  std::cout << agentID << " merging... " << preIntersectNeighbors.count() << " -> " << postIntersectNeighbors.count() << std::endl;
+
   if (postIntersectNeighbors.count() - preIntersectNeighbors.count() > 0)
   {
     if (postIntersectNeighbors.count() - preIntersectNeighbors.count() == 1)
@@ -213,6 +215,7 @@ void Neighborhood::intersectionWith(const Neighborhood& n, Sensing* foundNewVehi
         Sensing preS;
         if (!preIntersectNeighbors.find(postS, preS))
         {
+          std::cout << "Found new veh" << std::endl;
           foundNewVehicle = new Sensing(postS);
         }
       }

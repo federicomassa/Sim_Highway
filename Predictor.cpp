@@ -109,6 +109,7 @@ void Predictor::run()
 		tmpPList.insTail(tmpS.q.v);
 		if (tmpS.agentID == monitorID)
 		{
+			initialMonitorState = tmpS;
 			iMonitorState = tmpS.q;
 			nMonitor = nCounter;
 		}
@@ -118,7 +119,6 @@ void Predictor::run()
 	tmpEnv.initVehicles(tmpQList, tmpPList);
 	Area obs;
 	Area* hidden = new Area;
-	Area predictionArea;
 	Area beginningMonitorObs;
 	// NB agent is the first, so index 0
 	tmpEnv.observableArea(0, obs, hidden);
@@ -128,8 +128,8 @@ void Predictor::run()
 	that is visible to the monitored vehicle */
 
 	// We map the hidden vehicle in the area visible to the monitored but invisible to the observer
-	predictionArea = beginningMonitorObs - obs;
-	predictionArea.simplify();
+	mappingArea = beginningMonitorObs - obs;
+	mappingArea.simplify();
 	/*
 		// case monitored ahead
 		Vector<Vector<double, 2>, 2> newRect;
@@ -158,12 +158,15 @@ void Predictor::run()
 	List<Rectangle> rList;
 
 //	hidden->getRectList(rList);
-	predictionArea.getRectList(rList);
+	mappingArea.getRectList(rList);
 
 	/* Add an empty rectangle to the TOP OF THE LIST (important for error computation?), that represents the hypothesis
 	 with no hidden vehicles -> tensor(1,1,1,1,1) */
 	Rectangle dummyRect;
 	rList.insHead(dummyRect);
+
+	if (agentID == 0)
+		std::cout << agentID << " sees list size " << rList.count() << std::endl;
 
 	// loop on the possible monitor maneuvers
 	for (int sigma = 0; sigma < N_MANEUVER; sigma++)
@@ -393,7 +396,7 @@ void Predictor::run()
 
 									// Dynamic prediction step
 									//monitorPLayer.updateQ();
-									monitorPLayer.computeNextQ((Maneuver)sigma, monitorQList);
+									monitorPLayer.computeNextQ((Maneuver)sigma, monitorQList, false);
 									//std::cout << "Step: " << steps << '\t' << "Monitor NextQ: " << monitorPLayer.getNextQ() << std::endl;
 									agentPLayer.computeNextQ((Maneuver)agentManeuver, agentQList);
 
@@ -441,7 +444,7 @@ void Predictor::run()
 
 											/*				if (monitorQListError.count() == 1 && !tmpRect.isDummy)
 															std::cout << "monitorQListError is 1 at: " << steps << std::endl;*/
-											monitorPLayerError[cnt][extr].computeNextQ((Maneuver)sigma, monitorQListError);
+											monitorPLayerError[cnt][extr].computeNextQ((Maneuver)sigma, monitorQListError, false);
 											monitorPLayerError[cnt][extr].updateQ();
 
 										}
@@ -608,8 +611,9 @@ void Predictor::run()
 			}
 
 
-			if (!noHiddenVehicle)
-				hiddenState[sigma].insTail(tmpHidden);
+			// WARNING hiddenState is filled also in the noHiddenVehicle case for list size consistency
+			// remember that the first element of the list corresponds to this case
+			hiddenState[sigma].insTail(tmpHidden);
 
 			monitorState[sigma].insTail(tmpMonitor);
 			uniformErrors[sigma].insTail(uniformTens);

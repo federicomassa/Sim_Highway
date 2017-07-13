@@ -22,6 +22,9 @@
  */
 void error(const std::string className, const std::string msg);
 
+//! \brief Assert that condition is true. If not, print message on std output.
+void require(const bool&, const std::string& className, const std::string& msg);
+
 /**
  * this function is called by set_new_handler()
  */

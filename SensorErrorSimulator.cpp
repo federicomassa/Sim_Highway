@@ -46,7 +46,7 @@ void SensorErrorSimulator::predictionStep(const Maneuver& sigma, const List<Stat
 		for (int j = 0; j < predictionOutcome[i].length; j++)
 		{
 			pLayer.init(predictionOutcome[i][j]);
-			pLayer.computeNextQ(sigma, qList);
+			pLayer.computeNextQ(sigma, qList, false);
 
 			// update step
 			predictionOutcome[i][j] = pLayer.getNextQ();

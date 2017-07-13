@@ -39,6 +39,7 @@ void Vehicle::setRM()
 void Vehicle::preRun(const List<Sensing>& sList)
 {
   (*this).sList = sList;
+
   Sensing tmpS;
   Iterator<Sensing> i(sList);
   List<State> qList;

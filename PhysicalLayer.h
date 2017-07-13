@@ -37,8 +37,9 @@ public:
         //q.v = 0;
         //nextQ.v = 0;
     }
-    /* evolution */
-    void computeNextQ(Maneuver sigma, /* For platoon  */List<State> qList, bool debug = false);
+    /* evolution. If omniscient, Physical Layer of vehicle i is launched by vehicle i --> he knows everything, unlike when
+    you launch it from monitor to make predictions */
+    void computeNextQ(Maneuver sigma, /* For platoon  */List<State> qList, bool omniscient = true, bool debug = false);
     void updateQ() { q = nextQ; }
     /* get state q */
     State getQ() const { return q; }

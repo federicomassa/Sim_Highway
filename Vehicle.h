@@ -17,7 +17,7 @@ class Vehicle
     /* set reputation manager's current parameters */
     void setRM();
     /* List of sensor measurements */
-    List<Sensing> sList; 
+    List<Sensing> sList;
 public:
     /* constructor */
     Vehicle() { idx = -1; }
@@ -31,22 +31,22 @@ public:
         idx = index;
         automaton.setID(index);
         mLayer.setID(index);
-	pLayer.setID(index);
+        pLayer.setID(index);
     }
     /* initialize the reputation manager */
-    void initRM(Channel<Knowledge>* rC) { repMan.init(rC, idx); }
+    void initRM(Channel<Knowledge>* rC) { repMan.init(rC, idx, this); }
     /* execute the first step of the reputation manager's task */
-    void sendRM() { if(repMan.isActive()) repMan.sendForConsensus(); }
+    void sendRM() { if (repMan.isActive()) repMan.sendForConsensus(); }
     /* execute the reputation manager's core-task */
-    void recvRM() { if(repMan.isActive()) repMan.recvForConsensus(); }
+    void recvRM() { if (repMan.isActive()) repMan.recvForConsensus(); }
     /* get pointer to reputation manager */
     const ReputationManager& getRM() const {return repMan;}
-    /* get continuous state q */    
+    /* get continuous state q */
     State getQ() const { return pLayer.getQ(); }
 
     /* set continuous state q - for predictor */
     void setQ(const State& q) {pLayer.init(q, q.v);}
-    
+
     /* get vehicle identifier */
     int getID() const { return idx; }
     Parms getParms() const { return pLayer.getParms(); }
@@ -78,7 +78,7 @@ public:
     void shareWaitingList();
     const Knowledge& getKnowledge()
     {
-      return repMan.getKnowledge();
+        return repMan.getKnowledge();
     }
     const Vehicle& operator=(const Vehicle&);
 };

@@ -14,7 +14,7 @@
 
 using namespace std;
 
-/* Constructor, takes frame width, height, margin percentage, number of grid lines in X and Y */
+/* Brief Constructor, takes frame width, height, margin percentage, number of grid lines in X and Y */
 Grid::Grid(const int& W, const int& H, const double& e, const int& gridNX, const int& gridNY)
 {
   init(W, H, e, gridNX, gridNY);  

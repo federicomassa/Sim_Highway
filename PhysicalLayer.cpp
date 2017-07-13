@@ -3,25 +3,28 @@
 
 #include <iostream>
 
-void PhysicalLayer::computeNextQ(Maneuver sigma, /* For platoon  */ List<State> qList, bool debug)
+void PhysicalLayer::computeNextQ(Maneuver sigma, /* For platoon  */ List<State> qList, bool omniscient, bool debug)
 {
   Control c;
   Failure failure;
-
-  CONF.failures.find(Failure(idx), failure);
-
-  Iterator<Failure::ControlFailure> failItr(failure.ctrlFailures);
-  Failure::ControlFailure fail;
-
   bool foundFail = false;
 
-  while (failItr(fail))
-  {
-    c = computeControl(sigma, q, /* For platoon */ qList, fail, tooClose, idx, debug);
-    foundFail = true;
-    break;
-  }
 
+  if (omniscient)
+  {
+    CONF.failures.find(Failure(idx), failure);
+
+    Iterator<Failure::ControlFailure> failItr(failure.ctrlFailures);
+    Failure::ControlFailure fail;
+
+
+    while (failItr(fail))
+    {
+      c = computeControl(sigma, q, /* For platoon */ qList, fail, tooClose, idx, debug);
+      foundFail = true;
+      break;
+    }
+  }
 
   if (!foundFail)
     c = computeControl(sigma, q, /* For platoon */ qList, idx, debug);
