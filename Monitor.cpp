@@ -45,11 +45,13 @@ Monitor::Monitor(int a, int t, const State& tQ, const Parms& tP, const Maneuver&
   /* It doesn't start right away, it starts at the next iteration
    so that it can receive a waiting request from other vehicles */
   timeStepsCount = -2;
+  oldManeuverDetected = false;
+  maneuverDetected = false;
 
   hypReady = false;
 }
 
-void Monitor::predictStates(const List<Sensing>& sList, const State& agentQ, const Maneuver& agentManeuver)
+void Monitor::predictStates(const List<Sensing>& sList, const State& agentQ, const Maneuver& agentManeuver, const Area& obs)
 {
 
 
@@ -61,7 +63,7 @@ void Monitor::predictStates(const List<Sensing>& sList, const State& agentQ, con
 
   predictor.init(agentQ, agentManeuver, sList);
 
-  predictor.run();
+  predictor.run(obs);
   predictor.getMonitor(monitorPrediction);
 
   if (CONF.savePredictionImages)
@@ -81,7 +83,12 @@ void Monitor::predictStates(const List<Sensing>& sList, const State& agentQ, con
 
 void Monitor::detectManeuver(const State& agentQ, const State& q)
 {
+  monitorLog.s << "Real initial Monitor maneuver: " << realFinalManeuver << EndLine();
+  monitorLog.s << "Detection started..." << EndLine();
+
   hypothesisList.purge();
+
+  oldManeuverDetected = maneuverDetected;
 
   targetLastManeuver = targetManeuver;
   lastManeuversLeft = maneuversLeft;
@@ -94,7 +101,6 @@ void Monitor::detectManeuver(const State& agentQ, const State& q)
   targetQ = q;
 
 
-  monitorLog.s << "Real final maneuver: " << realFinalManeuver << EndLine();
 
   targetManeuver = UNKNOWN;
 
@@ -121,20 +127,16 @@ void Monitor::detectManeuver(const State& agentQ, const State& q)
       monitorLog.s << '\t' << *man << EndLine();
     }
 
+    maneuverDetected = true;
     hypReady = true;
   }
   else
   {
     monitorLog.s << "Maneuver not detected: " << EndLine();
     hypReady = false;
+    maneuverDetected = false;
   }
 
-
-
-  /* Immediatly predict?
-     timeStepsCount = 0;
-     predictStates(...)
-   */
 
   // FIXME!!!!!
   if (targetManeuver == UNKNOWN)
@@ -194,6 +196,9 @@ void Monitor::predictManeuvers(const State& tQ, const List<Sensing>& sList, cons
     LOG.s << "Computing possible maneuvers for vehicle " << targetID << " as seen by vehicle " << agentID;
     LOG.s << " BEGIN..." << EndLine(EndLine::INC);
   }
+
+  // Stores old value of hiddenState before next prediction
+  predictor.getHidden(hiddenState);
 
   targetQ = tQ;
   /* compute active area for target agent */
@@ -552,26 +557,29 @@ bool Monitor::getFirstHypothesis(Hypothesis & hyp) const
   return hypothesisList.getFirst(hyp);
 }
 
-bool Monitor::buildNeighborhood(Neighborhood & n) const
+void Monitor::buildNeighborhood()
 {
-  if (!hypReady)
+  neighborhood.targetID = targetID;
+  neighborhood.agentID = agentID;
+  neighborhood.predictionArea = predictor.getMappingArea();
+  neighborhood.qTarget = targetLastQ;
+  neighborhood.sList = lastNeighbors;
+  neighborhood.maneuversLeft = maneuversLeft;
+  neighborhood.lastManeuversLeft = lastManeuversLeft;
+  neighborhood.targetManeuver = targetManeuver;
+  neighborhood.targetLastManeuver = targetLastManeuver;
+  neighborhood.hList = hypothesisList;
+  neighborhood.lastHypLists.clear();
+  neighborhood.lastHypLists.insert(lastHypLists.begin(), lastHypLists.end());
+}
+
+bool Monitor::buildNeighborhood(Neighborhood& n) const
+{
+  if (!maneuverDetected || !oldManeuverDetected || timeStepsCount != 0)
     return false;
 
-  n.targetID = targetID;
-  n.agentID = agentID;
-  n.predictionArea = predictor.getMappingArea();
-  n.qTarget = targetLastQ;
-  n.sList = lastNeighbors;
-  n.maneuversLeft = maneuversLeft;
-  n.lastManeuversLeft = lastManeuversLeft;
-  n.targetManeuver = targetManeuver;
-  n.targetLastManeuver = targetLastManeuver;
-  n.hList = hypothesisList;
-  n.lastHypLists.clear();
-  n.lastHypLists.insert(lastHypLists.begin(), lastHypLists.end());
-
+  n = neighborhood;
 
   return true;
 }
-
 

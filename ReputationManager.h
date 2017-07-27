@@ -65,12 +65,13 @@ class ReputationManager
   void merge(const List<Message<Knowledge> >& msgList);
 
   void checkNewVehicle(const Sensing& newVehicle, const int& targetID);
-  void compareVehicleWithHidden(const Sensing& newVehicle, const int& targetID, Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibleHypotheses, Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells);
+  void compareVehicleWithHidden(const Sensing& newVehicle, const int& targetID, Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibleHypotheses, Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells, const Area& myMappingArea);
   void removeIncompatibleHiddenHypotheses(Vector<List<Tensor5<bool> >, N_MANEUVER>& hypothesesLeft, const Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibleHypotheses, const int& targetID = -1);
   //! \brief This removes from the list of hypotheses the ones incompatible with the free area observed by communicating vehicles
   void removeIncompatibleFreeSpace(Vector<List<Tensor5<bool> >, N_MANEUVER>& hypothesesLeft, const Area& myMappingArea, const Area& otherObs, const Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells, const int& targetID = -1);
 
-  Vector<List<Tensor5<bool> >, N_MANEUVER> findCompatibleHypotheses(const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& hidden, const Sensing& newVehicle, Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells);
+  Vector<List<Tensor5<bool> >, N_MANEUVER> findCompatibleHypotheses(const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& hidden, const Sensing& newVehicle, Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells, const Area& myMappingArea);
+  void getHiddenCells(const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& hidden, Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells, const Area& myMappingArea);
 
   Vehicle* getVehicle() {return vehicle;}
 

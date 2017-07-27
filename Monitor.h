@@ -78,6 +78,9 @@ class Monitor
          *        them.
          */
     Parms targetParms;
+
+    Neighborhood neighborhood;
+
     /*!
      * \brief Estimated maneuver of the monitored agent. --- now replaced by maneuversLeft
      */
@@ -131,6 +134,11 @@ class Monitor
      * \brief A prototype of vehicle's physical layer.
      */
     PhysicalLayer pLayer;
+
+    //! Stores value of hiddenState
+    Vector<List<Tensor5<Sensing> >, N_MANEUVER> hiddenState;
+
+
     /*!
      * \brief Indicate if it's possible to build some knowledge about target
      *        agent.
@@ -141,6 +149,10 @@ class Monitor
 
     bool targetLocked;
     bool hypReady;
+
+    //! Maneuver was detected at last prediction interval, maneuver is detected now
+    bool oldManeuverDetected, maneuverDetected;
+
 public:
     /*!
      * \brief Constructor.
@@ -159,7 +171,7 @@ public:
     /*!
      * \brief Predict possible states for monitored agent.
      */
-    void predictStates(const List<Sensing>&, const State&, const Maneuver&);
+    void predictStates(const List<Sensing>&, const State&, const Maneuver&, const Area&);
     /*!
      * \brief Detect events for target agent and predict possible maneuvers for
      *        monitored agent.
@@ -176,9 +188,9 @@ public:
 
     int getCountdown()
     {
-        /* +1 because after detection it does not predict right away, but waits for 1 step */
+        /* because after detection it predicts right away */
         if (timeStepsCount >= 0)
-            return (CONF.nTimeSteps - timeStepsCount + 1);
+            return (CONF.nTimeSteps - timeStepsCount);
         else
             return (-timeStepsCount);
     }
@@ -205,6 +217,9 @@ public:
     bool isReadyToPredict() {return (timeStepsCount == 0);}
     bool isReadyToDetect() {return (timeStepsCount == CONF.nTimeSteps);}
     bool isReadyForHypotheses() {return hypReady;}
+
+    void getHidden(const Vector<List<Tensor5<Sensing> >, N_MANEUVER>*& v) const {v = &hiddenState;}
+
     int getTargetID() const { return targetID; }
     /*!
      * \brief Return agentID.
@@ -217,6 +232,7 @@ public:
     /*!
      * \brief Build target estimated neighborhood.
      */
+    void buildNeighborhood();
     bool buildNeighborhood(Neighborhood& n) const;
 
     /* Accessors */
@@ -233,6 +249,8 @@ public:
     void setRealFinalManeuver(const Maneuver& sigma) {realFinalManeuver = sigma;}
 
     Vector<List<Tensor5<bool> >, N_MANEUVER>& getHypothesesLeft() {return hypothesesLeft;}
+    const Vector<List<Tensor5<bool> >, N_MANEUVER>& getHypothesesLeft() const {return hypothesesLeft;}
+
     const Predictor* getPredictor() const {return &predictor;}
 };
 

@@ -10,6 +10,7 @@
  */
 
 #include "Area.h"
+#include "State.h"
 
 using namespace std;
 
@@ -46,6 +47,16 @@ bool Area::contains(const Vector<double, Q_DIM>& point) const
 
     return false;
 }
+
+bool Area::contains(const State& q) const
+{
+    Vector<double, Q_DIM> point;
+    point[0] = q.x;
+    point[1] = q.y;
+
+    return contains(point);
+}
+
 
 void Area::simplifyByContain()
 {

@@ -11,6 +11,10 @@ extern int now;
 
 class Image
 {
+    static const int gridWidth;
+    static const int tickWidth;
+    static const int tickLength;
+
     gdImagePtr frame;
     double cameraX;
     /* creation time */
@@ -27,6 +31,9 @@ class Image
                      bool isSubject = false, RepLevel rLev = UNSET);
     void addHypothesis(const Hypothesis& hyp, const bool& invert = false);
     void cp(const Image& im);
+    int scaleXValue(const double& x);
+    int scaleYValue(const double& y);
+
 public:
     /* constructor */
     Image(double cX = 0) { frame = NULL; init(cX); }
@@ -60,6 +67,8 @@ public:
     /* draw an area */
     void addArea(const Area&, const int, const int, const int,
                  const bool invert = false);
+    //! draw mapping area with grid and hidden vehicle hypotheses.
+    void addAreaWithHiddenMap(const Area& mappingArea, const List<Tensor5<bool> >& compatibleHypotheses);
     /* draw i-th vehicle's hidden area */
     void addHiddenArea(int, const Environment&);
     /* join vertically this Image whith another one */
@@ -67,9 +76,9 @@ public:
     /* add vehicle hypothesis */
     void addHypothesis(int index, const Environment& env);
     /* draw neighborhood */
-    void drawNeighborhood(const Neighborhood& n, const std::pair<Maneuver, Maneuver>& trans = std::make_pair(UNKNOWN, UNKNOWN));
+    void drawNeighborhood(const Neighborhood& n, const std::pair<Maneuver, Maneuver>& trans = std::make_pair(UNKNOWN, UNKNOWN), const Environment* env = nullptr);
     void drawNeighborhood(const Neighborhood& n,
-                          const State& q, Maneuver m, int index, const std::pair<Maneuver, Maneuver>& trans = std::make_pair(UNKNOWN, UNKNOWN));
+                          const State& q, Maneuver m, int index, const std::pair<Maneuver, Maneuver>& trans = std::make_pair(UNKNOWN, UNKNOWN), const Environment* env = nullptr);
     void saveConsensusImages(const Environment& env, const State lastStates[],
                              int cStep = 0);
 };

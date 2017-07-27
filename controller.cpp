@@ -107,7 +107,8 @@ Control computeControl(Maneuver sigma, const State& q, /* For platoon */ List<St
 
 		else
 		{
-			c.a = ACCELERATION;
+			// give absurd acceleration because this is impossible case
+			c.a = -100*ACCELERATION;
 			if (debug)
 				std::cout << "no case" << std::endl;
 		}

@@ -46,6 +46,17 @@ Monitor* MonitorLayer::lookFor(int t, bool debug)
     return NULL;
 }
 
+const Monitor* MonitorLayer::lookFor(int t) const
+{
+    Iterator<Monitor*> i(monitorList);
+    Monitor* mon;
+    while (i(mon))
+        if (mon->getTargetID() == t)
+            return mon;
+
+    return NULL;
+}
+
 bool MonitorLayer::removeMonitor(int t)
 {
     Monitor* m = lookFor(t);
@@ -196,21 +207,23 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
         else
             monitorLog.s << "Idle for " << m->getCountdown() << " steps..." << EndLine();
 
-        if (m->isReadyToPredict())
-        {
-            m->setRealInitialManeuver(s.sigma);
-            m->predictStates(sList, agentQ, agentManeuver);
-        }
-        else if (m->isReadyToDetect())
+
+        if (m->isReadyToDetect())
         {
             monitorLog.s << "Detecting maneuver..." << EndLine();
             m->setRealFinalManeuver(s.sigma);
             m->detectManeuver(agentQ, s.q);
         }
-
         if (m->isReadyForHypotheses())
         {
             m->predictManeuvers(s.q, subjSList, obs, monitorObs);
+            m->buildNeighborhood();
+            m->increaseCounter();
+        }
+        if (m->isReadyToPredict() /*&& (CONF.nSteps - now) > CONF.nTimeSteps*/)
+        {
+            m->setRealInitialManeuver(s.sigma);
+            m->predictStates(sList, agentQ, agentManeuver, obs);
         }
 
         monitorLog.s << EndLine(EndLine::DEC);

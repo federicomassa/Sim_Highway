@@ -96,7 +96,7 @@ void ReputationManager::singleMerge(const Knowledge& k)
             std::cout << "Found new vehicle" << std::endl;
             Vector<List<Tensor5<bool> >, N_MANEUVER> compatibleHypotheses;
             Vector<List<Tensor5<Area> >, N_MANEUVER> hiddenCells;
-            compareVehicleWithHidden(*newVehicle, myTmpNeigh.getTargetID(), compatibleHypotheses, hiddenCells);
+            compareVehicleWithHidden(*newVehicle, myTmpNeigh.getTargetID(), compatibleHypotheses, hiddenCells, myTmpNeigh.getMappingArea());
 
             check(getVehicle()->getMonitorLayer()->lookFor(myTmpNeigh.getTargetID()));
             removeIncompatibleHiddenHypotheses(getVehicle()->getMonitorLayer()->lookFor(myTmpNeigh.getTargetID())->getHypothesesLeft(), compatibleHypotheses, myTmpNeigh.getTargetID());
@@ -105,6 +105,33 @@ void ReputationManager::singleMerge(const Knowledge& k)
 
             auxNeigh.getManeuversLeft() = Predictor::projectToManeuver(getVehicle()->getMonitorLayer()->lookFor(myTmpNeigh.getTargetID())->getHypothesesLeft());
           }
+          else
+          {
+            // remove incompatible free space using communicated visibility
+            Vector<List<Tensor5<Area> >, N_MANEUVER> hiddenCells;
+
+            Monitor* m = getVehicle()->getMonitorLayer()->lookFor(myTmpNeigh.getTargetID());
+
+            if (m)
+            {
+              const Vector<List<Tensor5<Sensing> >, N_MANEUVER>* hiddenState = nullptr;
+
+              m->getHidden(hiddenState);
+
+              if (hiddenState)
+                getHiddenCells(*hiddenState, hiddenCells, myTmpNeigh.getMappingArea());
+              else
+                error("ReputationManager::singleMerge", "Empty hidden pointer");
+
+
+              removeIncompatibleFreeSpace(getVehicle()->getMonitorLayer()->lookFor(myTmpNeigh.getTargetID())->getHypothesesLeft(),
+                                          myTmpNeigh.getMappingArea(), k.obs, hiddenCells, myTmpNeigh.getTargetID());
+            }
+            else
+              error("ReputationManager::singleMerge", "Empty monitor?");
+
+          }
+
 
           knowledge.nList.updateInfo(myTmpNeigh, auxNeigh); /* updating */
           /* target can be found one single time in a list: stop */
@@ -175,21 +202,20 @@ void ReputationManager::getAgentsReputation(List<Reputation>& repList) const
   }
 }
 
-void ReputationManager::compareVehicleWithHidden(const Sensing& newVehicle, const int& targetID, Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibleHypotheses, Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells)
+void ReputationManager::compareVehicleWithHidden(const Sensing & newVehicle, const int& targetID, Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibleHypotheses, Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells, const Area & myMappingArea)
 {
   Monitor* m = getVehicle()->getMonitorLayer()->lookFor(targetID, true);
 
   if (m)
   {
-    const Predictor* p = m->getPredictor();
     const Vector<List<Tensor5<Sensing> >, N_MANEUVER>* hiddenState = nullptr;
-    if (p)
-      p->getHidden(hiddenState);
+    if (m)
+      m->getHidden(hiddenState);
     else
       error("ReputationManager::compareVehicleWithHidden", "Predictor object not found");
 
     if (hiddenState)
-      compatibleHypotheses = findCompatibleHypotheses(*hiddenState, newVehicle, hiddenCells);
+      compatibleHypotheses = findCompatibleHypotheses(*hiddenState, newVehicle, hiddenCells, myMappingArea);
     else
       error("ReputationManager::compareVehicleWithHidden", "HiddenState object not found");
   }
@@ -199,7 +225,7 @@ void ReputationManager::compareVehicleWithHidden(const Sensing& newVehicle, cons
   }
 }
 
-Vector<List<Tensor5<bool> >, N_MANEUVER> ReputationManager::findCompatibleHypotheses(const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& hidden, const Sensing& newVehicle, Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells)
+Vector<List<Tensor5<bool> >, N_MANEUVER> ReputationManager::findCompatibleHypotheses(const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& hidden, const Sensing & newVehicle, Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells, const Area & myMappingArea)
 {
   Vector<List<Tensor5<bool> >, N_MANEUVER> compatibleHypotheses;
   for (int sigma = 0; sigma < N_MANEUVER; sigma++)
@@ -209,10 +235,20 @@ Vector<List<Tensor5<bool> >, N_MANEUVER> ReputationManager::findCompatibleHypoth
     const Tensor5<Sensing>* hiddenTens;
     Tensor5<bool>* tens;
 
+    List<Rectangle> rectList;
+    myMappingArea.getRectList(rectList);
+     // add dummy rectangle to replicate noHiddenVehicle situation
+    rectList.insHead(Rectangle());
+    
+    const Rectangle* rect = nullptr;
     for (int list = 0; list < hidden[sigma].count(); list++)
     {
       // in hidden vector, the first element of the list corresponds to the no hidden vehicle hypothesis
       hidden[sigma].getElem(hiddenTens, list);
+      rectList.getElem(rect, list);
+      Matrix_2x2 bounds;
+      rect->getBounds(bounds);
+
       compatibleHypotheses[sigma].insTail(Tensor5<bool>(hiddenTens->Dim1, hiddenTens->Dim2, hiddenTens->Dim3, hiddenTens->Dim4, hiddenTens->Dim5));
       compatibleHypotheses[sigma].getElem(tens, list);
       hiddenCells[sigma].insTail(Tensor5<Area>(tens->Dim1, tens->Dim2, tens->Dim3, tens->Dim4, tens->Dim5));
@@ -227,28 +263,28 @@ Vector<List<Tensor5<bool> >, N_MANEUVER> ReputationManager::findCompatibleHypoth
               {
                 (*tens)(i, j, k, l, m) = false;
 
-                // Area of competence of this particular hypothesis (grid cell)
+                // Area of competence of this particular hypothesis (grid cell). If list == 0 noHiddenVehicle --> null area because Dim1 = Dim2 = ... = 1
                 Vector<Vector<double, 2>, 2> thisGridRectV;
 
-                if (i == 0)
-                  thisGridRectV[0][0] = (*hiddenTens)(i, j, k, l, m).q.x;
-                else
-                  thisGridRectV[0][0] = ((*hiddenTens)(i, j, k, l, m).q.x + (*hiddenTens)(i - 1, j, k, l, m).q.x) / 2.0;
+                if (!rect->isDummy)
+                {
+                  thisGridRectV[0][0] = bounds[0][0] + Predictor::getDeltaX() * i;
+                  thisGridRectV[0][1] = thisGridRectV[0][0] + Predictor::getDeltaX();
+                  if (thisGridRectV[0][1] > bounds[0][1])
+                    thisGridRectV[0][1] = bounds[0][1];
 
-                if (i == tens->Dim1 - 1)
-                  thisGridRectV[0][1] = (*hiddenTens)(i, j, k, l, m).q.x;
+                  thisGridRectV[1][0] = bounds[1][0] + Predictor::getDeltaY() * j;
+                  thisGridRectV[1][1] = thisGridRectV[1][0] + Predictor::getDeltaY();
+                  if (thisGridRectV[1][1] > bounds[1][1])
+                    thisGridRectV[1][1] = bounds[1][1];
+                }
                 else
-                  thisGridRectV[0][1] = ((*hiddenTens)(i, j, k, l, m).q.x + (*hiddenTens)(i + 1, j, k, l, m).q.x) / 2.0;
-
-                if (j == 0)
-                  thisGridRectV[1][0] = (*hiddenTens)(i, j, k, l, m).q.y;
-                else
-                  thisGridRectV[1][0] = ((*hiddenTens)(i, j, k, l, m).q.y + (*hiddenTens)(i, j - 1, k, l, m).q.y) / 2.0;
-
-                if (j == tens->Dim2 - 1)
-                  thisGridRectV[1][1] = (*hiddenTens)(i, j, k, l, m).q.y;
-                else
-                  thisGridRectV[1][1] = ((*hiddenTens)(i, j, k, l, m).q.y + (*hiddenTens)(i, j + 1, k, l, m).q.y) / 2.0;
+                {
+                  thisGridRectV[0][0] = 0.0;
+                  thisGridRectV[0][1] = 0.0;
+                  thisGridRectV[1][0] = 0.0;
+                  thisGridRectV[1][1] = 0.0;
+                }
 
                 (*hiddenCellTens)(i, j, k, l, m).addRect(thisGridRectV);
 
@@ -261,12 +297,22 @@ Vector<List<Tensor5<bool> >, N_MANEUVER> ReputationManager::findCompatibleHypoth
                 Area mySensingArea;
                 mySensingArea.addRect(mySensingRectV);
 
-                // in the noHiddenVehicle case the intersection should be empty (Dim1 = Dim2 = 1), thus the presence of a hidden vehicle is incompatible
+                // in the noHiddenVehicle case the intersection should be empty (Dim1 = Dim2 = 1), thus the presence of a hidden vehicle is incompatible if in the mapping area
                 Area intersection = mySensingArea * (*hiddenCellTens)(i, j, k, l, m);
                 intersection.simplify();
 
-                if (!intersection.isEmpty())
-                  (*tens)(i, j, k, l, m) = true;
+                if (list != 0)
+                {
+                  if (!intersection.isEmpty())
+                    (*tens)(i, j, k, l, m) = true;
+                }
+                else
+                {
+                  if (myMappingArea.contains(newVehicle.q))
+                    (*tens)(i, j, k, l, m) = false;
+                  else
+                    (*tens)(i, j, k, l, m) = true;
+                }
 
 
               }
@@ -276,15 +322,75 @@ Vector<List<Tensor5<bool> >, N_MANEUVER> ReputationManager::findCompatibleHypoth
   }
 
 
-  std::cout << "In findCompatibleHypotheses: ";
+  return compatibleHypotheses;
+}
 
+
+void ReputationManager::getHiddenCells(const Vector<List<Tensor5<Sensing> >, N_MANEUVER>& hidden, Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells, const Area & myMappingArea)
+{
   for (int sigma = 0; sigma < N_MANEUVER; sigma++)
   {
-    std::cout << hidden[0].count() << " --- " << compatibleHypotheses[0].count() << std::endl;
+    hiddenCells[sigma].purge();
+
+    const Tensor5<Sensing>* hiddenTens;
+
+    List<Rectangle> rectList;
+    myMappingArea.getRectList(rectList);
+    // add dummy rectangle to replicate noHiddenVehicle situation
+    rectList.insHead(Rectangle());
+
+    const Rectangle* rect = nullptr;
+
+    for (int list = 0; list < hidden[sigma].count(); list++)
+    {
+      // in hidden vector, the first element of the list corresponds to the no hidden vehicle hypothesis
+      hidden[sigma].getElem(hiddenTens, list);
+      hiddenCells[sigma].insTail(Tensor5<Area>(hiddenTens->Dim1, hiddenTens->Dim2, hiddenTens->Dim3, hiddenTens->Dim4, hiddenTens->Dim5));
+      Tensor5<Area>* hiddenCellTens;
+      hiddenCells[sigma].getElem(hiddenCellTens, list);
+
+      rectList.getElem(rect, list);
+      Matrix_2x2 bounds;
+      rect->getBounds(bounds);
+
+      for (int i = 0; i < hiddenTens->Dim1; i++)
+        for (int j = 0; j < hiddenTens->Dim2; j++)
+          for (int k = 0; k < hiddenTens->Dim3; k++)
+            for (int l = 0; l < hiddenTens->Dim4; l++)
+              for (int m = 0; m < hiddenTens->Dim5; m++)
+              {
+
+                // Area of competence of this particular hypothesis (grid cell). If list == 0 noHiddenVehicle --> null area because Dim1 = Dim2 = ... = 1
+                Vector<Vector<double, 2>, 2> thisGridRectV;
+
+                if (!rect->isDummy)
+                {
+                  thisGridRectV[0][0] = bounds[0][0] + Predictor::getDeltaX() * i;
+                  thisGridRectV[0][1] = thisGridRectV[0][0] + Predictor::getDeltaX();
+                  if (thisGridRectV[0][1] > bounds[0][1])
+                    thisGridRectV[0][1] = bounds[0][1];
+
+                  thisGridRectV[1][0] = bounds[1][0] + Predictor::getDeltaY() * j;
+                  thisGridRectV[1][1] = thisGridRectV[1][0] + Predictor::getDeltaY();
+                  if (thisGridRectV[1][1] > bounds[1][1])
+                    thisGridRectV[1][1] = bounds[1][1];
+                }
+                else
+                {
+                  thisGridRectV[0][0] = 0.0;
+                  thisGridRectV[0][1] = 0.0;
+                  thisGridRectV[1][0] = 0.0;
+                  thisGridRectV[1][1] = 0.0;
+                }
+
+                (*hiddenCellTens)(i, j, k, l, m).addRect(thisGridRectV);
+
+              }
+    }
+
+
   }
 
-
-  return compatibleHypotheses;
 }
 
 void ReputationManager::removeIncompatibleHiddenHypotheses(Vector<List<Tensor5<bool> >, N_MANEUVER>& hypothesesLeft, const Vector<List<Tensor5<bool> >, N_MANEUVER>& compatibleHypotheses, const int& targetID)
@@ -292,12 +398,10 @@ void ReputationManager::removeIncompatibleHiddenHypotheses(Vector<List<Tensor5<b
   std::cout << "in removeIncompatibleHypotheses" << std::endl;
   Monitor* m = getVehicle()->getMonitorLayer()->lookFor(targetID);
 
-  const Predictor* p = m->getPredictor();
   const Vector<List<Tensor5<Sensing> >, N_MANEUVER>* hiddenState = NULL;
-  if (p)
+  if (m)
   {
-    p->getHidden(hiddenState);
-    std::cout << "Initial Monitor state: " << p->getInitialMonitorState() << std::endl;
+    m->getHidden(hiddenState);
   }
 
   for (int sigma = 0; sigma < N_MANEUVER; sigma++)
@@ -339,17 +443,15 @@ void ReputationManager::removeIncompatibleHiddenHypotheses(Vector<List<Tensor5<b
                   // std::cout << "REJECTED: " << (*hiddenTens)(i, j, k, l, m) << std::endl;
                 }
 
-                // FIXME only if list != 0 because in that case there is no hidden vehicle. Without this,
-                // if there is someone in the mapped area, the no hidden vehicle hyp is false. Think about it???
-                if (list != 0)
-                  (*leftTens)(i, j, k, l, m) = (*leftTens)(i, j, k, l, m) && (*compatibleTens)(i, j, k, l, m);
+                //works also for list == 0
+                (*leftTens)(i, j, k, l, m) = (*leftTens)(i, j, k, l, m) && (*compatibleTens)(i, j, k, l, m);
 
               }
     }
   }
 }
 
-void ReputationManager::removeIncompatibleFreeSpace(Vector<List<Tensor5<bool> >, N_MANEUVER>& hypothesesLeft, const Area& myMappingArea, const Area& otherObs, const Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells, const int& targetID)
+void ReputationManager::removeIncompatibleFreeSpace(Vector<List<Tensor5<bool> >, N_MANEUVER>& hypothesesLeft, const Area & myMappingArea, const Area & otherObs, const Vector<List<Tensor5<Area> >, N_MANEUVER>& hiddenCells, const int& targetID)
 {
 
   for (int sigma = 0; sigma < N_MANEUVER; sigma++)

@@ -18,8 +18,8 @@ Rectangle::Rectangle(const Vector<Vector<double, 2>, Q_DIM>& b)
   isDummy = false;
     /* error handling */
     for(int i = 0; i < Q_DIM; i++)
-        if(b[i][0] > b[i][1])
-            error("Rectangle", "bounds order not valid");
+        if(b[i][0] - b[i][1] > 1E-10)
+            error("Rectangle", string("bounds order not valid") + '\t' + toStringWithPrecision(b[i][0] - b[i][1], 10));
 
     bounds = b;
 }

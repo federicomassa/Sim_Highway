@@ -34,6 +34,7 @@ public:
     /* get vehicle vector v */
     Vehicle* getVehicles() {return v;}
     const Vehicle* getVehicles() const {return v;}
+    const Vehicle* getVehicleWithID(const int& id) const;
 
     /* get vehicle maneuver m */
     Maneuver getManeuver(int index) const;

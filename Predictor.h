@@ -78,7 +78,7 @@ class Predictor
   Vector<List<Tensor5<double> >, N_MANEUVER> compatibility;
 
 
-  double deltaX, deltaY, deltaTheta, deltaV, deltaDesiredV;
+  static const double deltaX, deltaY, deltaTheta, deltaV, deltaDesiredV;
   
   SensorErrorSimulator sensorSimul;
 
@@ -96,7 +96,7 @@ class Predictor
   ~Predictor();
 
   //step simulation
-  void run();
+  void run(const Area&);
 
   //Accessors
   void getHidden(Vector<List<Tensor5<Sensing> >, N_MANEUVER>& v) {v = hiddenState;}
@@ -106,11 +106,11 @@ class Predictor
   const Area& getMappingArea() const {return mappingArea;}
   const Sensing& getInitialMonitorState() const {return initialMonitorState;}
   void getErrors(Vector<List<Tensor5<Vector<double, 4> > >, N_MANEUVER>& err, const Sensing& monitorS);
-  const double& getDeltaX() const {return deltaX;}
-  const double& getDeltaY() const {return deltaY;}
-  const double& getDeltaTheta() const {return deltaTheta;}
-  const double& getDeltaV() const {return deltaV;}
-  const double& getDeltaDesiredV() const {return deltaDesiredV;}
+  static const double& getDeltaX() {return deltaX;}
+  static const double& getDeltaY() {return deltaY;}
+  static const double& getDeltaTheta() {return deltaTheta;}
+  static const double& getDeltaV() {return deltaV;}
+  static const double& getDeltaDesiredV() {return deltaDesiredV;}
   
   /* Computes the error propagation from the hidden vehicle to the monitor, err[n] contains the error of the n-th variable, listIndex 
      is the index of the current rectangle (from 0), tensor index (i,j,k,l,m), 

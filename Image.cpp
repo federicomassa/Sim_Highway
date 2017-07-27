@@ -1,8 +1,13 @@
 #include "Image.h"
+#include "Predictor.h"
 #include "systemTypes.h"
 #include <map>
 
 using namespace std;
+
+const int Image::gridWidth = 2;
+const int Image::tickWidth = 1;
+const int Image::tickLength = 8;
 
 void Image::cp(const Image& im)
 {
@@ -431,7 +436,7 @@ void Image::addHypothesis(int index, const Environment& env)
         addHypothesis(hyp);
 }
 
-void Image::drawNeighborhood(const Neighborhood& n, const pair<Maneuver, Maneuver>& trans)
+void Image::drawNeighborhood(const Neighborhood& n, const pair<Maneuver, Maneuver>& trans, const Environment* env)
 {
     Vector<double, 2> q = n.qTarget.toPoint();
     /* center image on target x coordinate */
@@ -507,7 +512,7 @@ void Image::drawNeighborhood(const Neighborhood& n, const pair<Maneuver, Maneuve
                 Hypothesis::SubHypothesis sub;
                 while (subItr(sub))
                 {
-                     std::cout << "FOUND! Positive: " << sub.subEventID << " " << sub.positive << std::endl;
+                    std::cout << "FOUND! Positive: " << sub.subEventID << " " << sub.positive << std::endl;
                 }
             }
 
@@ -517,6 +522,13 @@ void Image::drawNeighborhood(const Neighborhood& n, const pair<Maneuver, Maneuve
                 tmpImage.addHypothesis(tmpH);
                 tmpImage.writeFrameNumber(now - 1);
                 tmpImage.writeTransition(trans.first, trans.second);
+                if (env)
+                {
+                    const Vehicle* veh = env->getVehicleWithID(n.getAgentID());
+                    if (veh)
+                        tmpImage.addAreaWithHiddenMap(n.getMappingArea(), veh->getMonitorLayer()->lookFor(n.getTargetID())->getHypothesesLeft()[trans.second]);
+                }
+
                 joinWith(tmpImage);
             }
         }
@@ -543,6 +555,14 @@ void Image::drawNeighborhood(const Neighborhood& n, const pair<Maneuver, Maneuve
                         tmpImg.addHypothesis(otherH);
                         tmpImg.writeFrameNumber(now - 1);
                         tmpImg.writeTransition(trans.first, (Maneuver)i);
+
+                        if (env)
+                        {
+                            const Vehicle* veh = env->getVehicleWithID(n.getAgentID());
+                            if (veh)
+                                tmpImg.addAreaWithHiddenMap(n.getMappingArea(), veh->getMonitorLayer()->lookFor(n.getTargetID())->getHypothesesLeft()[trans.second]);
+                        }
+
                         joinWith(tmpImg);
                     }
 
@@ -556,9 +576,9 @@ void Image::drawNeighborhood(const Neighborhood& n, const pair<Maneuver, Maneuve
 }
 
 void Image::drawNeighborhood(const Neighborhood& n, const State& q, Maneuver m,
-                             int index, const pair<Maneuver, Maneuver>& trans)
+                             int index, const pair<Maneuver, Maneuver>& trans, const Environment* env)
 {
-    drawNeighborhood(n, trans);
+    drawNeighborhood(n, trans, env);
     drawVehicle(q, m, index, true);
 }
 
@@ -628,7 +648,8 @@ void Image::saveConsensusImages(const Environment& env,
             for (auto hypItr = rLevel.begin(); hypItr != rLevel.end(); hypItr++)
             {
                 //std::cout << "Transition " << (*hypItr).first.first << " => " << (*hypItr).first.second << std::endl;
-                drawNeighborhood(tmpN, tmpQ, FAST, env.v[i].idx, (*hypItr).first);
+                drawNeighborhood(tmpN, tmpQ, FAST, env.v[i].idx, (*hypItr).first, &env);
+                addAreaWithHiddenMap(tmpN.getMappingArea(), env.v[i].getMonitorLayer()->lookFor(tmpN.getTargetID())->getHypothesesLeft()[(*hypItr).first.second]);
                 string suffix = "-A" + toString(env.v[i].idx, 2) + "-T"
                                 + toString(tmpN.targetID, 2) + "-TR" + maneuverToStr((*hypItr).first.first) +
                                 maneuverToStr((*hypItr).first.second) + "-CS"
@@ -643,3 +664,169 @@ void Image::saveConsensusImages(const Environment& env,
     }
 }
 
+void Image::addAreaWithHiddenMap(const Area& mappingArea, const List<Tensor5<bool> >& compatibleHypotheses)
+{
+    /* error handling */
+    if (frame == NULL)
+        error("Image::addAreaWithHiddenMap", "frame is NULL");
+
+    if (mappingArea.isEmpty())
+        return;
+
+    gdImagePtr image = gdImageCreate(FRAME_W, FRAME_H);
+
+    // another image with another opacity
+    gdImagePtr hypImg = gdImageCreate(FRAME_W, FRAME_H);
+
+    /* error handling */
+    if (image == NULL)
+        error("Image::addAreaWithHiddenMap", "cannot allocate new image");
+    const int white = gdImageColorAllocate(image, 255, 255, 255);
+    const int white2 = gdImageColorAllocate(hypImg, 255, 255, 255);
+
+    const int black = gdImageColorResolve(image, 0, 0, 0);
+    const int blue = gdImageColorResolve(hypImg, 0, 0, 255);
+    const int color = gdImageColorAllocate(image, 120, 120, 120);
+    //const int black = gdImageColorAllocate(image, 0, 0, 0);
+    gdImageFill(image, 0, 0, white);
+    gdImageFill(hypImg, 0, 0, white2);
+
+    Matrix_2x2 bounds;
+    /*
+    bounds[0][0] = cameraX;
+    bounds[0][1] = cameraX + (double)FRAME_W / (double)SCALE;
+    bounds[1][0] = (double)MIN_LANE;
+    bounds[1][1] = (double)MAX_LANE + 1.0;
+    Area drawA;
+    drawA.addRect(bounds);
+    */
+
+    List<Rectangle> tmpL;
+    mappingArea.getRectList(tmpL);
+
+    // -1 to account for no hidden vehicles hypothesis
+    require(tmpL.count() == (compatibleHypotheses.count() - 1), "Image::addAreaWithHiddenMap", "Incompatible list sizes");
+
+    // Draw every rectangle in list
+    Rectangle re;
+    Iterator<Rectangle> i(tmpL);
+    Iterator<Tensor5<bool> > thisCompatibleHypItr(compatibleHypotheses);
+    Tensor5<bool> thisCompatibleHyp;
+
+    //skip noHiddenVehicle case
+    thisCompatibleHypItr(thisCompatibleHyp);
+
+    while (i(re) && thisCompatibleHypItr(thisCompatibleHyp))
+    {
+        // ============ DRAW GREY HIDDEN AREA ============
+        re.getBounds(bounds);
+
+        const double width = bounds[0][1] - bounds[0][0];
+        const double height = bounds[1][1] - bounds[1][0];
+
+        const int widthPix = (int)round(SCALE * width);
+        const int heightPix = (int)round(SCALE * height);
+        const int x = (int)round((bounds[0][0] - cameraX) * SCALE);
+        const int y = (int)round(Y_OFFSET - bounds[1][1] * SCALE);
+        gdImageFilledRectangle(image, x, y, x + widthPix, y + heightPix, color);
+        //gdImageRectangle(image, x, y, x + width, y + height, black);
+
+        // ============ DRAW GRID =============
+
+        // Number of dashed lines. -1 is for edges, see Predictor to see how hidden vehicle is placed in x,y
+        const int nVerticalDashedLines = thisCompatibleHyp.Dim1 - 1;
+        const int nHorizontalDashedLines = thisCompatibleHyp.Dim2 - 1;
+        require(nVerticalDashedLines >= 0 && nHorizontalDashedLines >= 0, "Image::addAreaWithHiddenMap", "Negative number of dashed lines?");
+
+        /* x axis ticks */
+        const int nTicksX = 5;
+        for (int xi = 1; xi <= nVerticalDashedLines; xi++)
+            for (int t = 0; t < nTicksX; t++)
+            {
+                gdImageFilledRectangle(image,
+                                       scaleXValue(bounds[0][0] + Predictor::getDeltaX() * xi),
+                                       scaleYValue(bounds[1][1] - height / nTicksX * t) + 1,
+                                       scaleXValue(bounds[0][0] + Predictor::getDeltaX() * xi) + tickWidth,
+                                       scaleYValue(bounds[1][1] - height / nTicksX * t) + 1 + tickLength,
+                                       black);
+            }
+
+        /* x axis ticks */
+        const int nTicksY = 5;
+        for (int yi = 1; yi <= nHorizontalDashedLines; yi++)
+            for (int t = 0; t < nTicksY; t++)
+            {
+                gdImageFilledRectangle(image,
+                                       scaleXValue(bounds[0][0] + width / nTicksY * t) + 1,
+                                       scaleYValue(bounds[1][0] + Predictor::getDeltaY() * yi) + 1,
+                                       scaleXValue(bounds[0][0] + width / nTicksY * t) + 1 + tickLength,
+                                       scaleYValue(bounds[1][0] + Predictor::getDeltaY() * yi) + 1 + tickWidth,
+                                       black);
+            }
+
+        // ========= DRAW HYPOTHESES AS CIRCLES ============
+        for (int xi = 0; xi < thisCompatibleHyp.Dim1; xi++)
+            for (int yi = 0; yi < thisCompatibleHyp.Dim2; yi++)
+            {
+                // first check if there is at least one hypothesis in the x,y point
+                bool found = false;
+                for (int thetai = 0; thetai < thisCompatibleHyp.Dim3; thetai++)
+                {
+                    for (int vi = 0; vi < thisCompatibleHyp.Dim4; vi++)
+                    {
+                        for (int desiredVi = 0; desiredVi < thisCompatibleHyp.Dim5; desiredVi++)
+                        {
+                            if (thisCompatibleHyp(xi, yi, thetai, vi, desiredVi) == true)
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (found)
+                            break;
+                    }
+                    if (found)
+                        break;
+                }
+
+                if (!found)
+                    continue;
+
+                // If it gets here, a valid hypothesis was found
+                
+                // Space location of hypothesis
+                double xHyp;
+                if (xi != thisCompatibleHyp.Dim1 - 1)
+                    xHyp = bounds[0][0] + Predictor::getDeltaX() / 2.0 + xi * Predictor::getDeltaX();
+                else //this case is to account for possible remainder in the ratio. If exact, doesn't change anything
+                    xHyp = (bounds[0][0] + (xi*Predictor::getDeltaX() + bounds[0][1]))/2.0;
+
+                double yHyp;
+                if (yi != thisCompatibleHyp.Dim2 - 1)
+                    yHyp = bounds[1][0] + Predictor::getDeltaY()/2.0 + yi * Predictor::getDeltaY();
+                else //this case is to account for possible remainder in the ratio. If exact, doesn't change anything
+                    yHyp = (bounds[1][0] + (yi*Predictor::getDeltaY() + bounds[1][1]))/2.0;
+
+
+
+                gdImageFilledEllipse(hypImg, scaleXValue(xHyp), scaleYValue(yHyp), 7, 7, blue);
+            }
+
+    }
+
+    gdImageColorTransparent(image, white);
+    gdImageColorTransparent(hypImg, white);
+    gdImageCopyMerge(frame, image, 0, 0, 0, 0, FRAME_W, FRAME_H, AREA_OPACITY);
+    gdImageCopyMerge(frame, hypImg, 0, 0, 0, 0, FRAME_W, FRAME_H, 100);
+}
+
+int Image::scaleXValue(const double& x)
+{
+    return (int)round(SCALE * (x - cameraX));
+}
+
+int Image::scaleYValue(const double& y)
+{
+    return (int)round(Y_OFFSET - y * SCALE);
+}

@@ -17,7 +17,13 @@ FIXME when considering uniform speed error, agent qList does not change as it sh
 #include "systemParms.h"
 #include "utility.h"
 
-const double Predictor::compatibilityCut = 1E10;
+const double Predictor::compatibilityCut = 3;
+const double Predictor::deltaX = VISIBLE_DISTANCE / 8;
+const double Predictor::deltaY = LANE_HEIGHT / 2;
+const double Predictor::deltaTheta = 2 * MAX_THETA / 3;
+const double Predictor::deltaV = 1.0 / 4;
+const double Predictor::deltaDesiredV = 1.0 / 4;
+
 
 /* Function to compute the indexes needed for the numerical derivative calculus */
 void computeIndexes(const int& i, const int& dim, int& iPlus, int& iMinus)
@@ -47,30 +53,16 @@ Predictor::Predictor(const int& aID, const int& monitorIndex, const int& nTSteps
 
 void Predictor::init(const State& aState, const Maneuver& aManeuver, const List<Sensing>& sL)
 {
-
-
 	iAgentState = aState;
 	agentManeuver = aManeuver;
 	sList = sL;
-
-	// Initialize hidden state vector with fixed spacing
-	deltaX = VISIBLE_DISTANCE / 4;
-	deltaY = LANE_HEIGHT / 4;
-	deltaTheta = 2 * MAX_THETA / 3;
-	deltaV = 1.0 / 4;
-	deltaDesiredV = 1.0 / 4;
-
-
-
 }
 
 
 Predictor::~Predictor() {}
 
-void Predictor::run()
+void Predictor::run(const Area& obs)
 {
-
-
 	/* Purge elements */
 	for (int i = 0; i < N_MANEUVER; i++)
 	{
@@ -81,7 +73,6 @@ void Predictor::run()
 		forwardSensorErrors[i].purge();
 		hiddenState[i].purge();
 	}
-
 
 	/*                */
 
@@ -117,12 +108,14 @@ void Predictor::run()
 	}
 
 	tmpEnv.initVehicles(tmpQList, tmpPList);
-	Area obs;
-	Area* hidden = new Area;
 	Area beginningMonitorObs;
 	// NB agent is the first, so index 0
-	tmpEnv.observableArea(0, obs, hidden);
+	if (agentID == 0)
+		std::cout << "obs: " << obs << std::endl;
+
 	tmpEnv.observableArea(nMonitor, beginningMonitorObs);
+	if (agentID == 0)
+		std::cout << "monitorObs: " << beginningMonitorObs << std::endl;
 	/* Hidden area is calculated based on the visibility of
 	 the agent. But we want to add the part hidden to the agent
 	that is visible to the monitored vehicle */
@@ -130,6 +123,8 @@ void Predictor::run()
 	// We map the hidden vehicle in the area visible to the monitored but invisible to the observer
 	mappingArea = beginningMonitorObs - obs;
 	mappingArea.simplify();
+	if (agentID == 0)
+		std::cout << "mappingArea: " << mappingArea << std::endl;
 	/*
 		// case monitored ahead
 		Vector<Vector<double, 2>, 2> newRect;
@@ -197,6 +192,12 @@ void Predictor::run()
 			double ymin = b[1][0];
 			double ymax = b[1][1];
 
+			// Not too close to the road edges
+			if (ymin < (MIN_LANE + LANE_HEIGHT / 5.0))
+				ymin = 0.2;
+
+			if (ymax > (MAX_LANE + 4.0 / 5.0 * LANE_HEIGHT))
+				ymax = MAX_LANE + 4.0 / 5.0 * LANE_HEIGHT;
 
 			if ((xmax <= xmin || ymax <= ymin) && !noHiddenVehicle)
 			{
@@ -210,8 +211,9 @@ void Predictor::run()
 			// if the ratio is not exact, we also take the smaller remainder : x_____x_____x_____x___x
 			if (!noHiddenVehicle)
 			{
-				nX = ceil((xmax - xmin) / deltaX) + 1;
-				nY = ceil((ymax - ymin) / deltaY) + 1;
+				// x, y are in the center of the cells, the others are like in the drawing
+				nX = ceil((xmax - xmin) / deltaX);
+				nY = ceil((ymax - ymin) / deltaY);
 				nTheta = ceil(2 * MAX_THETA / deltaTheta) + 1;
 				nV = ceil(1.0 / deltaV) + 1;
 				nDesiredV = ceil(1.0 / deltaDesiredV) + 1;
@@ -251,16 +253,16 @@ void Predictor::run()
 								// compute state value taking the center of each bin
 								double x, y, theta, v, desiredV;
 
-
+								// WARNING: If mapping is changed, also Image::addAreaWithHidden has to be changed and hiddenCells construction in ReputationManager
 								if (xi != nX - 1)
-									x = xmin + xi * deltaX;
+									x = xmin + deltaX / 2.0 + xi * deltaX;
 								else //this case is to account for possible remainder in the ratio. If exact, doesn't change anything
-									x = xmax;
+									x = (xmin + (nX - 1) * deltaX + xmax) / 2.0;
 
 								if (yi != nY - 1)
-									y = ymin + yi * deltaY;
+									y = ymin + deltaY / 2.0 + yi * deltaY;
 								else //this case is to account for possible remainder in the ratio. If exact, doesn't change anything
-									y = ymax;
+									y = (ymin + (nY - 1) * deltaY + ymax) / 2.0;
 
 								if (thetai != nTheta - 1)
 									theta = -MAX_THETA + thetai * deltaTheta;
@@ -675,9 +677,6 @@ void Predictor::run()
 
 		discrErrors[sigma] = errList;
 	}
-
-
-	delete hidden;
 }
 
 void Predictor::computeDiscrError(Vector<double, 4>& err, const int& listIndex,
@@ -727,34 +726,38 @@ void Predictor::computeDiscrError(Vector<double, 4>& err, const Tensor5<Sensing>
 	double errX = 0, errY = 0, errTheta = 0, errV = 0;
 
 	/* sum of partial derivatives/12 because the error is uniformly distributed */
-	errX += pow(((*monitor)(i + iPlus, j, k, l, m).q.x - (*monitor)(i + iMinus, j, k, l, m).q.x) / double(iPlus - iMinus), 2);
-	errX += pow(((*monitor)(i, j + jPlus, k, l, m).q.x - (*monitor)(i, j + jMinus, k, l, m).q.x) / double(jPlus - jMinus), 2);
-	errX += pow(((*monitor)(i, j, k + kPlus, l, m).q.x - (*monitor)(i, j, k + kMinus, l, m).q.x) / double(kPlus - kMinus), 2);
-	errX += pow(((*monitor)(i, j, k, l + lPlus, m).q.x - (*monitor)(i, j, k, l + lMinus, m).q.x) / double(lPlus - lMinus), 2);
-	errX += pow(((*monitor)(i, j, k, l, m + mPlus).q.x - (*monitor)(i, j, k, l, m + mMinus).q.x) / double(mPlus - mMinus), 2);
+	if (monitor->Dim1 > 1 && monitor->Dim2 > 1)
+	{
+		errX += pow(((*monitor)(i + iPlus, j, k, l, m).q.x - (*monitor)(i + iMinus, j, k, l, m).q.x) / double(iPlus - iMinus), 2);
+		errX += pow(((*monitor)(i, j + jPlus, k, l, m).q.x - (*monitor)(i, j + jMinus, k, l, m).q.x) / double(jPlus - jMinus), 2);
+		errX += pow(((*monitor)(i, j, k + kPlus, l, m).q.x - (*monitor)(i, j, k + kMinus, l, m).q.x) / double(kPlus - kMinus), 2);
+		errX += pow(((*monitor)(i, j, k, l + lPlus, m).q.x - (*monitor)(i, j, k, l + lMinus, m).q.x) / double(lPlus - lMinus), 2);
+		errX += pow(((*monitor)(i, j, k, l, m + mPlus).q.x - (*monitor)(i, j, k, l, m + mMinus).q.x) / double(mPlus - mMinus), 2);
 
-	errY += pow(((*monitor)(i + iPlus, j, k, l, m).q.y - (*monitor)(i + iMinus, j, k, l, m).q.y) / double(iPlus - iMinus), 2);
-	errY += pow(((*monitor)(i, j + jPlus, k, l, m).q.y - (*monitor)(i, j + jMinus, k, l, m).q.y) / double(jPlus - jMinus), 2);
-	errY += pow(((*monitor)(i, j, k + kPlus, l, m).q.y - (*monitor)(i, j, k + kMinus, l, m).q.y) / double(kPlus - kMinus), 2);
-	errY += pow(((*monitor)(i, j, k, l + lPlus, m).q.y - (*monitor)(i, j, k, l + lMinus, m).q.y) / double(lPlus - lMinus), 2);
-	errY += pow(((*monitor)(i, j, k, l, m + mPlus).q.y - (*monitor)(i, j, k, l, m + mMinus).q.y) / double(mPlus - mMinus), 2);
+		errY += pow(((*monitor)(i + iPlus, j, k, l, m).q.y - (*monitor)(i + iMinus, j, k, l, m).q.y) / double(iPlus - iMinus), 2);
+		errY += pow(((*monitor)(i, j + jPlus, k, l, m).q.y - (*monitor)(i, j + jMinus, k, l, m).q.y) / double(jPlus - jMinus), 2);
+		errY += pow(((*monitor)(i, j, k + kPlus, l, m).q.y - (*monitor)(i, j, k + kMinus, l, m).q.y) / double(kPlus - kMinus), 2);
+		errY += pow(((*monitor)(i, j, k, l + lPlus, m).q.y - (*monitor)(i, j, k, l + lMinus, m).q.y) / double(lPlus - lMinus), 2);
+		errY += pow(((*monitor)(i, j, k, l, m + mPlus).q.y - (*monitor)(i, j, k, l, m + mMinus).q.y) / double(mPlus - mMinus), 2);
 
-	errTheta += pow(((*monitor)(i + iPlus, j, k, l, m).q.theta - (*monitor)(i + iMinus, j, k, l, m).q.theta) / double(iPlus - iMinus), 2);
-	errTheta += pow(((*monitor)(i, j + jPlus, k, l, m).q.theta - (*monitor)(i, j + jMinus, k, l, m).q.theta) / double(jPlus - jMinus), 2);
-	errTheta += pow(((*monitor)(i, j, k + kPlus, l, m).q.theta - (*monitor)(i, j, k + kMinus, l, m).q.theta) / double(kPlus - kMinus), 2);
-	errTheta += pow(((*monitor)(i, j, k, l + lPlus, m).q.theta - (*monitor)(i, j, k, l + lMinus, m).q.theta) / double(lPlus - lMinus), 2);
-	errTheta += pow(((*monitor)(i, j, k, l, m + mPlus).q.theta - (*monitor)(i, j, k, l, m + mMinus).q.theta) / double(mPlus - mMinus), 2);
+		errTheta += pow(((*monitor)(i + iPlus, j, k, l, m).q.theta - (*monitor)(i + iMinus, j, k, l, m).q.theta) / double(iPlus - iMinus), 2);
+		errTheta += pow(((*monitor)(i, j + jPlus, k, l, m).q.theta - (*monitor)(i, j + jMinus, k, l, m).q.theta) / double(jPlus - jMinus), 2);
+		errTheta += pow(((*monitor)(i, j, k + kPlus, l, m).q.theta - (*monitor)(i, j, k + kMinus, l, m).q.theta) / double(kPlus - kMinus), 2);
+		errTheta += pow(((*monitor)(i, j, k, l + lPlus, m).q.theta - (*monitor)(i, j, k, l + lMinus, m).q.theta) / double(lPlus - lMinus), 2);
+		errTheta += pow(((*monitor)(i, j, k, l, m + mPlus).q.theta - (*monitor)(i, j, k, l, m + mMinus).q.theta) / double(mPlus - mMinus), 2);
 
-	errV += pow(((*monitor)(i + iPlus, j, k, l, m).q.v - (*monitor)(i + iMinus, j, k, l, m).q.v) / double(iPlus - iMinus), 2);
-	errV += pow(((*monitor)(i, j + jPlus, k, l, m).q.v - (*monitor)(i, j + jMinus, k, l, m).q.v) / double(jPlus - jMinus), 2);
-	errV += pow(((*monitor)(i, j, k + kPlus, l, m).q.v - (*monitor)(i, j, k + kMinus, l, m).q.v) / double(kPlus - kMinus), 2);
-	errV += pow(((*monitor)(i, j, k, l + lPlus, m).q.v - (*monitor)(i, j, k, l + lMinus, m).q.v) / double(lPlus - lMinus), 2);
-	errV += pow(((*monitor)(i, j, k, l, m + mPlus).q.v - (*monitor)(i, j, k, l, m + mMinus).q.v) / double(mPlus - mMinus), 2);
+		errV += pow(((*monitor)(i + iPlus, j, k, l, m).q.v - (*monitor)(i + iMinus, j, k, l, m).q.v) / double(iPlus - iMinus), 2);
+		errV += pow(((*monitor)(i, j + jPlus, k, l, m).q.v - (*monitor)(i, j + jMinus, k, l, m).q.v) / double(jPlus - jMinus), 2);
+		errV += pow(((*monitor)(i, j, k + kPlus, l, m).q.v - (*monitor)(i, j, k + kMinus, l, m).q.v) / double(kPlus - kMinus), 2);
+		errV += pow(((*monitor)(i, j, k, l + lPlus, m).q.v - (*monitor)(i, j, k, l + lMinus, m).q.v) / double(lPlus - lMinus), 2);
+		errV += pow(((*monitor)(i, j, k, l, m + mPlus).q.v - (*monitor)(i, j, k, l, m + mMinus).q.v) / double(mPlus - mMinus), 2);
+	}
 
 	err[0] = sqrt(errX / 12.0);
 	err[1] = sqrt(errY / 12.0);
 	err[2] = sqrt(errTheta / 12.0);
 	err[3] = sqrt(errV / 12.0);
+
 
 }
 

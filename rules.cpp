@@ -697,6 +697,7 @@ void initRules(Vector<SubEvent, N_SUB_EVENT>& se, Vector<Event, N_EVENT>& e,
 
     seList.insTail(&se[1]);
     seList.insTail(&se[4]);
+    seList.insTail(&se[9]); 
     seList.insTail(&se[31]);
     e[k].init(seList, k);
     seList.purge();

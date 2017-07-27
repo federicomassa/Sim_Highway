@@ -15,6 +15,8 @@
 #include "Logger.h"
 #include "Rectangle.h"
 
+class State;
+
 extern Logger LOG;
 
 /*!
@@ -145,6 +147,8 @@ public:
      * @return True if the point belongs to this area, false otherwise.
      */
     bool contains(const Vector<double, Q_DIM>& point) const;
+    bool contains(const State& q) const;
+
     /*!
      * \brief Check if this area contains a rectangle.
      *
