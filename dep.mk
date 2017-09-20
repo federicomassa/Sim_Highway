@@ -28,7 +28,7 @@ SensorErrorSimulator.o: SensorErrorSimulator.cpp SensorErrorSimulator.h Sensing.
 rules.o: rules.cpp rules.h Area.h Transition.h systemParms.h systemTypes.h Vector.h Logger.h Rectangle.h Event.h Failure.h EndLine.h utility.h Configuration.h definition.h List.h SubEvent.h State.h Iterator.h ExtValue.h EvalMode.h 
 Transition.o: Transition.cpp Transition.h Event.h SubEvent.h Area.h EndLine.h ExtValue.h List.h Logger.h systemTypes.h utility.h Rectangle.h EvalMode.h Iterator.h Configuration.h definition.h Failure.h Vector.h State.h systemParms.h 
 EndLine.o: EndLine.cpp EndLine.h 
-Configuration.o: Configuration.cpp Configuration.h EndLine.h List.h systemTypes.h utility.h State.h Iterator.h Failure.h systemParms.h Vector.h 
+Configuration.o: Configuration.cpp Configuration.h utility.h EndLine.h List.h systemTypes.h State.h Iterator.h Failure.h systemParms.h Vector.h 
 Hypothesis.o: Hypothesis.cpp Hypothesis.h Area.h Logger.h Rectangle.h Configuration.h definition.h EndLine.h List.h utility.h Vector.h systemTypes.h State.h Iterator.h Failure.h systemParms.h 
 Event.o: Event.cpp Event.h SubEvent.h Area.h EndLine.h ExtValue.h List.h Logger.h systemTypes.h utility.h Rectangle.h EvalMode.h Iterator.h Configuration.h definition.h Failure.h Vector.h State.h systemParms.h 
 Neighborhood.o: Neighborhood.cpp Neighborhood.h Sensing.h ExtValue.h catch.hpp List.h Hypothesis.h Reputation.h Area.h EndLine.h systemTypes.h State.h EvalMode.h Iterator.h Logger.h Rectangle.h Failure.h systemParms.h utility.h Vector.h Configuration.h definition.h 

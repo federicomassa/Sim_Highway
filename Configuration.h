@@ -32,7 +32,7 @@ public:
     List<int> activeReputationManagers;
     bool allReputationManagersActive;
     /* active target list */
-    List<int> activeTargets;
+    List<std::pair<int, int> > activeTargets;
     bool allTargetsActive;
     /* split view */
     bool splitView;

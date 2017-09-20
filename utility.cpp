@@ -162,3 +162,14 @@ double ceilPrecision(const double& n, const int& precision)
     return x;
 }
 
+std::vector<std::string> split(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    split(s, delim, std::back_inserter(elems));
+    return elems;
+}
+
+std::ostream& operator<<(std::ostream& os, const std::pair<int, int>& pair)
+    {
+        os << "(" << pair.first << ", " << pair.second << ")";
+        return os;
+    }

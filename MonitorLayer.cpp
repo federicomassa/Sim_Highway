@@ -13,6 +13,8 @@
 #include "Environment.h"
 #include <utility>
 
+using namespace std;
+
 MonitorLayer::~MonitorLayer()
 {
     /* delete the monitors in the list */
@@ -117,8 +119,26 @@ void MonitorLayer::run(const List<Sensing>& sList, const State& agentQ, const Ma
     while (i(s))
     {
         /* check if the target id is in the active targets list */
-        if (!CONF.allTargetsActive && !CONF.activeTargets.belongs(s.agentID))
-            continue;
+        if (!CONF.allTargetsActive)
+        {
+            bool foundTarget = false;
+
+            Iterator<pair<int, int> > activeTargetsItr(CONF.activeTargets);
+            pair<int, int> thisPair;
+
+            while (activeTargetsItr(thisPair))
+            {
+                // if -1 it means that this target is monitored by everyone --- se Configuration
+                if (thisPair.first == s.agentID && (thisPair.second == -1 || thisPair.second == agentID))
+                {
+                    foundTarget = true;
+                    break;
+                }
+            }
+
+            if (!foundTarget)
+                continue;
+        }
 
         /* Look for correspondence between vehicles index in environment and in sList */
         int monitorIndex = -1;

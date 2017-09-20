@@ -14,6 +14,7 @@
 #include "Sensing.h"
 #include "ExtValue.h"
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -223,7 +224,31 @@ void Neighborhood::intersectionWith(const Neighborhood& n, Sensing*& foundNewVeh
     else
     {
       // more than one hidden agent case, what do we do?
-      error("Neighborhood::intersectionWith", "Found more than one hidden agent. How do we handle this?");
+      std::cout << "Neighborhood::intersectionWith --- Found more than one hidden agent. Using closest one" << std::endl;
+      Sensing closestNeigh;
+      double distance = 1E9;
+
+      // handle hypotheses merging
+      Iterator<Sensing> postItr(postIntersectNeighbors);
+      Sensing postS;
+
+      while (postItr(postS))
+      {
+        Sensing preS;
+        if (!preIntersectNeighbors.find(postS, preS))
+        {
+          double d = pow(postS.q.x - qTarget.x,2) - pow(postS.q.y - qTarget.y, 2);
+          if (d < distance)
+          {
+            distance = d; 
+            closestNeigh = postS;
+          }
+        }
+      }
+
+      foundNewVehicle = new Sensing(closestNeigh);
+
+
     }
   }
 
@@ -388,6 +413,9 @@ map<pair<Maneuver, Maneuver>, RepLevel> Neighborhood::getTargetReputation() cons
           continue;
         }
       }
+
+      // Now examine if current transition is compatible with hidden vehicles
+
     }
   }
 

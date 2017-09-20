@@ -15,6 +15,7 @@
 #include "EndLine.h"
 #include "Iterator.h"
 #include <iostream>
+#include <utility>
 /*!
  * This template represents a list of elements of type T with several typical
  * methods implemented. Note that, in order to use this template, operators ==
@@ -55,6 +56,7 @@ class List
 
         return os;
     }
+
     /*!
      * \brief Redefinition of operator ==.
      *

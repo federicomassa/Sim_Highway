@@ -17,7 +17,7 @@ FIXME when considering uniform speed error, agent qList does not change as it sh
 #include "systemParms.h"
 #include "utility.h"
 
-const double Predictor::compatibilityCut = 3;
+const double Predictor::compatibilityCut = 10;
 const double Predictor::deltaX = VISIBLE_DISTANCE / 8;
 const double Predictor::deltaY = LANE_HEIGHT / 2;
 const double Predictor::deltaTheta = 2 * MAX_THETA / 3;

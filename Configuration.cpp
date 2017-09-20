@@ -1,7 +1,9 @@
 
 #include "Configuration.h"
+#include "utility.h"
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 using namespace std;
 
@@ -222,15 +224,23 @@ void Configuration::parseConf(const string& fileName)
             while(!inFile.eof())
             {
                 getline(inFile, str, '\n');
+
                 line++;
                 if(str.empty())
                     break;
                 if(str[0] == '#')
                     continue;
-                stringstream token(str);
-                int index;
-                token >> index;
-                activeTargets.insTail(index);
+                
+                vector<string> elements = split(str, ' ');
+
+                // index -1 means that every observer has this as target
+                if (elements.size() == 1)
+                    activeTargets.insTail(make_pair(atoi(elements[0].c_str()), -1));
+                else if (elements.size() == 2)
+                    activeTargets.insTail(make_pair(atoi(elements[0].c_str()), atoi(elements[1].c_str())));
+                else
+                    error("Configuration::parseConf", "Targets line should contain 1 or 2 entries, the target and the observer for that target");
+
             }
             continue;
 		}
@@ -267,7 +277,7 @@ void Configuration::parseConf(const string& fileName)
             activeReputationManagers.insTail(i);
     if(allTargetsActive)
         for(int i = 0; i < nV; i++)
-            activeTargets.insTail(i);
+            activeTargets.insTail(make_pair(i, -1));
 }
 
 ostream& operator<<(ostream& os, const Configuration& c)

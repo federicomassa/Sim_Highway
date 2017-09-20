@@ -15,6 +15,10 @@
 #include <new>
 #include <string>
 #include <sstream>
+#include <vector>
+#include <iterator>
+
+
 
 /**
  * this function gives information about a specific error and it terminates
@@ -52,5 +56,23 @@ template<typename T> void check(T* pointer)
 inline int size(int i) { return sizeof(i); }
 
 inline int size(double d) { return sizeof(d); }
+
+
+
+template<typename Out>
+void split(const std::string &s, char delim, Out result) {
+    std::stringstream ss;
+    ss.str(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        *(result++) = item;
+    }
+}
+
+
+std::vector<std::string> split(const std::string &s, char delim);
+
+std::ostream& operator<<(std::ostream& os, const std::pair<int, int>& pair);
+
 
 #endif

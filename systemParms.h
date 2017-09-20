@@ -31,7 +31,7 @@
 #define B_FORWARD 0.005
 #define GAMMA 10
 
-#define D_REF 2
+#define D_REF 2.5
 
 #define K_LEADER B_BACK*GAMMA/10.0
 //#define V_REF 0.5*MAX_SPEED
