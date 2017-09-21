@@ -168,8 +168,4 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return elems;
 }
 
-std::ostream& operator<<(std::ostream& os, const std::pair<int, int>& pair)
-    {
-        os << "(" << pair.first << ", " << pair.second << ")";
-        return os;
-    }
+

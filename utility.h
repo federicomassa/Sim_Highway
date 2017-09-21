@@ -49,8 +49,8 @@ double ceilPrecision(const double& x, const int& precision);
 
 template<typename T> void check(T* pointer)
 {
-  if (pointer == NULL)
-    error("utility::check", "Found null pointer");
+	if (pointer == NULL)
+		error("utility::check", "Found null pointer");
 }
 
 inline int size(int i) { return sizeof(i); }
@@ -61,18 +61,23 @@ inline int size(double d) { return sizeof(d); }
 
 template<typename Out>
 void split(const std::string &s, char delim, Out result) {
-    std::stringstream ss;
-    ss.str(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        *(result++) = item;
-    }
+	std::stringstream ss;
+	ss.str(s);
+	std::string item;
+	while (std::getline(ss, item, delim)) {
+		*(result++) = item;
+	}
 }
 
 
 std::vector<std::string> split(const std::string &s, char delim);
 
-std::ostream& operator<<(std::ostream& os, const std::pair<int, int>& pair);
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const std::pair<T, T>& pair)
+{
+	os << "(" << pair.first << ", " << pair.second << ")";
+	return os;
+}
 
 
 #endif
